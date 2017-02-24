@@ -14,6 +14,7 @@ import commands
 from astropy.io import ascii as asc
 from astropy.io import fits
 from astropy import log
+import astropy.units as u
 
 import numpy as np
 
@@ -32,9 +33,12 @@ zscale = ZScaleInterval()
 from astropy.visualization.mpl_normalize import ImageNormalize
 from photutils import CircularAperture
 
+from astropy.nddata import Cutout2D
+
 from matplotlib.backends.backend_pdf import PdfPages
 
 out_cat_dir = 'daofind/' # + on 23/02/2017
+
 
 def get_seqno(files):
     # + on 23/02/2017
@@ -46,7 +50,7 @@ def get_seqno(files):
 def get_files(path0):
     # + on 23/02/2017
     # Later Mod on 23/02/2017 for seqno
-    files = glob.glob(path0+'/*fits*')
+    files = glob.glob(path0+'*fits*') #Mod on 23/02/2017
     seqno = get_seqno(files) # Later + on 23/02/2017
 
     s_idx = np.argsort(np.array(seqno))
@@ -90,8 +94,7 @@ def find_stars(files=None, path0=None, plot=False, out_pdf_plot=None,
       List of files
 
     path0 : string
-      Path to files. If not provided it is assumed that [files] has the full
-      path name
+      Directory path to files.
 
     silent : boolean
       Turns off stdout messages. Default: False
@@ -119,25 +122,24 @@ def find_stars(files=None, path0=None, plot=False, out_pdf_plot=None,
 
     if files == None and path0 != None:
         files, seqno = get_files(path0)
-        path0 = None # Reset since files will have full path
+        # path0 = None # Reset since files will have full path
     else:
         if files != None: seqno = get_seqno(files)
 
-    dir0 = path0 if path0 != None else os.path.dirname(files[0])+'/'
-
     # Later + on 23/02/2017
-    if not exists(dir0+out_cat_dir):
-        if silent == False: log.info('Creating : '+dir0+out_cat_dir)
-        os.mkdir(dir0+out_cat_dir)
+    out_cat_dir0 = path0+out_cat_dir
+    if not exists(out_cat_dir0):
+        if silent == False: log.info('Creating : '+out_cat_dir0)
+        os.mkdir(out_cat_dir0)
 
-    if path0 == None: s_date = dir0.split('/')[-2]
+    s_date = path0.split('/')[-1]
 
     if plot == True:
         if out_pdf_plot == None:
-            out_pdf_plot = dir0+'/find_stars.pdf'
+            out_pdf_plot = path0+'find_stars.pdf'
         pp = PdfPages(out_pdf_plot)
 
-    for ff in xrange(40,47): #len(files)):
+    for ff in xrange(len(files)):
         basename = os.path.basename(files[ff])
         image = fits.getdata(files[ff])
         mean, median, std = sigma_clipped_stats(image, sigma=2.0, iters=5)
@@ -169,8 +171,7 @@ def find_stars(files=None, path0=None, plot=False, out_pdf_plot=None,
         if ff == 0 and silent == False: s_cat.pprint()
 
         # + on 23/02/2017
-        out_cat = dir0+out_cat_dir+\
-                  basename.replace('.fits.gz','.tbl').replace('.fits','.tbl')
+        out_cat = out_cat_dir0+basename.replace('.fits.gz','.tbl').replace('.fits','.tbl')
         s_cat.write(out_cat, format='ascii.fixed_width_two_line',
                     overwrite=True)
 
@@ -215,6 +216,85 @@ def find_stars(files=None, path0=None, plot=False, out_pdf_plot=None,
     if silent == False: log.info('### End: '+systime())
 #enddef
 
+def make_postage(files=None, path0=None, n_stack=5, size=50,
+                 silent=False, verbose=True):
+    '''
+    Create cut-outs and median stack to produce image of the
+    point-spread function
+
+    Parameters
+    ----------
+    files : list
+      List of files
+
+    path0 : string
+      Path to files. If not provided it is assumed that [files] has the full
+      path name
+
+    silent : boolean
+      Turns off stdout messages. Default: False
+
+    verbose : boolean
+      Turns on additional stdout messages. Default: True
+
+    Returns
+    -------
+
+    Notes
+    -----
+    Created by Chun Ly, 23 February 2017
+    '''
+
+    if files == None and path0 == None:
+        log.error('files and path0 keywords not provided')
+        log.error('Exiting!!!')
+        return
+
+    if silent == False: log.info('### Begin: '+systime())
+
+    if files == None and path0 != None:
+        files, seqno = get_files(path0)
+        # path0 = None # Reset since files will have full path
+    else:
+        if files != None: seqno = get_seqno(files)
+
+    post_dir0 = path0 + 'post/'
+    if not exists(post_dir0):
+        if silent == False: log.info('Creating : '+post_dir0)
+        os.mkdir(post_dir0)
+
+    out_cat_dir0 = path0+out_cat_dir
+    for ff in xrange(len(files)):
+        basename = os.path.basename(files[ff])
+        image = fits.getdata(files[ff])
+        mean, median, std = sigma_clipped_stats(image, sigma=2.0, iters=5)
+        image_sub = image - median
+
+        in_cat = out_cat_dir0+basename.replace('.fits.gz','.tbl').\
+                 replace('.fits','.tbl')
+        s_cat  = asc.read(in_cat, format='fixed_width_two_line')
+
+        n_bright = np.min([n_stack,len(s_cat)])
+        bright   = range(n_bright)
+        s_cat    = s_cat[bright]
+
+        x0 = np.round_(s_cat['xcentroid'])
+        y0 = np.round_(s_cat['ycentroid'])
+
+        im0 = np.zeros( (len(bright), size, size))
+        size2d = u.Quantity((size, size), u.pixel)
+        for ii in range(n_bright):
+            pos0 = (x0[ii], y0[ii])
+            cutout = Cutout2D(image_sub, pos0, size2d).data
+            im0[ii] = cutout/np.max(cutout)
+
+        out_fits = post_dir0+seqno[ff]+'.fits'
+        psf_im = np.median(im0, axis=0)
+        fits.writeto(out_fits, psf_im, overwrite=True)
+
+    if silent == False: log.info('### End: '+systime())
+#enddef
+
 def run_all(files=None, path0=None, silent=False, verbose=True):
     '''
     Run all functions related to MMTCam analysis
@@ -233,7 +313,7 @@ def run_all(files=None, path0=None, silent=False, verbose=True):
 
     verbose : boolean
       Turns on additional stdout messages. Default: True
-	  
+
     Returns
     -------
 
@@ -251,7 +331,7 @@ def run_all(files=None, path0=None, silent=False, verbose=True):
 
     if files == None and path0 != None:
         files, seqno = get_files(path0)
-        path0 = None # Reset since files will have full path
+        # path0 = None # Reset since files will have full path
 
     if silent == False:
         log.info('The following files will be analyzed from : ')
@@ -259,5 +339,6 @@ def run_all(files=None, path0=None, silent=False, verbose=True):
         for file in files: log.info(os.path.basename(file))
 
     find_stars(files=files, path0=path0, plot=True, verbose=False)
+    make_postage(files=files, path0=path0, verbose=False)
 
     if silent == False: log.info('### End: '+systime())
