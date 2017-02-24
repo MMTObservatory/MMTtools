@@ -25,21 +25,27 @@ from astropy.table import Table
 from astropy.stats import sigma_clipped_stats
 from photutils import DAOStarFinder
 
-from astropy.visualization import SqrtStretch
+# Mod on 23/02/2017 to use IRAF's zscale intervals
+from astropy.visualization import ZScaleInterval
+zscale = ZScaleInterval()
+#from astropy.visualization import SqrtStretch
 from astropy.visualization.mpl_normalize import ImageNormalize
 from photutils import CircularAperture
-norm = ImageNormalize(stretch=SqrtStretch())
 
 from matplotlib.backends.backend_pdf import PdfPages
 
+out_cat_dir = 'daofind/' # + on 23/02/2017
+
 def get_seqno(files):
+    # + on 23/02/2017
     t_files = [os.path.basename(file) for file in files]
     seqno = [file.replace('.fits.gz','').replace('.fits','').split('.')[1] for
              file in t_files]
     return np.array(seqno)
 
 def get_files(path0):
-    # Later Mod on 23/02/2017
+    # + on 23/02/2017
+    # Later Mod on 23/02/2017 for seqno
     files = glob.glob(path0+'/*fits*')
     seqno = get_seqno(files) # Later + on 23/02/2017
 
@@ -48,6 +54,30 @@ def get_files(path0):
     files = np.array(files)[s_idx]
     return files, seqno[s_idx]
 #enddef
+
+def remove_dup_sources(s_cat):
+    # + on 23/02/2017
+    n_sources = len(s_cat)
+
+    bad = []
+    x0 = s_cat['xcentroid']
+    y0 = s_cat['ycentroid']
+
+    for nn in xrange(n_sources):
+        t_idx  = np.arange(nn+1,n_sources)
+        x_diff, y_diff = x0[t_idx]-x0[nn], y0[t_idx]-y0[nn]
+        i_match = np.where(np.sqrt(x_diff**2 + y_diff**2) <= 15.0)[0]
+        if len(i_match) > 0:
+            i_match = t_idx[i_match]
+            if len(i_match) == 1:
+                if s_cat[i_match]['peak'] < s_cat[nn]['peak']:
+                    bad += [i_match.tolist()[0]]
+                else:
+                    bad += [nn]
+            else:
+                print nn, 'too many'
+                bad += i_match.tolist()
+    return bad
 
 def find_stars(files=None, path0=None, plot=False, out_pdf_plot=None,
                silent=False, verbose=True):
@@ -75,6 +105,9 @@ def find_stars(files=None, path0=None, plot=False, out_pdf_plot=None,
     Notes
     -----
     Created by Chun Ly, 23 February 2017
+     - Later modified to plot images and overlay sources
+     - Adjust scale to using IRAF's zscale
+     - Call remove_dup_sources()
     '''
 
     if silent == False: log.info('### Begin: '+systime())
@@ -88,32 +121,66 @@ def find_stars(files=None, path0=None, plot=False, out_pdf_plot=None,
         files, seqno = get_files(path0)
         path0 = None # Reset since files will have full path
     else:
-        seqno = get_seqno(files)
+        if files != None: seqno = get_seqno(files)
 
-    if path0 == None:
-        s_date = os.path.dirname(files[0]).split('/')[-1]
+    dir0 = path0 if path0 != None else os.path.dirname(files[0])+'/'
+
+    # Later + on 23/02/2017
+    if not exists(dir0+out_cat_dir):
+        if silent == False: log.info('Creating : '+dir0+out_cat_dir)
+        os.mkdir(dir0+out_cat_dir)
+
+    if path0 == None: s_date = dir0.split('/')[-2]
 
     if plot == True:
         if out_pdf_plot == None:
-            out_pdf_plot = os.path.dirname(files[0])+'/find_stars.pdf'
+            out_pdf_plot = dir0+'/find_stars.pdf'
         pp = PdfPages(out_pdf_plot)
 
-    for ff in xrange(len(files)):
+    for ff in xrange(40,47): #len(files)):
+        basename = os.path.basename(files[ff])
         image = fits.getdata(files[ff])
-        mean, median, std = sigma_clipped_stats(image, sigma=3.0, iters=5)    
+        mean, median, std = sigma_clipped_stats(image, sigma=2.0, iters=5)
+        image_sub = image - median
+
         if verbose == True:
-            log.info('%s : %f %f %f' % (seqno[ff], mean, median, std))
-        daofind = DAOStarFinder(fwhm=8.0, threshold=10.*std)    
-        s_cat = daofind(image - median)
+            log.info('%s mean/med/sig: %f %f %f' %
+                     (seqno[ff], mean, median, std))
+        #Later Mod on 23/02/2017 to lower threshold
+        daofind = DAOStarFinder(fwhm=8.0, threshold=5.*std)
+        s_cat = daofind(image_sub)
 
         # Exclude saturated objects
         unsat = np.where(s_cat['peak'] <= 60000.0)[0]
-        sat   = np.where(s_cat['peak'] > 60000.0)[0]
+        sat   = np.where(s_cat['peak'] >  60000.0)[0]
         cat_sat = s_cat[sat]
         s_cat = s_cat[unsat]
         s_cat.sort(['peak'])
         s_cat.reverse()
-        if ff == 0: s_cat.pprint()
+        # s_cat.pprint()
+
+        # Later + on 23/02/2017
+        bad = remove_dup_sources(s_cat)
+        print bad
+        if len(bad) > 0:
+            cat_bad = s_cat[bad]
+            s_cat.remove_rows(bad)
+
+        if ff == 0 and silent == False: s_cat.pprint()
+
+        # + on 23/02/2017
+        out_cat = dir0+out_cat_dir+\
+                  basename.replace('.fits.gz','.tbl').replace('.fits','.tbl')
+        s_cat.write(out_cat, format='ascii.fixed_width_two_line',
+                    overwrite=True)
+
+        # Later + on 23/02/2017
+        if len(bad) >0 and verbose == True:
+            log.info('The following will be removed : ')
+            cat_bad.pprint()
+            out_cat_bad = out_cat.replace('.tbl','.bad.tbl')
+            cat_bad.write(out_cat_bad, format='ascii.fixed_width_two_line',
+                          overwrite=True)
 
         if plot == True:
             pos0  = (s_cat['xcentroid'], s_cat['ycentroid'])
@@ -122,10 +189,17 @@ def find_stars(files=None, path0=None, plot=False, out_pdf_plot=None,
             pos0      = (cat_sat['xcentroid'], cat_sat['ycentroid'])
             sat_aper0 = CircularAperture(pos0, r=8.)
 
+            pos0      = (cat_bad['xcentroid'], cat_bad['ycentroid'])
+            bad_aper0 = CircularAperture(pos0, r=8.)
+
             fig, ax = plt.subplots()
-            ax.imshow(image-median, cmap='Greys', origin='lower', norm=norm)
+            z1, z2 = zscale.get_limits(image_sub)
+            print z1, z2
+            norm = ImageNormalize(vmin=z1, vmax=z2) #stretch=SqrtStretch())
+            ax.imshow(image_sub, cmap='Greys', origin='lower', norm=norm)
             aper0.plot(color='blue', lw=1.5, alpha=0.5)
             sat_aper0.plot(color='red', lw=1.5, alpha=0.5)
+            bad_aper0.plot(color='magenta', lw=1.5, alpha=0.5)
 
             t_ann = s_date+'/'+os.path.basename(files[ff])
             ax.annotate(t_ann, [0.025,0.975], xycoords='axes fraction',
@@ -184,6 +258,6 @@ def run_all(files=None, path0=None, silent=False, verbose=True):
         log.info(path0)
         for file in files: log.info(os.path.basename(file))
 
-    find_stars(files=files, path0=path0, plot=True)
+    find_stars(files=files, path0=path0, plot=True, verbose=False)
 
     if silent == False: log.info('### End: '+systime())
