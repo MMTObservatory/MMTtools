@@ -297,6 +297,84 @@ def make_postage(files=None, path0=None, n_stack=5, size=50,
     if silent == False: log.info('### End: '+systime())
 #enddef
 
+def psf_contours(files=None, path0=None, out_pdf_plot=None, silent=False, verbose=True):
+    '''
+    Generate contour plots for the MMTCam PSF
+
+    Parameters
+    ----------
+    files : list
+      List of files
+
+    path0 : string
+      Path to files. If not provided it is assumed that [files] has the full
+      path name
+
+    silent : boolean
+      Turns off stdout messages. Default: False
+
+    verbose : boolean
+      Turns on additional stdout messages. Default: True
+
+    Returns
+    -------
+
+    Notes
+    -----
+    Created by Chun Ly, 4 February 2017
+    '''
+
+    if files == None and path0 == None:
+        log.error('files and path0 keywords not provided')
+        log.error('Exiting!!!')
+        return
+
+    if silent == False: log.info('### Begin psf_contours: '+systime())
+
+    if files == None and path0 != None:
+        files, seqno = get_files(path0)
+    else:
+        if files != None: seqno = get_seqno(files)
+
+    post_dir0 = path0 + 'post/'
+
+    if out_pdf_plot == None: out_pdf_plot = path0+'psf_contours.pdf'
+
+    pp = PdfPages(out_pdf_plot)
+
+    pscale = 0.16 * u.arcsec
+    ncols, nrows = 3, 3
+    for ff in xrange(len(files)):
+        psf_file = post_dir0+seqno[ff]+'.fits'
+        psf_im   = fits.getdata(psf_file)
+        psf_im  /= np.max(psf_im)
+
+        if ff == 0:
+            x0 = pscale*np.arange(psf_im.shape[0])
+            y0 = pscale*np.arange(psf_im.shape[1])
+
+        if ff % (ncols*nrows) == 0:
+            fig, ax = plt.subplots(nrows, ncols)
+
+        row, col = ff / ncols % nrows, ff % ncols
+
+        ax[row,col].contour(x0,y0,psf_im, levels=0.2+0.1*np.arange(9))
+
+        if row == nrows-1 or ff ==len(files)-1:
+            ax[row,col].set_xlabel('X [arcsec]')
+        if col == 0:       ax[row,col].set_ylabel('Y [arcsec]')
+
+        ax[row,col].annotate(seqno[ff], [0.025,0.975],
+                             xycoords='axes fraction', ha='left', va='top')
+
+        if ff % (ncols*nrows) == ncols*nrows-1 or ff == len(files)-1:
+            fig.savefig(pp, format='pdf', bbox_inches='tight')
+    #endfor
+
+    pp.close()
+    if silent == False: log.info('### End psf_contours: '+systime())
+#enddef
+
 def run_all(files=None, path0=None, silent=False, verbose=True):
     '''
     Run all functions related to MMTCam analysis
@@ -342,5 +420,6 @@ def run_all(files=None, path0=None, silent=False, verbose=True):
 
     find_stars(files=files, path0=path0, plot=True, verbose=False)
     make_postage(files=files, path0=path0, verbose=False)
+    psf_contours(files=files, path0=path0, verbose=False)
 
     if silent == False: log.info('### End: '+systime())
