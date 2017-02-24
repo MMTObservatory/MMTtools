@@ -37,6 +37,7 @@ from photutils import CircularAperture
 from astropy.nddata import Cutout2D
 
 from matplotlib.backends.backend_pdf import PdfPages
+from pylab import subplots_adjust # + on 24/02/2017
 
 out_cat_dir = 'daofind/' # + on 23/02/2017
 
@@ -206,7 +207,7 @@ def find_stars(files=None, path0=None, plot=False, out_pdf_plot=None,
             t_ann = s_date+'/'+os.path.basename(files[ff])
             ax.annotate(t_ann, [0.025,0.975], xycoords='axes fraction',
                          ha='left', va='top')
-            fig.savefig(pp, format='pdf', bbox_inches='tight')
+            fig.savefig(pp, format='pdf') #, bbox_inches='tight')
 
     #endfor
     if plot == True:
@@ -321,7 +322,8 @@ def psf_contours(files=None, path0=None, out_pdf_plot=None, silent=False, verbos
 
     Notes
     -----
-    Created by Chun Ly, 4 February 2017
+    Created by Chun Ly, 24 February 2017
+     - Later mod to handle plotting styles
     '''
 
     if files == None and path0 == None:
@@ -350,8 +352,9 @@ def psf_contours(files=None, path0=None, out_pdf_plot=None, silent=False, verbos
         psf_im  /= np.max(psf_im)
 
         if ff == 0:
-            x0 = pscale*np.arange(psf_im.shape[0])
-            y0 = pscale*np.arange(psf_im.shape[1])
+            shape0 = psf_im.shape
+            x0 = pscale*np.arange(-1*shape0[0]/2.0,shape0[0]/2.0)
+            y0 = pscale*np.arange(-1*shape0[1]/2.0,shape0[1]/2.0)
 
         if ff % (ncols*nrows) == 0:
             fig, ax = plt.subplots(nrows, ncols)
@@ -359,15 +362,34 @@ def psf_contours(files=None, path0=None, out_pdf_plot=None, silent=False, verbos
         row, col = ff / ncols % nrows, ff % ncols
 
         ax[row,col].contour(x0,y0,psf_im, levels=0.2+0.1*np.arange(9))
+        #if ff == 0: xticklabels = ax[row,col].get_xticklabels()
 
-        if row == nrows-1 or ff ==len(files)-1:
+        if row == nrows-1:
             ax[row,col].set_xlabel('X [arcsec]')
-        if col == 0:       ax[row,col].set_ylabel('Y [arcsec]')
+        else:
+            if ((len(files)-1)-ff) < ncols-1:
+                ax[row,col].set_xticklabels([])
 
-        ax[row,col].annotate(seqno[ff], [0.025,0.975],
+        if ff == len(files)-1:
+            for cc in range(ncols):
+                ax[row,cc].set_xlabel('X [arcsec]')
+
+        if col == 0:
+            ax[row,col].set_ylabel('Y [arcsec]')
+        else: ax[row,col].set_yticklabels([])
+
+        ax[row,col].annotate(seqno[ff], [0.025,0.975], weight='bold',
                              xycoords='axes fraction', ha='left', va='top')
 
+        if ff == len(files)-1:
+            for cc in range(col+1,ncols): ax[row,cc].axis('off')
+            for rr in range(row+1,nrows):
+                for cc in range(ncols): ax[rr,cc].axis('off')
+
         if ff % (ncols*nrows) == ncols*nrows-1 or ff == len(files)-1:
+            subplots_adjust(left=0.025, bottom=0.025, top=0.975, right=0.975,
+                            wspace=0.02, hspace=0.02)
+            fig.set_size_inches(8,8)
             fig.savefig(pp, format='pdf', bbox_inches='tight')
     #endfor
 
