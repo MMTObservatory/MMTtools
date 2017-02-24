@@ -2,7 +2,8 @@
 mmtcam
 ======
 
-Provide description for code here.
+Set of functions to identify stars and stack them to construct the PSF for MMTCam
+for each image. Intended to understand the cause of unusual PSFs
 """
 
 import sys, os
@@ -285,11 +286,12 @@ def make_postage(files=None, path0=None, n_stack=5, size=50,
         size2d = u.Quantity((size, size), u.pixel)
         for ii in range(n_bright):
             pos0 = (x0[ii], y0[ii])
-            cutout = Cutout2D(image_sub, pos0, size2d).data
-            im0[ii] = cutout/np.max(cutout)
+            cutout = Cutout2D(image_sub, pos0, size2d, mode='partial',
+                              fill_value=np.nan)
+            im0[ii] = cutout.data/np.max(cutout.data)
 
         out_fits = post_dir0+seqno[ff]+'.fits'
-        psf_im = np.median(im0, axis=0)
+        psf_im = np.nanmedian(im0, axis=0)
         fits.writeto(out_fits, psf_im, overwrite=True)
 
     if silent == False: log.info('### End: '+systime())
