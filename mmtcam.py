@@ -128,6 +128,44 @@ def hdr_annotate(h0, ax):
     ax.annotate(txt0, [0.025,0.025], ha='left', va='bottom',
                 xycoords='axes fraction', fontsize=8, bbox=bbox_props)
 
+def fwhm_fwqm_size(post, pscale):
+    '''
+    Computes FWHM based on a provided cutout of the PSF. Code uses the number
+    of pixels. Handles non-Gaussian PSFs
+
+    Parameters
+    ----------
+    image : numpy.array
+      2-D image
+
+    Returns
+    -------
+    fwhm0 : float
+      Full-width at half maximum based on number of pixels (area)
+
+    fwqm0 : float
+      Full-width at quarter maximum based on number of pixels (area)
+
+    Notes
+    -----
+    Created by Chun Ly, 25 February 2017
+    '''
+
+    max0 = np.max(post)
+
+    i_fwhm    = np.where(post >= max0/2.0)
+    i_fwqm    = np.where(post >= max0/4.0)
+
+    # Area in arcsec^2
+    area_fwhm = len(i_fwhm[0]) * (pscale.to(u.arcsec).value)**2
+    area_fwqm = len(i_fwqm[0]) * (pscale.to(u.arcsec).value)**2
+
+    fwhm0     = 2.0*np.sqrt(area_fwhm/np.pi)
+    fwqm0     = 2.0*np.sqrt(area_fwqm/np.pi)
+
+    return fwhm0, fwqm0
+#enddef
+
 def find_stars(files=None, path0=None, plot=False, out_pdf_plot=None,
                silent=False, verbose=True):
     '''
@@ -373,6 +411,8 @@ def psf_contours(files=None, path0=None, out_pdf_plot=None, silent=False,
      - Later Mod to include header info in annotation
      - Use filled contours with plasma cmap
      - Add colorbar
+    Modified by Chun Ly, 25 February 2017
+     - Add colorbar for last subplot
     '''
 
     if files == None and path0 == None:
@@ -395,7 +435,9 @@ def psf_contours(files=None, path0=None, out_pdf_plot=None, silent=False,
 
     pscale = 0.16 * u.arcsec
     ncols, nrows = 3, 3
-    for ff in xrange(len(files)):
+
+    n_files = len(files)
+    for ff in xrange(n_files):
         psf_file = post_dir0+seqno[ff]+'.fits'
         psf_im, h0 = fits.getdata(psf_file, header=True)
         psf_im  /= np.max(psf_im)
@@ -414,20 +456,23 @@ def psf_contours(files=None, path0=None, out_pdf_plot=None, silent=False,
         cf = ax[row,col].contourf(x0,y0,psf_im, levels=c_levels,
                                   cmap=plt.cm.plasma)
 
+        # Mod on 25/02/2017
         if col == ncols-1:
             cax = fig.add_axes([0.925, 0.75-0.32*row, 0.01, 0.20])
+        if ff == n_files-1:
+            cax = fig.add_axes([0.605, 0.75-0.32*row, 0.01, 0.20])
+        if col == ncols-1 or ff == n_files-1:
             cbar = fig.colorbar(cf, ax=ax[row,col], cax=cax)
             cbar.ax.tick_params(labelsize=8)
 
         if row == nrows-1:
             ax[row,col].set_xlabel('X [arcsec]')
         else:
-            if ((len(files)-1)-ff) > ncols-1:
+            if ((n_files-1)-ff) > ncols-1:
                 ax[row,col].set_xticklabels([])
 
-        if ff == len(files)-1:
-            for cc in range(ncols):
-                ax[row,cc].set_xlabel('X [arcsec]')
+        if ff == n_files-1:
+            for cc in range(ncols): ax[row,cc].set_xlabel('X [arcsec]')
 
         if col == 0:
             ax[row,col].set_ylabel('Y [arcsec]')
@@ -437,14 +482,19 @@ def psf_contours(files=None, path0=None, out_pdf_plot=None, silent=False,
                              weight='bold', xycoords='axes fraction',
                              ha='left', va='top')
 
+        fwhm0, fwqm0 = fwhm_fwqm_size(psf_im, pscale)
+        f_annot = 'Area: FWHM=%.2f", FWQM=%.2f"' % (fwhm0, fwqm0)
+        ax[row,col].annotate(f_annot, [0.025,0.90], xycoords='axes fraction',
+                             ha='left', va='top', fontsize=8)
+
         hdr_annotate(h0, ax[row,col]) # + on 24/02/2017
 
-        if ff == len(files)-1:
+        if ff == n_files-1:
             for cc in range(col+1,ncols): ax[row,cc].axis('off')
             for rr in range(row+1,nrows):
                 for cc in range(ncols): ax[rr,cc].axis('off')
 
-        if ff % (ncols*nrows) == ncols*nrows-1 or ff == len(files)-1:
+        if ff % (ncols*nrows) == ncols*nrows-1 or ff == n_files-1:
             subplots_adjust(left=0.025, bottom=0.025, top=0.975, right=0.975,
                             wspace=0.02, hspace=0.02)
             fig.set_size_inches(8,8)
