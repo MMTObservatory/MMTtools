@@ -465,6 +465,9 @@ def psf_contours(files=None, path0=None, out_pdf_plot=None, silent=False,
      - Add colorbar
     Modified by Chun Ly, 25 February 2017
      - Add colorbar for last subplot
+     - Get FWHM and FWQM from fwhm_fwqm_image()
+     - Call opt.curve_fit() to fit 2-D Gaussians
+     - Overlay cyan contours for best 2-D fit
     '''
 
     if files == None and path0 == None:
@@ -508,7 +511,7 @@ def psf_contours(files=None, path0=None, out_pdf_plot=None, silent=False,
         cf = ax[row,col].contourf(x0,y0,psf_im, levels=c_levels,
                                   cmap=plt.cm.plasma)
 
-        # Mod on 25/02/2017
+        # Mod on 25/02/2017 to include colorbar for last subplot
         if col == ncols-1:
             cax = fig.add_axes([0.925, 0.75-0.32*row, 0.01, 0.20])
         if ff == n_files-1:
@@ -553,6 +556,14 @@ def psf_contours(files=None, path0=None, out_pdf_plot=None, silent=False,
         ax[row,col].annotate(f_annot, [0.025,0.90], xycoords='axes fraction',
                              ha='left', va='top', fontsize=8)
 
+        # Overlay 0.25, 0.50, and 0.75 quartile contours for 2-D Gaussian fit
+        # + on 25/02/2017
+        f_data = gauss2d((gx, gy), *popt)
+        levels = np.array([0.25,0.5,0.75])*np.max(f_data)
+        ax[row,col].contour(x0, y0, f_data.reshape(shape0[0],shape0[1]),
+                            colors='c', linewidth=2, cmap=None,
+                            levels=levels.tolist())
+
         hdr_annotate(h0, ax[row,col]) # + on 24/02/2017
 
         if ff == n_files-1:
@@ -561,7 +572,8 @@ def psf_contours(files=None, path0=None, out_pdf_plot=None, silent=False,
                 for cc in range(ncols): ax[rr,cc].axis('off')
 
         if ff % (ncols*nrows) == ncols*nrows-1 or ff == n_files-1:
-            ax[0,1].set_title(path0.split('/')[-2], loc=u'center', fontsize=14)
+            ax[0,1].set_title('MMTCam : '+path0.split('/')[-2], loc=u'center',
+                              fontsize=14, weight='bold')
             subplots_adjust(left=0.025, bottom=0.025, top=0.975, right=0.975,
                             wspace=0.02, hspace=0.02)
             fig.set_size_inches(8,8)
