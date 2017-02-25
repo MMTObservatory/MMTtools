@@ -40,6 +40,8 @@ from astropy.nddata import Cutout2D
 from matplotlib.backends.backend_pdf import PdfPages
 from pylab import subplots_adjust # + on 24/02/2017
 
+import scipy.optimize as opt # + on 25/02/2017
+
 out_cat_dir = 'daofind/' # + on 23/02/2017
 
 # + on 24/02/2017
@@ -47,6 +49,7 @@ bbox_props = dict(boxstyle="square,pad=0.3", fc="white", alpha=0.75, ec="none")
 
 c_levels = 0.2+0.1*np.arange(9)
 
+f_s = 2*np.sqrt(2*np.log(2)) # sigma-FWHM conversion | + on 25/02/2017
 def get_seqno(files):
     # + on 23/02/2017
     t_files = [os.path.basename(file) for file in files]
@@ -166,6 +169,55 @@ def fwhm_fwqm_size(post, pscale):
     return fwhm0, fwqm0
 #enddef
 
+def gauss2d((x, y), amplitude, xo, yo, sigma_x, sigma_y, theta, offset):
+    '''
+    2-D Gaussian for opt.curve_fit()
+
+    Parameters
+    ----------
+    (x,y) : numpy.ndarray
+      x,y grid from numpy.meshgrid()
+
+    amplitude : float
+      Peak of Gaussian
+
+    xo : float
+      Gaussian center value along x
+
+    yo : float
+      Gaussian center value along y
+
+    sigma_x : float
+      Gaussian sigma along x
+
+    sigma_y : float
+      Gaussian sigma along y
+
+    theta : float
+      Orientation along major axis of Gaussian. Positive is clock-wise.
+
+    offset : float
+      Level of continuum
+
+    Returns
+    -------
+    g.ravel() : numpy.ndarray
+      Contiguous flattened array
+
+    Notes
+    -----
+    Created by Chun Ly, 25 February 2017
+    '''
+
+    xo = float(xo)
+    yo = float(yo)
+    a = (np.cos(theta)**2)/(2*sigma_x**2) + (np.sin(theta)**2)/(2*sigma_y**2)
+    b = -(np.sin(2*theta))/(4*sigma_x**2) + (np.sin(2*theta))/(4*sigma_y**2)
+    c = (np.sin(theta)**2)/(2*sigma_x**2) + (np.cos(theta)**2)/(2*sigma_y**2)
+    g = offset + amplitude*np.exp( - (a*((x-xo)**2) + 2*b*(x-xo)*(y-yo)
+                            + c*((y-yo)**2)))
+    return g.ravel()
+
 def find_stars(files=None, path0=None, plot=False, out_pdf_plot=None,
                silent=False, verbose=True):
     '''
@@ -215,7 +267,7 @@ def find_stars(files=None, path0=None, plot=False, out_pdf_plot=None,
         if silent == False: log.info('Creating : '+out_cat_dir0)
         os.mkdir(out_cat_dir0)
 
-    s_date = path0.split('/')[-1]
+    s_date = path0.split('/')[-2] # Mod on 25/02/2017 for minor bug
 
     if plot == True:
         if out_pdf_plot == None:
@@ -478,12 +530,26 @@ def psf_contours(files=None, path0=None, out_pdf_plot=None, silent=False,
             ax[row,col].set_ylabel('Y [arcsec]')
         else: ax[row,col].set_yticklabels([])
 
-        ax[row,col].annotate(seqno[ff]+'.'+h0['FILTER'], [0.025,0.975],
-                             weight='bold', xycoords='axes fraction',
-                             ha='left', va='top')
+        ax[row,col].annotate(seqno[ff]+'.'+h0['FILTER']+' UTC:'+h0['UT'],
+                             [0.025,0.975], weight='bold', ha='left', va='top',
+                             xycoords='axes fraction')
 
+        # Compute image quality | + on 25/02/2017
         fwhm0, fwqm0 = fwhm_fwqm_size(psf_im, pscale)
-        f_annot = 'Area: FWHM=%.2f", FWQM=%.2f"' % (fwhm0, fwqm0)
+        f_annot = 'Area: FWHM=%.2f", FWQM=%.2f"\n' % (fwhm0, fwqm0)
+
+        sigG = fwhm0/f_s/pscale.to(u.arcsec).value
+        ini_guess = (1.0, 25, 25, sigG, sigG, 0.0, 0.0)
+        gx = np.linspace(0,shape0[0]-1,shape0[0])
+        gy = np.linspace(0,shape0[1]-1,shape0[1])
+        gx, gy = np.meshgrid(gx, gy)
+
+        psf_im_re = psf_im.reshape(shape0[0]*shape0[1])
+        popt, pcov = opt.curve_fit(gauss2d, (gx, gy), psf_im_re, p0=ini_guess)
+        FWHMx = popt[3] * f_s * pscale.to(u.arcsec).value
+        FWHMy = popt[4] * f_s * pscale.to(u.arcsec).value
+        f_annot += r'2DFit: $\sigma_1$=%.2f", $\sigma_2$=%.2f", ' % (FWHMx,FWHMy)
+        f_annot += r'$\theta$=%.2f' % np.degrees(popt[5])
         ax[row,col].annotate(f_annot, [0.025,0.90], xycoords='axes fraction',
                              ha='left', va='top', fontsize=8)
 
@@ -495,6 +561,7 @@ def psf_contours(files=None, path0=None, out_pdf_plot=None, silent=False,
                 for cc in range(ncols): ax[rr,cc].axis('off')
 
         if ff % (ncols*nrows) == ncols*nrows-1 or ff == n_files-1:
+            ax[0,1].set_title(path0.split('/')[-2], loc=u'center', fontsize=14)
             subplots_adjust(left=0.025, bottom=0.025, top=0.975, right=0.975,
                             wspace=0.02, hspace=0.02)
             fig.set_size_inches(8,8)
