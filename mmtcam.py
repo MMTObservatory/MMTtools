@@ -2,8 +2,9 @@
 mmtcam
 ======
 
-Set of functions to identify stars and stack them to construct the PSF for MMTCam
-for each image. Intended to understand the cause of unusual PSFs
+Set of functions to identify stars and stack them to construct the PSF for
+MMTCam for each image. Intended to understand the cause of unusual PSFs
+(e.g., double, oscillations, elongated profiles)
 """
 
 import sys, os
@@ -41,6 +42,10 @@ from pylab import subplots_adjust # + on 24/02/2017
 
 out_cat_dir = 'daofind/' # + on 23/02/2017
 
+# + on 24/02/2017
+bbox_props = dict(boxstyle="square,pad=0.3", fc="white", alpha=0.75, ec="none")
+
+c_levels = 0.2+0.1*np.arange(9)
 
 def get_seqno(files):
     # + on 23/02/2017
@@ -84,6 +89,44 @@ def remove_dup_sources(s_cat):
                 print nn, 'too many'
                 bad += i_match.tolist()
     return bad
+#enddef
+
+def hdr_annotate(h0, ax):
+    '''
+    Define string for annotation in psf_contours()
+
+    Parameters
+    ----------
+    h0 : astropy.io.fits.header.Header
+      FITS header file
+
+    ax : matplotlib.axes._subplots.AxesSubplot
+      Axes to use for annotation
+
+    Returns
+    -------
+    None.
+
+    Notes
+    -----
+    Created by Chun Ly, 24 February 2017
+    '''
+
+    txt0 = r'$t_{\rm exp}$=%.1f, sz=%.2f, HA=%s' % (h0['EXPTIME'],h0['AIRMASS'],
+                                                    h0['HA'])
+    txt0 += '\n'
+
+    txt0 += r'$\alpha$=%s, $\delta$=%s' % (h0['RA'], h0['DEC'])
+    txt0 += '\n'
+
+    txt0 += 'Alt=%s Az=%s' % (h0['OBJCTALT'], h0['OBJCTAZ'])
+    txt0 += '\n'
+
+    txt0 += r'$\theta_{\rm rot}$=%.2f, $\theta_{\rm para}$=%.2f, ' % \
+            (h0['ROTANGLE'], h0['PARANG'])
+    txt0 += r'$\theta_{\rm pos}$=%.2f' % h0['POSANG']
+    ax.annotate(txt0, [0.025,0.025], ha='left', va='bottom',
+                xycoords='axes fraction', fontsize=8, bbox=bbox_props)
 
 def find_stars(files=None, path0=None, plot=False, out_pdf_plot=None,
                silent=False, verbose=True):
@@ -245,6 +288,8 @@ def make_postage(files=None, path0=None, n_stack=5, size=50,
     Notes
     -----
     Created by Chun Ly, 23 February 2017
+    Modified by Chun Ly, 24 February 2017
+     - Include FITS header in cutout images
     '''
 
     if files == None and path0 == None:
@@ -268,7 +313,7 @@ def make_postage(files=None, path0=None, n_stack=5, size=50,
     out_cat_dir0 = path0+out_cat_dir
     for ff in xrange(len(files)):
         basename = os.path.basename(files[ff])
-        image = fits.getdata(files[ff])
+        image, hdr = fits.getdata(files[ff], header=True)
         mean, median, std = sigma_clipped_stats(image, sigma=2.0, iters=5)
         image_sub = image - median
 
@@ -293,12 +338,13 @@ def make_postage(files=None, path0=None, n_stack=5, size=50,
 
         out_fits = post_dir0+seqno[ff]+'.fits'
         psf_im = np.nanmedian(im0, axis=0)
-        fits.writeto(out_fits, psf_im, overwrite=True)
+        fits.writeto(out_fits, psf_im, hdr, overwrite=True)
 
     if silent == False: log.info('### End: '+systime())
 #enddef
 
-def psf_contours(files=None, path0=None, out_pdf_plot=None, silent=False, verbose=True):
+def psf_contours(files=None, path0=None, out_pdf_plot=None, silent=False,
+                 verbose=True):
     '''
     Generate contour plots for the MMTCam PSF
 
@@ -324,6 +370,9 @@ def psf_contours(files=None, path0=None, out_pdf_plot=None, silent=False, verbos
     -----
     Created by Chun Ly, 24 February 2017
      - Later mod to handle plotting styles
+     - Later Mod to include header info in annotation
+     - Use filled contours with plasma cmap
+     - Add colorbar
     '''
 
     if files == None and path0 == None:
@@ -348,7 +397,7 @@ def psf_contours(files=None, path0=None, out_pdf_plot=None, silent=False, verbos
     ncols, nrows = 3, 3
     for ff in xrange(len(files)):
         psf_file = post_dir0+seqno[ff]+'.fits'
-        psf_im   = fits.getdata(psf_file)
+        psf_im, h0 = fits.getdata(psf_file, header=True)
         psf_im  /= np.max(psf_im)
 
         if ff == 0:
@@ -361,13 +410,19 @@ def psf_contours(files=None, path0=None, out_pdf_plot=None, silent=False, verbos
 
         row, col = ff / ncols % nrows, ff % ncols
 
-        ax[row,col].contour(x0,y0,psf_im, levels=0.2+0.1*np.arange(9))
-        #if ff == 0: xticklabels = ax[row,col].get_xticklabels()
+        # Later mod on 24/02/2017
+        cf = ax[row,col].contourf(x0,y0,psf_im, levels=c_levels,
+                                  cmap=plt.cm.plasma)
+
+        if col == ncols-1:
+            cax = fig.add_axes([0.925, 0.75-0.32*row, 0.01, 0.20])
+            cbar = fig.colorbar(cf, ax=ax[row,col], cax=cax)
+            cbar.ax.tick_params(labelsize=8)
 
         if row == nrows-1:
             ax[row,col].set_xlabel('X [arcsec]')
         else:
-            if ((len(files)-1)-ff) < ncols-1:
+            if ((len(files)-1)-ff) > ncols-1:
                 ax[row,col].set_xticklabels([])
 
         if ff == len(files)-1:
@@ -378,8 +433,11 @@ def psf_contours(files=None, path0=None, out_pdf_plot=None, silent=False, verbos
             ax[row,col].set_ylabel('Y [arcsec]')
         else: ax[row,col].set_yticklabels([])
 
-        ax[row,col].annotate(seqno[ff], [0.025,0.975], weight='bold',
-                             xycoords='axes fraction', ha='left', va='top')
+        ax[row,col].annotate(seqno[ff]+'.'+h0['FILTER'], [0.025,0.975],
+                             weight='bold', xycoords='axes fraction',
+                             ha='left', va='top')
+
+        hdr_annotate(h0, ax[row,col]) # + on 24/02/2017
 
         if ff == len(files)-1:
             for cc in range(col+1,ncols): ax[row,cc].axis('off')
