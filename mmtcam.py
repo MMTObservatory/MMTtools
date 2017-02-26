@@ -42,6 +42,10 @@ from pylab import subplots_adjust # + on 24/02/2017
 
 import scipy.optimize as opt # + on 25/02/2017
 
+# + on 26/02/2017
+from datetime import datetime
+from astropy.time import Time, TimezoneInfo
+
 out_cat_dir = 'daofind/' # + on 23/02/2017
 
 # + on 24/02/2017
@@ -113,6 +117,8 @@ def hdr_annotate(h0, ax):
     Notes
     -----
     Created by Chun Ly, 24 February 2017
+    Modified by Chun Ly, 26 February 2017
+     - Add commmanded RA,Dec offsets to annotated text
     '''
 
     txt0 = r'$t_{\rm exp}$=%.1f, sz=%.2f, HA=%s' % (h0['EXPTIME'],h0['AIRMASS'],
@@ -122,7 +128,12 @@ def hdr_annotate(h0, ax):
     txt0 += r'$\alpha$=%s, $\delta$=%s' % (h0['RA'], h0['DEC'])
     txt0 += '\n'
 
-    txt0 += 'Alt=%s Az=%s' % (h0['OBJCTALT'], h0['OBJCTAZ'])
+    # Include commanded offsets | + on 26/02/2017
+    rao, deo = np.float(h0['RAOFF']), np.float(h0['DECOFF'])
+    txt0 += r'Offsets: $\alpha$=%.2f", $\delta$=%.2f"' % (rao, deo)
+    txt0 += '\n'
+
+    txt0 += 'Alt=%s, Az=%s' % (h0['OBJCTALT'], h0['OBJCTAZ'])
     txt0 += '\n'
 
     txt0 += r'$\theta_{\rm rot}$=%.2f, $\theta_{\rm para}$=%.2f, ' % \
@@ -130,6 +141,30 @@ def hdr_annotate(h0, ax):
     txt0 += r'$\theta_{\rm pos}$=%.2f' % h0['POSANG']
     ax.annotate(txt0, [0.025,0.025], ha='left', va='bottom',
                 xycoords='axes fraction', fontsize=8, bbox=bbox_props)
+
+def get_mst(h0):
+    '''
+    Get string-formatted MST time from UTC datetime
+
+    Parameters
+    ----------
+    h0 : astropy.io.fits.header.Header
+      FITS header file
+
+    Returns
+    -------
+    t.strftime : string
+      Time in HH:MM:SS format
+
+    Notes
+    -----
+    Created by Chun Ly, 26 February 2017
+    '''
+
+    utc_mst = TimezoneInfo(utc_offset=-7*u.hour)
+    t = Time(h0['DATE-OBS']).to_datetime(timezone=utc_mst)
+    return t.strftime('%H:%M:%S')
+#enddef
 
 def fwhm_fwqm_size(post, pscale):
     '''
@@ -489,6 +524,7 @@ def psf_contours(files=None, path0=None, out_pdf_plot=None, silent=False,
     pp = PdfPages(out_pdf_plot)
 
     pscale = 0.16 * u.arcsec
+    v_pscale = pscale.to(u.arcsec).value
     ncols, nrows = 3, 3
 
     n_files = len(files)
@@ -512,10 +548,11 @@ def psf_contours(files=None, path0=None, out_pdf_plot=None, silent=False,
                                   cmap=plt.cm.plasma)
 
         # Mod on 25/02/2017 to include colorbar for last subplot
+        # Mod on 26/02/2017 to shrink height
         if col == ncols-1:
-            cax = fig.add_axes([0.925, 0.75-0.32*row, 0.01, 0.20])
+            cax = fig.add_axes([0.925, 0.76-0.32*row, 0.01, 0.14])
         if ff == n_files-1:
-            cax = fig.add_axes([0.605, 0.75-0.32*row, 0.01, 0.20])
+            cax = fig.add_axes([0.605, 0.76-0.32*row, 0.01, 0.14])
         if col == ncols-1 or ff == n_files-1:
             cbar = fig.colorbar(cf, ax=ax[row,col], cax=cax)
             cbar.ax.tick_params(labelsize=8)
@@ -533,13 +570,15 @@ def psf_contours(files=None, path0=None, out_pdf_plot=None, silent=False,
             ax[row,col].set_ylabel('Y [arcsec]')
         else: ax[row,col].set_yticklabels([])
 
-        ax[row,col].annotate(seqno[ff]+'.'+h0['FILTER']+' UTC:'+h0['UT'],
-                             [0.025,0.975], weight='bold', ha='left', va='top',
-                             xycoords='axes fraction')
+        # Mod on 26/02/2017
+        t_label = seqno[ff]+'.'+h0['FILTER']
+        ax[row,col].annotate(t_label, [0.025,0.975], weight='bold', ha='left',
+                             va='top', xycoords='axes fraction', fontsize=10)
 
         # Compute image quality | + on 25/02/2017
+        f_annot = 'UTC='+h0['UT']+'  MST='+get_mst(h0)+'\n' # + on 26/02/2017
         fwhm0, fwqm0 = fwhm_fwqm_size(psf_im, pscale)
-        f_annot = 'Area: FWHM=%.2f", FWQM=%.2f"\n' % (fwhm0, fwqm0)
+        f_annot += 'Area: FWHM=%.2f", FWQM=%.2f"\n' % (fwhm0, fwqm0)
 
         sigG = fwhm0/f_s/pscale.to(u.arcsec).value
         ini_guess = (1.0, 25, 25, sigG, sigG, 0.0, 0.0)
@@ -551,10 +590,10 @@ def psf_contours(files=None, path0=None, out_pdf_plot=None, silent=False,
         popt, pcov = opt.curve_fit(gauss2d, (gx, gy), psf_im_re, p0=ini_guess)
         FWHMx = popt[3] * f_s * pscale.to(u.arcsec).value
         FWHMy = popt[4] * f_s * pscale.to(u.arcsec).value
-        f_annot += r'2DFit: $\sigma_1$=%.2f", $\sigma_2$=%.2f", ' % (FWHMx,FWHMy)
+        f_annot += r'2DFit: FW$_1$=%.2f", FW$_2$=%.2f", ' % (FWHMx,FWHMy)
         f_annot += r'$\theta$=%.2f' % np.degrees(popt[5])
-        ax[row,col].annotate(f_annot, [0.025,0.90], xycoords='axes fraction',
-                             ha='left', va='top', fontsize=8)
+        ax[row,col].annotate(f_annot, [0.025,0.915], xycoords='axes fraction',
+                             ha='left', va='top', fontsize=8, zorder=10)
 
         # Overlay 0.25, 0.50, and 0.75 quartile contours for 2-D Gaussian fit
         # + on 25/02/2017
@@ -563,6 +602,10 @@ def psf_contours(files=None, path0=None, out_pdf_plot=None, silent=False,
         ax[row,col].contour(x0, y0, f_data.reshape(shape0[0],shape0[1]),
                             colors='c', linewidth=2, cmap=None,
                             levels=levels.tolist())
+        # Plot center of fit | + on 26/02/2017
+        xcen = v_pscale*(-1*shape0[0]/2.0+popt[1])
+        ycen = v_pscale*(-1*shape0[1]/2.0+popt[2])
+        ax[row,col].plot(xcen, ycen, 'o', mfc='c', mec='none', alpha=0.5)
 
         hdr_annotate(h0, ax[row,col]) # + on 24/02/2017
 
