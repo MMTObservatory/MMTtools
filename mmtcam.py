@@ -46,6 +46,8 @@ import scipy.optimize as opt # + on 25/02/2017
 from datetime import datetime
 from astropy.time import Time, TimezoneInfo
 
+from ccdproc import cosmicray_median # + on 26/02/2017
+
 out_cat_dir = 'daofind/' # + on 23/02/2017
 
 # + on 24/02/2017
@@ -168,7 +170,7 @@ def get_mst(h0):
 
 def draw_NE_vector(h0, ax0):
     '''
-    Draw N and E vector based on CD matrix
+    Draw N and E vectors based on CD matrix
 
     Parameters
     ----------
@@ -197,7 +199,6 @@ def draw_NE_vector(h0, ax0):
     if dxN == 1 or dxE == 1: rx, ry = -3.00, 0.0
     if dyN == 1 and dxE == 1: rx, ry = -3.50, 0.0
 
-    print h0['FILENAME'], cd, mN, dxN, dyN
     ax0.arrow(rx, ry, dxN, dyN, head_width=0.05, head_length=0.1, fc='k', ec='k')
     if np.abs(dyN/dxN) > 1:
         if dyN == -1: haN, vaN = 'left', 'top'
@@ -336,7 +337,7 @@ def find_stars(files=None, path0=None, plot=False, out_pdf_plot=None,
      - Call remove_dup_sources()
     '''
 
-    if silent == False: log.info('### Begin: '+systime())
+    if silent == False: log.info('### Begin find_stars: '+systime())
 
     if files == None and path0 == None:
         log.error('files and path0 keywords not provided')
@@ -436,7 +437,7 @@ def find_stars(files=None, path0=None, plot=False, out_pdf_plot=None,
             log.info('## Writing : '+out_pdf_plot+' | '+systime())
         pp.close()
 
-    if silent == False: log.info('### End: '+systime())
+    if silent == False: log.info('### End find_stars: '+systime())
 #enddef
 
 def make_postage(files=None, path0=None, n_stack=5, size=50,
@@ -468,6 +469,9 @@ def make_postage(files=None, path0=None, n_stack=5, size=50,
     Created by Chun Ly, 23 February 2017
     Modified by Chun Ly, 24 February 2017
      - Include FITS header in cutout images
+    Modified by Chun Ly, 26 February 2017
+     - Use cosmicray_median() to interpolate over CRs
+     - Include number of stack sources in FITS header
     '''
 
     if files == None and path0 == None:
@@ -475,7 +479,7 @@ def make_postage(files=None, path0=None, n_stack=5, size=50,
         log.error('Exiting!!!')
         return
 
-    if silent == False: log.info('### Begin: '+systime())
+    if silent == False: log.info('### Begin make_postage: '+systime())
 
     if files == None and path0 != None:
         files, seqno = get_files(path0)
@@ -506,19 +510,22 @@ def make_postage(files=None, path0=None, n_stack=5, size=50,
         x0 = np.round_(s_cat['xcentroid'])
         y0 = np.round_(s_cat['ycentroid'])
 
-        im0 = np.zeros( (len(bright), size, size))
+        im0 = np.zeros( (len(bright), size, size) )
         size2d = u.Quantity((size, size), u.pixel)
         for ii in range(n_bright):
             pos0 = (x0[ii], y0[ii])
             cutout = Cutout2D(image_sub, pos0, size2d, mode='partial',
                               fill_value=np.nan)
-            im0[ii] = cutout.data/np.max(cutout.data)
+            # Identify and interpolate over CRs
+            cutout_cr, crmask = cosmicray_median(cutout.data, thresh=5, rbox=11)
+            im0[ii] = cutout_cr/np.max(cutout_cr)
 
         out_fits = post_dir0+seqno[ff]+'.fits'
         psf_im = np.nanmedian(im0, axis=0)
+        hdr.set('NBRIGHT', n_bright) # + on 26/02/2017
         fits.writeto(out_fits, psf_im, hdr, overwrite=True)
 
-    if silent == False: log.info('### End: '+systime())
+    if silent == False: log.info('### End make_postage: '+systime())
 #enddef
 
 def psf_contours(files=None, path0=None, out_pdf_plot=None, silent=False,
@@ -561,6 +568,9 @@ def psf_contours(files=None, path0=None, out_pdf_plot=None, silent=False,
      - Call get_mst() to get MST time
      - Draw center of best fit
      - Call draw_NE_vector() function
+    Modified by Chun Ly, 26 February 2017
+     - Use cosmicray_median() to interpolate over CRs
+     - Use psf_im_cr over psf_im
     '''
 
     if files == None and path0 == None:
@@ -589,10 +599,13 @@ def psf_contours(files=None, path0=None, out_pdf_plot=None, silent=False,
     for ff in xrange(n_files):
         psf_file = post_dir0+seqno[ff]+'.fits'
         psf_im, h0 = fits.getdata(psf_file, header=True)
-        psf_im  /= np.max(psf_im)
+
+        # Identify and interpolate over any extraneous CRs | + on 26/02/2017
+        psf_im_cr, mask = cosmicray_median(psf_im, thresh=5, rbox=11)
+        psf_im_cr /= np.max(psf_im_cr)
 
         if ff == 0:
-            shape0 = psf_im.shape
+            shape0 = psf_im_cr.shape
             x0 = pscale*np.arange(-1*shape0[0]/2.0,shape0[0]/2.0)
             y0 = pscale*np.arange(-1*shape0[1]/2.0,shape0[1]/2.0)
 
@@ -602,7 +615,7 @@ def psf_contours(files=None, path0=None, out_pdf_plot=None, silent=False,
         row, col = ff / ncols % nrows, ff % ncols
 
         # Later mod on 24/02/2017
-        cf = ax[row,col].contourf(x0,y0,psf_im, levels=c_levels,
+        cf = ax[row,col].contourf(x0, y0, psf_im_cr, levels=c_levels,
                                   cmap=plt.cm.plasma)
 
         # Mod on 25/02/2017 to include colorbar for last subplot
@@ -632,10 +645,13 @@ def psf_contours(files=None, path0=None, out_pdf_plot=None, silent=False,
         t_label = seqno[ff]+'.'+h0['FILTER']
         ax[row,col].annotate(t_label, [0.025,0.975], weight='bold', ha='left',
                              va='top', xycoords='axes fraction', fontsize=10)
+        t_nstack = r'N$_{\rm stack}$=%i' % h0['NBRIGHT']
+        ax[row,col].annotate(t_nstack, [0.975,0.975], weight='bold', ha='right',
+                             va='top', xycoords='axes fraction', fontsize=10)
 
         # Compute image quality | + on 25/02/2017
         f_annot = 'UTC='+h0['UT']+'  MST='+get_mst(h0)+'\n' # + on 26/02/2017
-        fwhm0, fwqm0 = fwhm_fwqm_size(psf_im, pscale)
+        fwhm0, fwqm0 = fwhm_fwqm_size(psf_im_cr, pscale)
         f_annot += 'Area: FWHM=%.2f", FWQM=%.2f"\n' % (fwhm0, fwqm0)
 
         sigG = fwhm0/f_s/pscale.to(u.arcsec).value
@@ -644,7 +660,7 @@ def psf_contours(files=None, path0=None, out_pdf_plot=None, silent=False,
         gy = np.linspace(0,shape0[1]-1,shape0[1])
         gx, gy = np.meshgrid(gx, gy)
 
-        psf_im_re = psf_im.reshape(shape0[0]*shape0[1])
+        psf_im_re = psf_im_cr.reshape(shape0[0]*shape0[1])
         popt, pcov = opt.curve_fit(gauss2d, (gx, gy), psf_im_re, p0=ini_guess)
         FWHMx = popt[3] * f_s * pscale.to(u.arcsec).value
         FWHMy = popt[4] * f_s * pscale.to(u.arcsec).value
@@ -719,7 +735,7 @@ def run_all(files=None, path0=None, silent=False, verbose=True):
         log.error('Exiting!!!')
         return
 
-    if silent == False: log.info('### Begin: '+systime())
+    if silent == False: log.info('### Begin run_all: '+systime())
 
     if files == None and path0 != None:
         files, seqno = get_files(path0)
@@ -734,4 +750,4 @@ def run_all(files=None, path0=None, silent=False, verbose=True):
     make_postage(files=files, path0=path0, verbose=False)
     psf_contours(files=files, path0=path0, verbose=False)
 
-    if silent == False: log.info('### End: '+systime())
+    if silent == False: log.info('### End run_all: '+systime())
