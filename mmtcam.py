@@ -48,6 +48,8 @@ from astropy.time import Time, TimezoneInfo
 
 from ccdproc import cosmicray_median # + on 26/02/2017
 
+from scipy.ndimage import uniform_filter # + on 26/02/2017
+
 out_cat_dir = 'daofind/' # + on 23/02/2017
 
 # + on 24/02/2017
@@ -571,6 +573,7 @@ def psf_contours(files=None, path0=None, out_pdf_plot=None, silent=False,
     Modified by Chun Ly, 26 February 2017
      - Use cosmicray_median() to interpolate over CRs
      - Use psf_im_cr over psf_im
+     - Use uniform_filter() to smooth data with a size of 3 pixels
     '''
 
     if files == None and path0 == None:
@@ -603,6 +606,7 @@ def psf_contours(files=None, path0=None, out_pdf_plot=None, silent=False,
         # Identify and interpolate over any extraneous CRs | + on 26/02/2017
         psf_im_cr, mask = cosmicray_median(psf_im, thresh=5, rbox=11)
         psf_im_cr /= np.max(psf_im_cr)
+        psf_im_sm = uniform_filter(psf_im_cr, size=3) # + on 26/02/2017
 
         if ff == 0:
             shape0 = psf_im_cr.shape
@@ -614,8 +618,8 @@ def psf_contours(files=None, path0=None, out_pdf_plot=None, silent=False,
 
         row, col = ff / ncols % nrows, ff % ncols
 
-        # Later mod on 24/02/2017
-        cf = ax[row,col].contourf(x0, y0, psf_im_cr, levels=c_levels,
+        # Later mod on 24/02/2017, 26/02/2017
+        cf = ax[row,col].contourf(x0, y0, psf_im_sm, levels=c_levels,
                                   cmap=plt.cm.plasma)
 
         # Mod on 25/02/2017 to include colorbar for last subplot
