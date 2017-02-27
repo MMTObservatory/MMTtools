@@ -166,6 +166,59 @@ def get_mst(h0):
     return t.strftime('%H:%M:%S')
 #enddef
 
+def draw_NE_vector(h0, ax0):
+    '''
+    Draw N and E vector based on CD matrix
+
+    Parameters
+    ----------
+    h0 : astropy.io.fits.header.Header
+      FITS header file
+
+    Returns
+    -------
+    None
+
+    Notes
+    -----
+    Created by Chun Ly, 26 February 2017
+    '''
+
+    cd = [h0[key] for key in ['CD1_1','CD1_2','CD2_1','CD2_2']]
+
+    # Draw N vector
+    mN = np.max(np.abs(cd[2:]))
+    dxN, dyN = cd[2]/mN, cd[3]/mN
+
+    mE = np.max(np.abs(cd[:2]))
+    dxE, dyE = cd[0]/mE, cd[1]/mE
+
+    if dxN != 1 or dxE != 1: rx, ry = -2.40, 0.0
+    if dxN == 1 or dxE == 1: rx, ry = -3.00, 0.0
+    if dyN == 1 and dxE == 1: rx, ry = -3.50, 0.0
+
+    print h0['FILENAME'], cd, mN, dxN, dyN
+    ax0.arrow(rx, ry, dxN, dyN, head_width=0.05, head_length=0.1, fc='k', ec='k')
+    if np.abs(dyN/dxN) > 1:
+        if dyN == -1: haN, vaN = 'left', 'top'
+        if dyN == +1: haN, vaN = 'left', 'bottom'
+    if np.abs(dxN/dyN) > 1:
+        if dxN == -1: haN, vaN = 'right', 'bottom'
+        if dxN == +1: haN, vaN = 'left', 'bottom'
+    ax0.annotate('N', [rx+dxN, ry+dyN], xycoords='data', ha=haN, va=vaN)
+
+    # Draw E vector
+    ax0.arrow(rx, ry, dxE, dyE, head_width=0.05, head_length=0.1, fc='k', ec='k')
+    if np.abs(dyE/dxE) > 1:
+        if dyE == -1: haE, vaE = 'left', 'top'
+        if dyE == +1: haE, vaE = 'left', 'bottom'
+    if np.abs(dxE/dyE) > 1:
+        if dxE == -1: haE, vaE = 'right', 'bottom'
+        if dxE == +1: haE, vaE = 'left', 'bottom'
+    ax0.annotate('E', [rx+dxE, ry+dyE], xycoords='data', ha=haE, va=vaE)
+
+#enddef
+
 def fwhm_fwqm_size(post, pscale):
     '''
     Computes FWHM based on a provided cutout of the PSF. Code uses the number
@@ -503,6 +556,11 @@ def psf_contours(files=None, path0=None, out_pdf_plot=None, silent=False,
      - Get FWHM and FWQM from fwhm_fwqm_image()
      - Call opt.curve_fit() to fit 2-D Gaussians
      - Overlay cyan contours for best 2-D fit
+    Modified by Chun Ly, 26 February 2017
+     - Minor stylistic plotting changes
+     - Call get_mst() to get MST time
+     - Draw center of best fit
+     - Call draw_NE_vector() function
     '''
 
     if files == None and path0 == None:
@@ -608,6 +666,8 @@ def psf_contours(files=None, path0=None, out_pdf_plot=None, silent=False,
         ax[row,col].plot(xcen, ycen, 'o', mfc='c', mec='none', alpha=0.5)
 
         hdr_annotate(h0, ax[row,col]) # + on 24/02/2017
+
+        draw_NE_vector(h0, ax[row,col]) # + on 26/02/2017
 
         if ff == n_files-1:
             for cc in range(col+1,ncols): ax[row,cc].axis('off')
