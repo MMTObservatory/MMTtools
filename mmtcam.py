@@ -50,14 +50,21 @@ from ccdproc import cosmicray_median # + on 26/02/2017
 
 from scipy.ndimage import uniform_filter # + on 26/02/2017
 
+from astroquery.irsa import Irsa as IRSA # + on 27/02/2017
+import astropy.coordinates as coords #+ on 27/02/2017
+
 out_cat_dir = 'daofind/' # + on 23/02/2017
 
 # + on 24/02/2017
 bbox_props = dict(boxstyle="square,pad=0.3", fc="white", alpha=0.75, ec="none")
 
 c_levels = 0.2+0.1*np.arange(9)
+f_s      = 2*np.sqrt(2*np.log(2)) # sigma-FWHM conversion | + on 25/02/2017
 
-f_s = 2*np.sqrt(2*np.log(2)) # sigma-FWHM conversion | + on 25/02/2017
+#Moved up on 27/02/2017
+pscale   = 0.16 * u.arcsec
+v_pscale = pscale.to(u.arcsec).value
+
 def get_seqno(files):
     # + on 23/02/2017
     t_files = [os.path.basename(file) for file in files]
@@ -308,6 +315,44 @@ def gauss2d((x, y), amplitude, xo, yo, sigma_x, sigma_y, theta, offset):
     g = offset + amplitude*np.exp( - (a*((x-xo)**2) + 2*b*(x-xo)*(y-yo)
                             + c*((y-yo)**2)))
     return g.ravel()
+#enddef
+
+def check_extended(h0, silent=False, verbose=True):
+    '''
+    Query the 2MASS extended source catalog (XSC) to identify contamination
+    from extended sources
+
+    Parameters
+    ----------
+    s_cat : astropy.table.Table
+     Astropy-formatted table
+
+    hd0 : FITS header
+     FITS header containing WCS to determine RA/Dec
+
+    silent : boolean
+      Turns off stdout messages. Default: False
+
+    verbose : boolean
+      Turns on additional stdout messages. Default: True
+
+    Returns
+    -------
+
+    Notes
+    -----
+    Created by Chun Ly, 27 February 2017
+    '''
+
+    if silent == False: log.info('### Begin check_extended: '+systime())
+
+    size0 = h0['NAXIS1'] * pscale # Size of region to search
+    c0 = coords.SkyCoord(ra=h0['CRVAL1'], dec=h0['CRVAL2'], unit=u.deg)
+    cat0 = IRSA.query_region(c0, catalog='fp_xsc', spatial='Box',
+                             width=size0)
+    print cat0
+    if silent == False: log.info('### End check_extended: '+systime())
+#enddef
 
 def find_stars(files=None, path0=None, plot=False, out_pdf_plot=None,
                silent=False, verbose=True):
@@ -594,8 +639,6 @@ def psf_contours(files=None, path0=None, out_pdf_plot=None, silent=False,
 
     pp = PdfPages(out_pdf_plot)
 
-    pscale = 0.16 * u.arcsec
-    v_pscale = pscale.to(u.arcsec).value
     ncols, nrows = 3, 3
 
     n_files = len(files)
@@ -675,11 +718,15 @@ def psf_contours(files=None, path0=None, out_pdf_plot=None, silent=False,
 
         # Overlay 0.25, 0.50, and 0.75 quartile contours for 2-D Gaussian fit
         # + on 25/02/2017
-        f_data = gauss2d((gx, gy), *popt)
-        levels = np.array([0.25,0.5,0.75])*np.max(f_data)
-        ax[row,col].contour(x0, y0, f_data.reshape(shape0[0],shape0[1]),
-                            colors='c', linewidth=2, cmap=None,
-                            levels=levels.tolist())
+        f_data  = gauss2d((gx, gy), *popt)
+        f_data /= np.max(f_data)
+        levels  = np.array([0.25,0.5,0.75])
+        CS = ax[row,col].contour(x0, y0, f_data.reshape(shape0[0],shape0[1]),
+                                 colors='c', linewidth=2, cmap=None,
+                                 levels=levels.tolist())
+        if col==0: ax[row,col].clabel(CS, CS.levels, fmt='%.2f', inline=1,
+                                      inline_spacing=0.25, fontsize=8)
+
         # Plot center of fit | + on 26/02/2017
         xcen = v_pscale*(-1*shape0[0]/2.0+popt[1])
         ycen = v_pscale*(-1*shape0[1]/2.0+popt[2])
