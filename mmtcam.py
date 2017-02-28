@@ -51,7 +51,8 @@ from ccdproc import cosmicray_median # + on 26/02/2017
 from scipy.ndimage import uniform_filter # + on 26/02/2017
 
 from astroquery.irsa import Irsa as IRSA # + on 27/02/2017
-import astropy.coordinates as coords #+ on 27/02/2017
+import astropy.coordinates as coords # + on 27/02/2017
+from astropy.wcs import WCS # + on 28/02/2017
 
 out_cat_dir = 'daofind/' # + on 23/02/2017
 
@@ -317,7 +318,8 @@ def gauss2d((x, y), amplitude, xo, yo, sigma_x, sigma_y, theta, offset):
     return g.ravel()
 #enddef
 
-def check_extended(h0, silent=False, verbose=True):
+def check_extended(h0, s_cat, seqno, return_irsa_cat=False, silent=False,
+                   verbose=True):
     '''
     Query the 2MASS extended source catalog (XSC) to identify contamination
     from extended sources
@@ -342,16 +344,53 @@ def check_extended(h0, silent=False, verbose=True):
     Notes
     -----
     Created by Chun Ly, 27 February 2017
+    Modified by Chun Ly, 28 February 2017
+     - Include extended galaxies slightly outside of MMTCam FoV
+     - Use elliptical formula to determine if inside extended source
     '''
 
     if silent == False: log.info('### Begin check_extended: '+systime())
 
-    size0 = h0['NAXIS1'] * pscale # Size of region to search
+    size0 = 1.25*h0['NAXIS1'] * pscale # Size of region to search
     c0 = coords.SkyCoord(ra=h0['CRVAL1'], dec=h0['CRVAL2'], unit=u.deg)
-    cat0 = IRSA.query_region(c0, catalog='fp_xsc', spatial='Box',
+    i_cat0 = IRSA.query_region(c0, catalog='fp_xsc', spatial='Box',
                              width=size0)
-    print cat0
+
+    flag_ext = np.zeros(len(s_cat)) # + on 28/02/2017
+
+    # Check if daofind sources are within elliptical region of extended sources
+    # + on 28/02/2017
+    if len(i_cat0) == 0:
+        log.info('No extended source found for : '+seqno)
+    else:
+        log.info('Extended sources found for : '+seqno)
+        if verbose == True: print i_cat0
+
+        w0 = WCS(h0)
+        sRA, sDec = w0.wcs_pix2world(s_cat['xcentroid'], s_cat['ycentroid'], 1)
+
+        sc = coords.SkyCoord(ra=sRA, dec=sDec, unit=u.deg)
+
+        for cc in range(len(i_cat0)):
+            ic = coords.SkyCoord(ra=i_cat0['clon'][cc], dec=i_cat0['clat'][cc],
+                                 unit=(u.hour, u.deg))
+            #dist0 = ic.separation(sc).to(u.arcsec).value
+            dra  = (ic.ra.deg - sRA)*3600.0 * np.cos(np.radians(ic.dec.deg))
+            ddec = (ic.dec.deg - sDec)*3600.0
+
+            ang0 = np.radians(90.0-i_cat0['sup_phi'])
+            maj0 = i_cat0['r_k20fe'][cc]
+            min0 = maj0*i_cat0['sup_ba'][cc]
+            dist0 = ((dra*np.cos(ang0) + ddec*np.sin(ang0))/maj0)**2 + \
+                    ((dra*np.sin(ang0) - ddec*np.cos(ang0))/min0)**2
+            ext0 = np.where(dist0 <= 1.0)[0]
+            flag_ext[ext0] = 1
+            # print s_cat[ext0]
     if silent == False: log.info('### End check_extended: '+systime())
+
+    if return_irsa_cat == False:
+        return flag_ext
+    else: flag_ext, i_cat0
 #enddef
 
 def find_stars(files=None, path0=None, plot=False, out_pdf_plot=None,
@@ -382,6 +421,8 @@ def find_stars(files=None, path0=None, plot=False, out_pdf_plot=None,
      - Later modified to plot images and overlay sources
      - Adjust scale to using IRAF's zscale
      - Call remove_dup_sources()
+    Modified by Chun Ly, 28 February 2017
+     - Call check_extended() to get flag indicating extended, flag_ext
     '''
 
     if silent == False: log.info('### Begin find_stars: '+systime())
@@ -410,9 +451,9 @@ def find_stars(files=None, path0=None, plot=False, out_pdf_plot=None,
             out_pdf_plot = path0+'find_stars.pdf'
         pp = PdfPages(out_pdf_plot)
 
-    for ff in xrange(len(files)):
+    for ff in xrange(len(files)): #[34,35,36,37,38,39]: #xrange(len(files)):
         basename = os.path.basename(files[ff])
-        image = fits.getdata(files[ff])
+        image, hdr = fits.getdata(files[ff], header=True)
         mean, median, std = sigma_clipped_stats(image, sigma=2.0, iters=5)
         image_sub = image - median
 
@@ -431,6 +472,15 @@ def find_stars(files=None, path0=None, plot=False, out_pdf_plot=None,
         s_cat.sort(['peak'])
         s_cat.reverse()
         # s_cat.pprint()
+
+        # + on 28/02/2017
+        flag_ext = check_extended(hdr, s_cat, seqno[ff], verbose=False)
+        i_extend = np.where(flag_ext == 1)[0]
+        i_point  = np.where(flag_ext == 0)[0]
+        if len(i_extend) > 0:
+            cat_ext = s_cat[i_extend]
+            s_cat   = s_cat[i_point]
+        #endif
 
         # Later + on 23/02/2017
         bad = remove_dup_sources(s_cat)
@@ -466,18 +516,31 @@ def find_stars(files=None, path0=None, plot=False, out_pdf_plot=None,
 
             fig, ax = plt.subplots()
             z1, z2 = zscale.get_limits(image_sub)
-            print z1, z2
+            # print z1, z2
             norm = ImageNormalize(vmin=z1, vmax=z2) #stretch=SqrtStretch())
             ax.imshow(image_sub, cmap='Greys', origin='lower', norm=norm)
             aper0.plot(color='blue', lw=1.5, alpha=0.5)
             sat_aper0.plot(color='red', lw=1.5, alpha=0.5)
             bad_aper0.plot(color='magenta', lw=1.5, alpha=0.5)
 
-            t_ann = s_date+'/'+os.path.basename(files[ff])
-            ax.annotate(t_ann, [0.025,0.975], xycoords='axes fraction',
-                         ha='left', va='top')
-            fig.savefig(pp, format='pdf') #, bbox_inches='tight')
+            # Label bright sources | + on 28/02/2017
+            bright = np.where(s_cat['peak'] >= 0.33*max(s_cat['peak']))[0]
+            for nn in bright:
+                t_pos = [s_cat['xcentroid'][nn], s_cat['ycentroid'][nn]+10]
+                ax.annotate(str(nn+1), t_pos, xycoords='data', ha='center',
+                            va='bottom', color='b', weight='medium')
 
+            # Mark sources excluded by extended criteria | + on 28/02/2017
+            ax.plot(cat_ext['xcentroid'], cat_ext['ycentroid'], 'rx', linewidth=2)
+
+            t_ann = s_date+'/'+os.path.basename(files[ff])
+            ax.set_title(t_ann, loc=u'center', fontsize=14, weight='bold')
+            #ax.annotate(t_ann, [0.025,0.975], xycoords='axes fraction',
+            #             ha='left', va='top', bbox=bbox_props)
+            ax.set_xlim([0,hdr['NAXIS1']])
+            ax.set_ylim([0,hdr['NAXIS2']])
+            fig.set_size_inches(8,8)
+            fig.savefig(pp, format='pdf', bbox_inches='tight')
     #endfor
     if plot == True:
         if silent == False:
