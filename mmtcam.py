@@ -55,8 +55,8 @@ import astropy.coordinates as coords #+ on 27/02/2017
 
 out_cat_dir = 'daofind/' # + on 23/02/2017
 
-# + on 24/02/2017
-bbox_props = dict(boxstyle="square,pad=0.3", fc="white", alpha=0.75, ec="none")
+# + on 24/02/2017 | Mod on 27/02/2017 for less padding
+bbox_props = dict(boxstyle="square,pad=0.15", fc="w", alpha=0.75, ec="none")
 
 c_levels = 0.2+0.1*np.arange(9)
 f_s      = 2*np.sqrt(2*np.log(2)) # sigma-FWHM conversion | + on 25/02/2017
@@ -713,8 +713,10 @@ def psf_contours(files=None, path0=None, out_pdf_plot=None, silent=False,
         FWHMy = popt[4] * f_s * pscale.to(u.arcsec).value
         f_annot += r'2DFit: FW$_1$=%.2f", FW$_2$=%.2f", ' % (FWHMx,FWHMy)
         f_annot += r'$\theta$=%.2f' % np.degrees(popt[5])
+        # Mod on 27/02/2017 to have a fill color
         ax[row,col].annotate(f_annot, [0.025,0.915], xycoords='axes fraction',
-                             ha='left', va='top', fontsize=8, zorder=10)
+                             ha='left', va='top', fontsize=8, zorder=10,
+                             bbox=bbox_props)
 
         # Overlay 0.25, 0.50, and 0.75 quartile contours for 2-D Gaussian fit
         # + on 25/02/2017
