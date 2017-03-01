@@ -85,7 +85,7 @@ def get_files(path0):
     return files, seqno[s_idx]
 #enddef
 
-def remove_dup_sources(s_cat):
+def remove_dup_sources(s_cat, verbose=False):
     # + on 23/02/2017
     n_sources = len(s_cat)
 
@@ -105,7 +105,7 @@ def remove_dup_sources(s_cat):
                 else:
                     bad += [nn]
             else:
-                print nn, 'too many'
+                if verbose == True: print nn, 'too many : ', len(i_match)
                 bad += i_match.tolist()
     return bad
 #enddef
@@ -253,7 +253,7 @@ def fwhm_fwqm_size(post, pscale):
     Created by Chun Ly, 25 February 2017
     '''
 
-    max0 = np.max(post)
+    max0 = np.nanmax(post) # Mod on 28/02/2017
 
     i_fwhm    = np.where(post >= max0/2.0)
     i_fwqm    = np.where(post >= max0/4.0)
@@ -484,7 +484,6 @@ def find_stars(files=None, path0=None, plot=False, out_pdf_plot=None,
 
         # Later + on 23/02/2017
         bad = remove_dup_sources(s_cat)
-        print bad
         if len(bad) > 0:
             cat_bad = s_cat[bad]
             s_cat.remove_rows(bad)
@@ -492,14 +491,22 @@ def find_stars(files=None, path0=None, plot=False, out_pdf_plot=None,
         if ff == 0 and silent == False: s_cat.pprint()
 
         # + on 23/02/2017
-        out_cat = out_cat_dir0+basename.replace('.fits.gz','.tbl').replace('.fits','.tbl')
+        out_cat = out_cat_dir0+basename.replace('.fits.gz','.tbl')
+        out_cat = out_cat.replace('.fits','.tbl')
         s_cat.write(out_cat, format='ascii.fixed_width_two_line',
                     overwrite=True)
+
+        # Write extended catalog | + on 28/02/2017
+        if len(i_extend) >0:
+            out_cat_ext = out_cat.replace('.tbl','.ext.tbl')
+            cat_ext.write(out_cat_ext, format='ascii.fixed_width_two_line',
+                          overwrite=True)
 
         # Later + on 23/02/2017
         if len(bad) >0 and verbose == True:
             log.info('The following will be removed : ')
             cat_bad.pprint()
+        if len(bad) >0:
             out_cat_bad = out_cat.replace('.tbl','.bad.tbl')
             cat_bad.write(out_cat_bad, format='ascii.fixed_width_two_line',
                           overwrite=True)
@@ -531,7 +538,8 @@ def find_stars(files=None, path0=None, plot=False, out_pdf_plot=None,
                             va='bottom', color='b', weight='medium')
 
             # Mark sources excluded by extended criteria | + on 28/02/2017
-            ax.plot(cat_ext['xcentroid'], cat_ext['ycentroid'], 'rx', linewidth=2)
+            if len(i_extend) > 0:
+                ax.plot(cat_ext['xcentroid'], cat_ext['ycentroid'], 'rx', linewidth=2)
 
             t_ann = s_date+'/'+os.path.basename(files[ff])
             ax.set_title(t_ann, loc=u'center', fontsize=14, weight='bold')
@@ -539,6 +547,9 @@ def find_stars(files=None, path0=None, plot=False, out_pdf_plot=None,
             #             ha='left', va='top', bbox=bbox_props)
             ax.set_xlim([0,hdr['NAXIS1']])
             ax.set_ylim([0,hdr['NAXIS2']])
+            ax.set_xlabel('X [pixels]')
+            ax.set_ylabel('Y [pixels]')
+
             fig.set_size_inches(8,8)
             fig.savefig(pp, format='pdf', bbox_inches='tight')
     #endfor
@@ -612,6 +623,17 @@ def make_postage(files=None, path0=None, n_stack=5, size=50,
         in_cat = out_cat_dir0+basename.replace('.fits.gz','.tbl').\
                  replace('.fits','.tbl')
         s_cat  = asc.read(in_cat, format='fixed_width_two_line')
+
+        # Handle but if only one source is available and is near edge | + on 28/02/2017
+        not_edge = np.where((s_cat['xcentroid'] > 50.0) &
+                            (s_cat['xcentroid'] <= hdr['NAXIS1']-50) &
+                            (s_cat['ycentroid'] > 50.0) &
+                            (s_cat['ycentroid'] <= hdr['NAXIS2']-50))[0]
+        s_cat = s_cat[not_edge]
+
+        # + on 28/02/2017
+        good  = np.where(s_cat['peak'] >= 0.33*max(s_cat['peak']))[0]
+        s_cat = s_cat[good]
 
         n_bright = np.min([n_stack,len(s_cat)])
         bright   = range(n_bright)
