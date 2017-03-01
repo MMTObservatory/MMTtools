@@ -203,6 +203,8 @@ def draw_NE_vector(h0, ax0):
     Notes
     -----
     Created by Chun Ly, 26 February 2017
+    Modified by Chun Ly, 01 March 2017
+     - Slight shift for [ry]
     '''
 
     cd = [h0[key] for key in ['CD1_1','CD1_2','CD2_1','CD2_2']]
@@ -214,9 +216,10 @@ def draw_NE_vector(h0, ax0):
     mE = np.max(np.abs(cd[:2]))
     dxE, dyE = cd[0]/mE, cd[1]/mE
 
-    if dxN != 1 or dxE != 1: rx, ry = -2.40, 0.0
-    if dxN == 1 or dxE == 1: rx, ry = -3.00, 0.0
-    if dyN == 1 and dxE == 1: rx, ry = -3.50, 0.0
+    # Slight y-shift | Mod on 01/03/2017
+    if dxN != 1 or dxE != 1: rx, ry = -2.40, -0.25
+    if dxN == 1 or dxE == 1: rx, ry = -3.00, -0.25
+    if dyN == 1 and dxE == 1: rx, ry = -3.50, -0.25
 
     ax0.arrow(rx, ry, dxN, dyN, head_width=0.05, head_length=0.1, fc='k', ec='k')
     if np.abs(dyN/dxN) > 1:
@@ -885,6 +888,9 @@ def psf_contours(files=None, path0=None, out_pdf_plot=None, silent=False,
      - Use cosmicray_median() to interpolate over CRs
      - Use psf_im_cr over psf_im
      - Use uniform_filter() to smooth data with a size of 3 pixels
+    Modified by Chun Ly, 01 March 2017
+     - Annotate plot with wind data
+     - Change x and y limit to give more room
     '''
 
     if files == None and path0 == None:
@@ -978,7 +984,16 @@ def psf_contours(files=None, path0=None, out_pdf_plot=None, silent=False,
         FWHMx = popt[3] * f_s * pscale.to(u.arcsec).value
         FWHMy = popt[4] * f_s * pscale.to(u.arcsec).value
         f_annot += r'2DFit: FW$_1$=%.2f", FW$_2$=%.2f", ' % (FWHMx,FWHMy)
-        f_annot += r'$\theta$=%.2f' % np.degrees(popt[5])
+        f_annot += r'$\theta$=%.2f' % np.degrees(popt[5]) + '\n'
+
+        # + on 01/03/2017
+        f_annot += 'Y1: avg=%.1f, max=%.1f, dir=%.1f\n' % (h0['Y1_AVG'],h0['Y1_MAX'],
+                                                           h0['Y1_DIR'])
+        f_annot += 'Y2: avg=%.1f, max=%.1f, dir=%.1f' % (h0['Y2_AVG'],h0['Y2_MAX'],
+                                                         h0['Y2_DIR'])
+        ax[row,col].set_xlim([-5,5])
+        ax[row,col].set_ylim([-5,5])
+
         # Mod on 27/02/2017 to have a fill color
         ax[row,col].annotate(f_annot, [0.025,0.915], xycoords='axes fraction',
                              ha='left', va='top', fontsize=8, zorder=10,
