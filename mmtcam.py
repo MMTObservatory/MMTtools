@@ -43,7 +43,7 @@ from pylab import subplots_adjust # + on 24/02/2017
 import scipy.optimize as opt # + on 25/02/2017
 
 # + on 26/02/2017
-from datetime import datetime
+from datetime import datetime, timedelta # Mod on 28/02/2017
 from astropy.time import Time, TimezoneInfo
 
 from ccdproc import cosmicray_median # + on 26/02/2017
@@ -53,6 +53,8 @@ from scipy.ndimage import uniform_filter # + on 26/02/2017
 from astroquery.irsa import Irsa as IRSA # + on 27/02/2017
 import astropy.coordinates as coords # + on 27/02/2017
 from astropy.wcs import WCS # + on 28/02/2017
+
+import pymysql # + on 28/02/2017
 
 out_cat_dir = 'daofind/' # + on 23/02/2017
 
@@ -318,6 +320,97 @@ def gauss2d((x, y), amplitude, xo, yo, sigma_x, sigma_y, theta, offset):
     return g.ravel()
 #enddef
 
+def query_mmtlog_wind(u_start, u_stop, user='webuser', passwd='', path0='',
+                      silent=False, verbose=True):
+    '''
+    Query ops.mmto.arizona.edu's log for wind data.
+    Note: This code requires specifying the password
+
+    Parameters
+    ----------
+    u_start : string
+     UTC start time. Formatted as 'YYYY-MM-DD HH:MM:SS'
+
+    u_stop : string
+     UTC stop time. Formatted as 'YYYY-MM-DD HH:MM:SS'
+
+    user : string
+     Username to login. Default: 'webuser'
+
+    passwd : string
+     Password for user. Default: ''
+
+    path0 : string
+      Directory path to files.
+
+    silent : boolean
+      Turns off stdout messages. Default: False
+
+    verbose : boolean
+      Turns on additional stdout messages. Default: True
+
+    Returns
+    -------
+    tab0 : astropy.table.Table
+     Astropy table containing young and young2 info
+
+    Notes
+    -----
+    Created by Chun Ly, 28 February 2017
+    '''
+
+    if passwd == '':
+        log.error('Must specify password!')
+        log.error('Exiting!!!')
+        return
+
+    if silent == False: log.info('### Begin query_mmtlog_wind: '+systime())
+
+    utc_mst = TimezoneInfo(utc_offset=-7*u.hour)
+    m_start = Time(u_start).to_datetime(timezone=utc_mst)
+    m_start = m_start.strftime('%Y-%m-%d %H:%M%:%S')
+    m_stop  = Time(u_stop).to_datetime(timezone=utc_mst) + \
+              timedelta(seconds=10*60.0) # Add 10 min. to have enough buffer
+    m_stop  = m_stop.strftime('%Y-%m-%d %H:%M%:%S')
+
+    conn = pymysql.connect(host='ops.mmto.arizona.edu', user=user,
+                           passwd=passwd, db='mmtlogs')
+    cur = conn.cursor()
+
+    sql1 = "SELECT timestamp,young_wind_speed,young_wind_direction FROM "+\
+           "young_background_log where timestamp >= '"+m_start+"' AND "+\
+           "timestamp < '"+m_stop+"'"
+    # print sql1
+    n_entries = cur.execute(sql1)
+    results1 = cur.fetchall()
+
+    sql2 = sql1.replace('young', 'young2')
+    cur.execute(sql2)
+    results2 = cur.fetchall()
+
+    time0   = np.repeat('XXXX-XX-XX XX:XX:XX', n_entries)
+    speed1  = np.zeros(n_entries)
+    direct1 = np.zeros(n_entries)
+    speed2  = np.zeros(n_entries)
+    direct2 = np.zeros(n_entries)
+
+    for nn in xrange(n_entries):
+        time0[nn]   = results1[nn][0].isoformat()
+        speed1[nn]  = results1[nn][1]
+        direct1[nn] = results1[nn][2]
+
+        speed2[nn]  = results2[nn][1]
+        direct2[nn] = results2[nn][2]
+
+    outfile = path0+'wind_data.tbl'
+    vec0   = [time0, speed1, direct1, speed2, direct2]
+    names0 = ('MST_time','speed1', 'direct1', 'speed2', 'direct2')
+    tab0 = Table(vec0, names=names0)
+    if silent == False: log.info('## Writing : '+outfile)
+    asc.write(tab0, outfile, format='fixed_width_two_line', overwrite=True)
+    if silent == False: log.info('### End query_mmtlog_wind: '+systime())
+#enddef
+
 def check_extended(h0, s_cat, seqno, return_irsa_cat=False, silent=False,
                    verbose=True):
     '''
@@ -562,7 +655,7 @@ def find_stars(files=None, path0=None, plot=False, out_pdf_plot=None,
 #enddef
 
 def make_postage(files=None, path0=None, n_stack=5, size=50,
-                 silent=False, verbose=True):
+                 user='webuser', passwd='', silent=False, verbose=True):
     '''
     Create cut-outs and median stack to produce image of the
     point-spread function
@@ -593,6 +686,9 @@ def make_postage(files=None, path0=None, n_stack=5, size=50,
     Modified by Chun Ly, 26 February 2017
      - Use cosmicray_median() to interpolate over CRs
      - Include number of stack sources in FITS header
+    Modified by Chun Ly, 28 February 2017
+     - Call query_mmtlog_wind() function
+     - Add user and passwd keyword to pass on
     '''
 
     if files == None and path0 == None:
@@ -607,6 +703,11 @@ def make_postage(files=None, path0=None, n_stack=5, size=50,
         # path0 = None # Reset since files will have full path
     else:
         if files != None: seqno = get_seqno(files)
+
+    # Query for wind data | + on 28/02/2017
+    u_start = fits.getheader(files[0])['DATE-OBS']
+    u_stop  = fits.getheader(files[-1])['DATE-OBS']
+    query_mmtlog_wind(u_start, u_stop, user=user, passwd=passwd, path0=path0)
 
     post_dir0 = path0 + 'post/'
     if not exists(post_dir0):
@@ -841,7 +942,8 @@ def psf_contours(files=None, path0=None, out_pdf_plot=None, silent=False,
     if silent == False: log.info('### End psf_contours: '+systime())
 #enddef
 
-def run_all(files=None, path0=None, silent=False, verbose=True):
+def run_all(files=None, path0=None, user='webuser', passwd='',
+            silent=False, verbose=True):
     '''
     Run all functions related to MMTCam analysis
 
@@ -866,6 +968,8 @@ def run_all(files=None, path0=None, silent=False, verbose=True):
     Notes
     -----
     Created by Chun Ly, 23 February 2017
+    Modified by Chun Ly, 28 February 2017
+     - Add user and passwd keyword to pass on to make_postage()
     '''
 
     if files == None and path0 == None:
@@ -885,7 +989,8 @@ def run_all(files=None, path0=None, silent=False, verbose=True):
         for file in files: log.info(os.path.basename(file))
 
     find_stars(files=files, path0=path0, plot=True, verbose=False)
-    make_postage(files=files, path0=path0, verbose=False)
+    make_postage(files=files, path0=path0, user=user, passwd=passwd,
+                 verbose=False)
     psf_contours(files=files, path0=path0, verbose=False)
 
     if silent == False: log.info('### End run_all: '+systime())
