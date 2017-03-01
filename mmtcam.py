@@ -68,6 +68,14 @@ f_s      = 2*np.sqrt(2*np.log(2)) # sigma-FWHM conversion | + on 25/02/2017
 pscale   = 0.16 * u.arcsec
 v_pscale = pscale.to(u.arcsec).value
 
+# Moved up on 01/03/2017
+utc_mst = TimezoneInfo(utc_offset=-7*u.hour)
+mst_utc = TimezoneInfo(utc_offset=+7*u.hour)
+
+# Convert from m/s to mph | + on 01/03/2017
+mph = u.imperial.mile/u.hour
+mph_conv = (1 * u.m/u.s).to(mph).value
+
 def get_seqno(files):
     # + on 23/02/2017
     t_files = [os.path.basename(file) for file in files]
@@ -119,7 +127,7 @@ def hdr_annotate(h0, ax):
     Parameters
     ----------
     h0 : astropy.io.fits.header.Header
-      FITS header file
+      FITS header
 
     ax : matplotlib.axes._subplots.AxesSubplot
       Axes to use for annotation
@@ -163,7 +171,7 @@ def get_mst(h0):
     Parameters
     ----------
     h0 : astropy.io.fits.header.Header
-      FITS header file
+      FITS header
 
     Returns
     -------
@@ -175,7 +183,6 @@ def get_mst(h0):
     Created by Chun Ly, 26 February 2017
     '''
 
-    utc_mst = TimezoneInfo(utc_offset=-7*u.hour)
     t = Time(h0['DATE-OBS']).to_datetime(timezone=utc_mst)
     return t.strftime('%H:%M:%S')
 #enddef
@@ -187,7 +194,7 @@ def draw_NE_vector(h0, ax0):
     Parameters
     ----------
     h0 : astropy.io.fits.header.Header
-      FITS header file
+      FITS header
 
     Returns
     -------
@@ -352,11 +359,13 @@ def query_mmtlog_wind(u_start, u_stop, user='webuser', passwd='', path0='',
     Returns
     -------
     tab0 : astropy.table.Table
-     Astropy table containing young and young2 info
+     Astropy table containing young and young2 wind data
 
     Notes
     -----
     Created by Chun Ly, 28 February 2017
+    Modified by Chun Ly, 01 March 2017
+     - Return tab0
     '''
 
     if passwd == '':
@@ -366,7 +375,6 @@ def query_mmtlog_wind(u_start, u_stop, user='webuser', passwd='', path0='',
 
     if silent == False: log.info('### Begin query_mmtlog_wind: '+systime())
 
-    utc_mst = TimezoneInfo(utc_offset=-7*u.hour)
     m_start = Time(u_start).to_datetime(timezone=utc_mst)
     m_start = m_start.strftime('%Y-%m-%d %H:%M%:%S')
     m_stop  = Time(u_stop).to_datetime(timezone=utc_mst) + \
@@ -409,6 +417,64 @@ def query_mmtlog_wind(u_start, u_stop, user='webuser', passwd='', path0='',
     if silent == False: log.info('## Writing : '+outfile)
     asc.write(tab0, outfile, format='fixed_width_two_line', overwrite=True)
     if silent == False: log.info('### End query_mmtlog_wind: '+systime())
+    return tab0
+#enddef
+
+def wind_avg_max(wind_tab0, h0):
+    '''
+    Compute average, maximum and avg direction of wind from wind data for
+    each observation period
+
+    Parameters
+    ----------
+    wind_tab0 : astropy.table.Table
+     Astropy table containing young and young2 wind data
+
+    h0 : astropy.io.fits.header.Header
+      FITS header
+
+    Returns
+    -------
+    h0 : astropy.io.fits.header.Header
+      Updated FITS header
+
+    Notes
+    -----
+    Created by Chun Ly, 1 March 2017
+    '''
+    t_start = Time(h0['DATE-OBS']).to_datetime(timezone=utc_mst)
+    t_stop  = t_start + timedelta(seconds=h0['EXPTIME'])
+
+    # Note: mjd_start/mjd_stop is MJD associated with MST time not UTC
+    mjd_start = Time(t_start.strftime('%Y-%m-%d %H:%M%:%S')).mjd
+    mjd_stop  = Time(t_stop.strftime('%Y-%m-%d %H:%M%:%S')).mjd
+
+    time0 = Time(wind_tab0['MST_time'])
+    mjd0  = time0.mjd
+    t_idx = np.where((mjd0 >= mjd_start) & (mjd0 <= mjd_stop))[0]
+
+    avg1 = np.average(wind_tab0['speed1'][t_idx]*mph_conv)
+    max1 = np.max(wind_tab0['speed1'][t_idx]*mph_conv)
+    dir1 = np.average(wind_tab0['direct1'][t_idx])
+
+    avg2 = np.average(wind_tab0['speed2'][t_idx]*mph_conv)
+    max2 = np.max(wind_tab0['speed2'][t_idx]*mph_conv)
+    dir2 = np.average(wind_tab0['direct2'][t_idx])
+
+    #young1 = {'avg':avg1, 'max':max1, 'dir':dir1}
+    #young2 = {'avg':avg2, 'max':max2, 'dir':dir2}
+    #return young1, young2
+
+    # Update header with wind data
+    h0.set('Y1_AVG', avg1, 'YOUNG1 avg wind speed [mph]')
+    h0.set('Y1_MAX', max1, 'YOUNG1 max wind speed [mph]')
+    h0.set('Y1_DIR', dir1, 'YOUNG1 avg wind direction [deg]')
+
+    h0.set('Y2_AVG', avg2, 'YOUNG2 avg wind speed [mph]')
+    h0.set('Y2_MAX', max2, 'YOUNG2 max wind speed [mph]')
+    h0.set('Y2_DIR', dir2, 'YOUNG1 avg wind direction [deg]')
+
+    return h0
 #enddef
 
 def check_extended(h0, s_cat, seqno, return_irsa_cat=False, silent=False,
@@ -689,6 +755,9 @@ def make_postage(files=None, path0=None, n_stack=5, size=50,
     Modified by Chun Ly, 28 February 2017
      - Call query_mmtlog_wind() function
      - Add user and passwd keyword to pass on
+    Modified by Chun Ly, 1 March 2017
+     - Check if wind data table is available before running query_mmtlog_wind()
+     - Call wind_avg_max() function
     '''
 
     if files == None and path0 == None:
@@ -705,9 +774,16 @@ def make_postage(files=None, path0=None, n_stack=5, size=50,
         if files != None: seqno = get_seqno(files)
 
     # Query for wind data | + on 28/02/2017
-    u_start = fits.getheader(files[0])['DATE-OBS']
-    u_stop  = fits.getheader(files[-1])['DATE-OBS']
-    query_mmtlog_wind(u_start, u_stop, user=user, passwd=passwd, path0=path0)
+    # Mod on 01/03/2017 to check if file exists
+    wind_file = path0+'wind_data.tbl'
+    if not exists(wind_file):
+        u_start = fits.getheader(files[0])['DATE-OBS']
+        u_stop  = fits.getheader(files[-1])['DATE-OBS']
+        wind_tab0 = query_mmtlog_wind(u_start, u_stop, user=user,
+                                      passwd=passwd, path0=path0)
+    else:
+        if silent == False: log.info('### File found! Reading : '+wind_file)
+        wind_tab0 = asc.read(wind_file, format='fixed_width_two_line')
 
     post_dir0 = path0 + 'post/'
     if not exists(post_dir0):
@@ -725,7 +801,8 @@ def make_postage(files=None, path0=None, n_stack=5, size=50,
                  replace('.fits','.tbl')
         s_cat  = asc.read(in_cat, format='fixed_width_two_line')
 
-        # Handle but if only one source is available and is near edge | + on 28/02/2017
+        # Handle failure if only one source is available and is near edge
+        # + on 28/02/2017
         not_edge = np.where((s_cat['xcentroid'] > 50.0) &
                             (s_cat['xcentroid'] <= hdr['NAXIS1']-50) &
                             (s_cat['ycentroid'] > 50.0) &
@@ -756,6 +833,9 @@ def make_postage(files=None, path0=None, n_stack=5, size=50,
         out_fits = post_dir0+seqno[ff]+'.fits'
         psf_im = np.nanmedian(im0, axis=0)
         hdr.set('NBRIGHT', n_bright) # + on 26/02/2017
+
+        wind_avg_max(wind_tab0, hdr) # + on 01/03/2017
+
         fits.writeto(out_fits, psf_im, hdr, overwrite=True)
 
     if silent == False: log.info('### End make_postage: '+systime())
