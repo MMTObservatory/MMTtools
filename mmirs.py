@@ -69,6 +69,9 @@ def compute_mmirs_offsets(ra, dec, pm_ra, pm_dec, date='', epoch=0,
     Notes
     -----
     Created by Chun Ly, 10 April 2017
+    Modified by Chun Ly, 1 May 2017
+     - Output PA for with and without PM
+     - Adjust log.info call() to allow for silence
     '''
     
     if silent == False: log.info('### Begin compute_mmirs_offsets : '+systime())
@@ -76,6 +79,7 @@ def compute_mmirs_offsets(ra, dec, pm_ra, pm_dec, date='', epoch=0,
     if date != '':
         epoch = Time(date).decimalyear
     dtime = epoch - 2000.0
+    if verbose == True: print dtime
 
     # J2000 coordinates
     c0 = coords.SkyCoord(ra[0], dec[0], frame='icrs',
@@ -83,8 +87,9 @@ def compute_mmirs_offsets(ra, dec, pm_ra, pm_dec, date='', epoch=0,
     ct = coords.SkyCoord(ra[1], dec[1], frame='icrs',
                          unit=(u.hr, u.deg)) # target
 
-    log.info('J2000 coord, offset star : '+ra[0]+' '+dec[0])
-    log.info('J2000 coord, target      : '+ra[1]+' '+dec[1])
+    if silent == False:
+      log.info('J2000 coord, offset star : '+ra[0]+' '+dec[0])
+      log.info('J2000 coord, target      : '+ra[1]+' '+dec[1])
 
     # offset star
     pmRA = pm_ra[0] * dtime/np.cos(np.radians(c0.dec.value))
@@ -100,8 +105,10 @@ def compute_mmirs_offsets(ra, dec, pm_ra, pm_dec, date='', epoch=0,
 
     new_c0_str = new_c0.to_string('hmsdms')
     new_ct_str = new_ct.to_string('hmsdms')
-    log.info('Epoch='+str(epoch)+' coord, offset star : '+new_c0_str)
-    log.info('Epoch='+str(epoch)+' coord, target      : '+new_ct_str)
+
+    if silent == False:
+      log.info('Epoch='+str(epoch)+' coord, offset star : '+new_c0_str)
+      log.info('Epoch='+str(epoch)+' coord, target      : '+new_ct_str)
     
     # For J2000
     dra0  = (ct.ra.deg - c0.ra.deg) * 3600.0 # * np.cos(new_ct.dec.radian)
@@ -109,24 +116,28 @@ def compute_mmirs_offsets(ra, dec, pm_ra, pm_dec, date='', epoch=0,
 
     PA1  = c0.position_angle(ct).degree - 180.0 # + => East of North
 
-    print ''
-    log.info('IF PROPER MOTION WAS NOT CONSIDERED!!!')
-    log.info('This offset in RA  for alignboxmmirs : %.3f' % dra0)
-    log.info('This offset in Dec for alignboxmmirs : %.3f' % ddec0)
-    log.info('PA for longslit alignment : %.3f, %.3f, or %.3f' % (PA1, PA1-180,
-                                                                  PA1+180))
+    if silent == False:
+      print ''
+      log.info('IF PROPER MOTION WAS NOT CONSIDERED!!!')
+      log.info('This offset in RA  for alignboxmmirs : %.3f arcsec' % dra0)
+      log.info('This offset in Dec for alignboxmmirs : %.3f arcsec' % ddec0)
+      log.info('PA for longslit alignment : %.3f, %.3f, or %.3f' % (PA1, PA1-180,
+                                                                    PA1+180))
 
     dra0  = (new_ct.ra.deg - new_c0.ra.deg) * 3600.0 # * np.cos(new_ct.dec.radian)
     ddec0 = (new_ct.dec.deg - new_c0.dec.deg) * 3600.0
 
     PA  = new_c0.position_angle(new_ct).degree - 180.0 # + => East of North
 
-    print ''; print ''
-    log.info('IF PROPER MOTION IS CONSIDERED!!!')
-    log.info('This offset in RA  for alignboxmmirs : %.3f' % dra0)
-    log.info('This offset in Dec for alignboxmmirs : %.3f' % ddec0)
-    log.info('PA for longslit alignment : %.3f, %.3f, or %.3f' % (PA, PA-180, PA+180))
-    
+    if silent == False:
+      print ''; print ''
+      log.info('IF PROPER MOTION IS CONSIDERED!!!')
+      log.info('This offset in RA  for alignboxmmirs : %.3f arcsec' % dra0)
+      log.info('This offset in Dec for alignboxmmirs : %.3f arcsec' % ddec0)
+      log.info('PA for longslit alignment : %.3f, %.3f, or %.3f' % (PA, PA-180, PA+180))
+
     if silent == False: log.info('### End compute_mmirs_offsets : '+systime())
+
+    return PA1, PA
 #enddef
 
