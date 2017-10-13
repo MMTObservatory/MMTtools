@@ -43,28 +43,32 @@ def main(rawdir, prefix, bright=False, silent=False, verbose=True):
     Notes
     -----
     Created by Chun Ly, 13 October 2017
+     - Handle gzip files as inputs
+     - Change data cube dimensions
+     - Handle FITS overwrite
     '''
     
     if silent == False: log.info('### Begin main : '+systime())
 
     if rawdir[-1] != '/': rawdir = rawdir + '/'
 
-    dcorr_files = glob.glob(rawdir+prefix+'*dcorr.fits')
+    dcorr_files = glob.glob(rawdir+prefix+'*dcorr.fits*')
     n_files     = len(dcorr_files)
     
     hdu0 = fits.getheader(dcorr_files[0])
     naxis1, naxis2 = hdu0['NAXIS1'], hdu0['NAXIS2']
     
-    d_cube0     = np.zeros((naxis1, naxis2, n_files))
+    d_cube0     = np.zeros((n_files, naxis1, naxis2))
     peak_val    = np.zeros(n_files)
-    shift_cube0 = np.zeros((naxis1, naxis2, n_files))
+    shift_cube0 = np.zeros((n_files, naxis1, naxis2))
 
     for ii in range(n_files):
-        d_cube0[:,:,ii] = fits.getdata(dcorr_files[ii])
+        d_cube0[ii] = fits.getdata(dcorr_files[ii])
 
         if bright == True:
-            im_test  = d_cube0[:,:,ii]
+            im_test  = d_cube0[ii].copy()
             med0_row = np.median(im_test, axis=1)
+
             resize   = np.repeat(med0_row, naxis1).reshape((naxis2,naxis1))
             im_test  = im_test - resize
 
@@ -74,11 +78,14 @@ def main(rawdir, prefix, bright=False, silent=False, verbose=True):
             log.info('### Not supported yet')
 
     shift_val = peak_val[0] - peak_val
-    
-    for ii in range(n_files):
-        shift_cube[:,:,ii] = shift(d_cube0[:,:,ii], shift_val[ii])
 
-    fits.writeto(rawdir+prefix+'_stack.fits', shift_cube)
+    log.info('### Shift values for spectra : ')
+    log.info('### '+" ".join(shift_val))
+
+    for ii in range(n_files):
+        shift_cube0[ii] = shift(d_cube0[ii], shift_val[ii])
+
+    fits.writeto(rawdir+prefix+'_stack.fits', shift_cube0, overwrite=True)
 
     if silent == False: log.info('### End main : '+systime())
 #enddef
