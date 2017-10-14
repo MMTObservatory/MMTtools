@@ -51,6 +51,7 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', silent=False,
      - Handle ABA'B' dithering to get "sky" frame
      - AB subtraction for background removal
      - Add difference data cube for combine
+     - Compute average from background-subtracted, image-shifted images
     '''
     
     if silent == False: log.info('### Begin main : '+systime())
@@ -105,7 +106,9 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', silent=False,
     for ii in range(n_files):
         shift_cube0[ii] = shift(diff_cube0[ii], shift_val[ii])
 
-    fits.writeto(rawdir+prefix+'_stack.fits', shift_cube0, overwrite=True)
+    stack0 = np.average(shift_cube0, axis=0)
+
+    fits.writeto(rawdir+prefix+'_stack.fits', stack0, overwrite=True)
 
     if silent == False: log.info('### End main : '+systime())
 #enddef
