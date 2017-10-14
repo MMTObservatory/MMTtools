@@ -23,7 +23,8 @@ import glob
 from astropy.table import Table
 from astropy import log
 
-def main(rawdir, prefix, bright=False, silent=False, verbose=True):
+def main(rawdir, prefix, bright=False, dither='ABApBp', silent=False,
+         verbose=True):
 
     '''
     Main function of mmirs_qrp
@@ -46,6 +47,10 @@ def main(rawdir, prefix, bright=False, silent=False, verbose=True):
      - Handle gzip files as inputs
      - Change data cube dimensions
      - Handle FITS overwrite
+     - Added dithering keyword
+     - Handle ABA'B' dithering to get "sky" frame
+     - AB subtraction for background removal
+     - Add difference data cube for combine
     '''
     
     if silent == False: log.info('### Begin main : '+systime())
@@ -62,15 +67,29 @@ def main(rawdir, prefix, bright=False, silent=False, verbose=True):
     peak_val    = np.zeros(n_files)
     shift_cube0 = np.zeros((n_files, naxis1, naxis2))
 
-    for ii in range(n_files):
-        d_cube0[ii] = fits.getdata(dcorr_files[ii])
+    dither_cat  = np.zeros(n_files)
+    diff_cube0  = np.zeros((n_files, naxis1, naxis2))
 
+    if dither == 'ABApBp':
+        i_off = [1, -1] * (n_files/2)
+        if n_files % 2 == 1: i_off.append(-1) # Odd number correction
+        i_sky = np.arange(n_files)+np.array(i_off)
+    print i_sky
+
+    for ii in range(n_files):
+        d_cube0[ii], t_hdr = fits.getdata(dcorr_files[ii], header=True)
+        dither_cat[ii] = t_hdr['INSTEL']
+
+        t_sky  = fits.getdata(dcorr_files[i_sky[ii]])
+        t_diff = d_cube0[ii] - t_sky
+        diff_cube0[ii] = t_diff
+
+        # Compute offsets using bright source
         if bright == True:
-            im_test  = d_cube0[ii].copy()
-            med0_row = np.median(im_test, axis=1)
+            med0_row = np.median(t_diff, axis=1)
 
             resize   = np.repeat(med0_row, naxis1).reshape((naxis2,naxis1))
-            im_test  = im_test - resize
+            im_test  = t_diff - resize
 
             med0_col     = np.median(im_test, axis=0)
             peak_val[ii] = np.argmax(med0_col)
@@ -79,11 +98,12 @@ def main(rawdir, prefix, bright=False, silent=False, verbose=True):
 
     shift_val = peak_val[0] - peak_val
 
+    # Fix bug on 13/10/2017
     log.info('### Shift values for spectra : ')
-    log.info('### '+" ".join(shift_val))
+    log.info('### '+" ".join([str(a) for a in shift_val]))
 
     for ii in range(n_files):
-        shift_cube0[ii] = shift(d_cube0[ii], shift_val[ii])
+        shift_cube0[ii] = shift(diff_cube0[ii], shift_val[ii])
 
     fits.writeto(rawdir+prefix+'_stack.fits', shift_cube0, overwrite=True)
 
