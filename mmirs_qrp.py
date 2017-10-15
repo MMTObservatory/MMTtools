@@ -52,6 +52,8 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', silent=False,
      - AB subtraction for background removal
      - Add difference data cube for combine
      - Compute average from background-subtracted, image-shifted images
+    Modified by Chun Ly, 14 October 2017
+     - Bug in shift call. Need to specify as row,column shift values
     '''
     
     if silent == False: log.info('### Begin main : '+systime())
@@ -104,7 +106,8 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', silent=False,
     log.info('### '+" ".join([str(a) for a in shift_val]))
 
     for ii in range(n_files):
-        shift_cube0[ii] = shift(diff_cube0[ii], shift_val[ii])
+        # Bug fix - Mod on 14/10/2017
+        shift_cube0[ii] = shift(diff_cube0[ii], [0,shift_val[ii]])
 
     stack0 = np.average(shift_cube0, axis=0)
 
