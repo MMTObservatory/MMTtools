@@ -18,8 +18,8 @@ How to use the documentation
 import MMTtools as MMT
 """
 
-import mmtcam
-import mmirs
+#import mmtcam
+#import mmirs
 
-reload(mmtcam)
-reload(mmirs)
+#reload(mmtcam)
+#reload(mmirs)
