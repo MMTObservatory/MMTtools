@@ -31,6 +31,22 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', silent=False,
 
     Parameters
     ----------
+    rawdir : str
+      Full path to MMIRS files
+
+    prefix : str
+      Prefix for files to process.  Code will search for dcorr files
+      in rawdir + prefix + "*dcorr.fits*"
+
+    bright : boolean
+      Indicate whether a bright star/target is in slit.  If True,
+      code will use bright star to determine offsets to shift spectra.
+      If False, will use FITS header to determine dithered size
+      (to be implemented). Default: False
+
+    dither : str
+      Dither sequence type.  Accepts 'ABApBp', 'ABAB' (to be implemented),
+      and 'ABBA' (to be implemented). Default: 'ABApBp'
 
     silent : boolean
       Turns off stdout messages. Default: False
@@ -54,6 +70,8 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', silent=False,
      - Compute average from background-subtracted, image-shifted images
     Modified by Chun Ly, 14 October 2017
      - Bug in shift call. Need to specify as row,column shift values
+    Modified by Chun Ly, 16 October 2017
+     - Documentation added
     '''
     
     if silent == False: log.info('### Begin main : '+systime())
