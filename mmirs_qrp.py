@@ -23,6 +23,8 @@ import glob
 from astropy.table import Table
 from astropy import log
 
+from ccdproc import cosmicray_median
+
 def main(rawdir, prefix, bright=False, dither='ABApBp', silent=False,
          verbose=True):
 
@@ -72,6 +74,8 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', silent=False,
      - Bug in shift call. Need to specify as row,column shift values
     Modified by Chun Ly, 16 October 2017
      - Documentation added
+    Modified by Chun Ly, 19 October 2017
+     - Attempt CR rejection with ccdproc.cosmicray_median
     '''
     
     if silent == False: log.info('### Begin main : '+systime())
@@ -101,7 +105,13 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', silent=False,
         d_cube0[ii], t_hdr = fits.getdata(dcorr_files[ii], header=True)
         dither_cat[ii] = t_hdr['INSTEL']
 
-        t_sky  = fits.getdata(dcorr_files[i_sky[ii]])
+        # + on 19/10/2017
+        data_crfree, crmask = cosmicray_median(d_cube0[ii], thresh=5, rbox=11)
+        d_cube0[ii] = data_crfree
+
+    # Mod on 19/10/2017
+    for ii in range(n_files):
+        t_sky  = d_cube0[i_sky[ii]]
         t_diff = d_cube0[ii] - t_sky
         diff_cube0[ii] = t_diff
 
