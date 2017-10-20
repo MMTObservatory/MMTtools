@@ -76,6 +76,8 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', silent=False,
      - Documentation added
     Modified by Chun Ly, 19 October 2017
      - Attempt CR rejection with ccdproc.cosmicray_median
+    Modified by Chun Ly, 20 October 2017
+     - Handle ABBA dithering to get "sky" frame
     '''
     
     if silent == False: log.info('### Begin main : '+systime())
@@ -95,7 +97,7 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', silent=False,
     dither_cat  = np.zeros(n_files)
     diff_cube0  = np.zeros((n_files, naxis1, naxis2))
 
-    if dither == 'ABApBp':
+    if dither == 'ABApBp' or dither == 'ABBA':
         i_off = [1, -1] * (n_files/2)
         if n_files % 2 == 1: i_off.append(-1) # Odd number correction
         i_sky = np.arange(n_files)+np.array(i_off)
