@@ -23,7 +23,9 @@ import glob
 from astropy.table import Table
 from astropy import log
 
-from ccdproc import cosmicray_median
+# Mod on 07/11/2017
+from astropy.stats import sigma_clip
+#from ccdproc import cosmicray_median
 
 def main(rawdir, prefix, bright=False, dither='ABApBp', silent=False,
          verbose=True):
@@ -78,6 +80,8 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', silent=False,
      - Attempt CR rejection with ccdproc.cosmicray_median
     Modified by Chun Ly, 20 October 2017
      - Handle ABBA dithering to get "sky" frame
+    Modified by Chun Ly,  7 November 2017
+     - Use astropy.stats.sigma_clip to mask CRs
     '''
     
     if silent == False: log.info('### Begin main : '+systime())
@@ -107,14 +111,29 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', silent=False,
         d_cube0[ii], t_hdr = fits.getdata(dcorr_files[ii], header=True)
         dither_cat[ii] = t_hdr['INSTEL']
 
-        # + on 19/10/2017
-        data_crfree, crmask = cosmicray_median(d_cube0[ii], thresh=5, rbox=11)
-        d_cube0[ii] = data_crfree
+        ## + on 19/10/2017. Mod on 07/11/2017
+        #data_crfree, crmask = cosmicray_median(d_cube0[ii], thresh=5, rbox=11)
+        #d_cube0[ii] = data_crfree
+
+    #Flag pixels that are outliers | Mod on 07/11/2017
+    #arr_med = np.median(d_cube0, axis=0)
+    #arr_std = np.std(d_cube0, axis=0)
+    #
+    #d_cube_mask = np.zeros_like(d_cube0)
+    #
+    #for ii in range(n_files):
+    #    mask = np.where(np.absolute((d_cube0[ii] - arr_med)/arr_std) >= 4)
+    #    d_cube_mask[ii][mask] = 1
 
     # Mod on 19/10/2017
     for ii in range(n_files):
         t_sky  = d_cube0[i_sky[ii]]
         t_diff = d_cube0[ii] - t_sky
+
+        # Mod on 07/11/2017
+        #t_sky  = np.ma.masked_array(d_cube0[i_sky[ii]],
+        #                            mask=d_cube_mask[i_sky[ii]])
+        #t_diff = np.ma.masked_array(d_cube0[ii], mask=d_cube_mask[ii]) - t_sky
         diff_cube0[ii] = t_diff
 
         # Compute offsets using bright source
@@ -139,9 +158,13 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', silent=False,
         # Bug fix - Mod on 14/10/2017
         shift_cube0[ii] = shift(diff_cube0[ii], [0,shift_val[ii]])
 
-    stack0 = np.average(shift_cube0, axis=0)
+    # + on 07/11/2017
+    shift_cube0_mask = sigma_clip(shift_cube0, sigma=3., iters=5, axis=0)
+    stack0 = np.ma.average(shift_cube0_mask, axis=0)
 
-    fits.writeto(rawdir+prefix+'_stack.fits', stack0, overwrite=True)
+    # Mod on 07/11/2017
+    fits.writeto(rawdir+prefix+'_stack.fits', stack0.data, overwrite=True)
+    #fits.writeto(rawdir+prefix+'_stack.fits', stack0, overwrite=True)
 
     if silent == False: log.info('### End main : '+systime())
 #enddef
