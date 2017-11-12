@@ -27,6 +27,10 @@ from astropy import log
 from astropy.stats import sigma_clip
 #from ccdproc import cosmicray_median
 
+# + on 12/11/2017
+import astropy.units as u
+pscale = 0.2012008872545049 # arcsec/pix
+
 def main(rawdir, prefix, bright=False, dither='ABApBp', silent=False,
          verbose=True):
 
@@ -82,6 +86,9 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', silent=False,
      - Handle ABBA dithering to get "sky" frame
     Modified by Chun Ly,  7 November 2017
      - Use astropy.stats.sigma_clip to mask CRs
+    Modified by Chun Ly, 12 November 2017
+     - Get FITS header dither values, compute differences from first frame
+     - Write ASCII table with dither offsets
     '''
     
     if silent == False: log.info('### Begin main : '+systime())
@@ -98,7 +105,9 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', silent=False,
     peak_val    = np.zeros(n_files)
     shift_cube0 = np.zeros((n_files, naxis1, naxis2))
 
-    dither_cat  = np.zeros(n_files)
+    # Mod on 12/11/2017
+    dither_az   = np.zeros(n_files)
+    dither_el   = np.zeros(n_files)
     diff_cube0  = np.zeros((n_files, naxis1, naxis2))
 
     if dither == 'ABApBp' or dither == 'ABBA':
@@ -109,7 +118,9 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', silent=False,
 
     for ii in range(n_files):
         d_cube0[ii], t_hdr = fits.getdata(dcorr_files[ii], header=True)
-        dither_cat[ii] = t_hdr['INSTEL']
+        # Mod on 12/11/2017
+        dither_az[ii] = t_hdr['INSTAZ']
+        dither_el[ii] = t_hdr['INSTEL']
 
         ## + on 19/10/2017. Mod on 07/11/2017
         #data_crfree, crmask = cosmicray_median(d_cube0[ii], thresh=5, rbox=11)
@@ -150,9 +161,28 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', silent=False,
 
     shift_val = peak_val[0] - peak_val
 
-    # Fix bug on 13/10/2017
     log.info('### Shift values for spectra : ')
-    log.info('### '+" ".join([str(a) for a in shift_val]))
+    # Mod on 12/11/2017
+    dither_diff = (dither_el[0] - dither_el) / pscale * u.pix
+    files_short = [str0.replace(rawdir,'') for str0 in dcorr_files]
+    diff0       = dither_diff - shift_val * u.pix
+    arr0        = [files_short, dither_az * u.arcsec, dither_el * u.arcsec,
+                   dither_diff, shift_val * u.pix, diff0]
+    names0      = ('file','dither_az','dither_el','dither_diff','shift_val',
+                   'difference')
+    dither_tab = Table(arr0, names=names0)
+    dither_tab.pprint(max_lines=-1)
+
+    # + on 12/11/2017
+    out_dither_file1 = rawdir+prefix+'_dither_ecsv.cat'
+    if silent == False: log.info('## Writing : '+out_dither_file1)
+    dither_tab.write(out_dither_file1, format='ascii.ecsv')
+
+    # + on 12/11/2017
+    out_dither_file2 = rawdir+prefix+'_dither.cat'
+    if silent == False: log.info('## Writing : '+out_dither_file2)
+    dither_tab.write(out_dither_file2, format='ascii.fixed_width_two_line')
+    #log.info('### '+" ".join([str(a) for a in shift_val]))
 
     for ii in range(n_files):
         # Bug fix - Mod on 14/10/2017
