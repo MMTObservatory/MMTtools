@@ -89,6 +89,8 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', silent=False,
     Modified by Chun Ly, 12 November 2017
      - Get FITS header dither values, compute differences from first frame
      - Write ASCII table with dither offsets
+     - Handle dithering for bright == False using FITS dither info
+     - Handle output ASCII table for bright == False
     '''
     
     if silent == False: log.info('### Begin main : '+systime())
@@ -157,19 +159,30 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', silent=False,
             med0_col     = np.median(im_test, axis=0)
             peak_val[ii] = np.argmax(med0_col)
         else:
-            log.info('### Not supported yet')
+            if ii == 0: log.info('### Using FITS dither information')
 
-    shift_val = peak_val[0] - peak_val
+    dither_diff = (dither_el[0] - dither_el) / pscale * u.pix
+
+    # Mod on 12/11/2017
+    if bright == True:
+        shift_val = peak_val[0] - peak_val
+    else:
+        shift_val = dither_diff.value
 
     log.info('### Shift values for spectra : ')
     # Mod on 12/11/2017
-    dither_diff = (dither_el[0] - dither_el) / pscale * u.pix
     files_short = [str0.replace(rawdir,'') for str0 in dcorr_files]
-    diff0       = dither_diff - shift_val * u.pix
-    arr0        = [files_short, dither_az * u.arcsec, dither_el * u.arcsec,
-                   dither_diff, shift_val * u.pix, diff0]
-    names0      = ('file','dither_az','dither_el','dither_diff','shift_val',
-                   'difference')
+    if bright == True:
+        diff0  = dither_diff - shift_val * u.pix
+        arr0   = [files_short, dither_az * u.arcsec, dither_el * u.arcsec,
+                  dither_diff, shift_val * u.pix, diff0]
+        names0 = ('file','dither_az','dither_el','dither_diff','shift_val',
+                  'difference')
+    else:
+        arr0   = [files_short, dither_az * u.arcsec, dither_el * u.arcsec,
+                  dither_diff]
+        names0 = ('file','dither_az','dither_el','dither_diff')
+
     dither_tab = Table(arr0, names=names0)
     dither_tab.pprint(max_lines=-1)
 
