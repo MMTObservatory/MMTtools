@@ -100,6 +100,7 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', silent=False,
      - Quality Assurance: Compute and plot FWHM
      - Plot seqno on x-axis for FWHM plot
      - Aesthetics for plots
+     - Require bright=True for FWHM calculations
     '''
     
     if silent == False: log.info('### Begin main : '+systime())
@@ -219,28 +220,29 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', silent=False,
     #fits.writeto(rawdir+prefix+'_stack.fits', stack0, overwrite=True)
 
     # Compute FWHM and plot | + on 12/11/2017
-    out_fwhm_pdf = rawdir+prefix+'_stack_FWHM.pdf'
-    fig, ax = plt.subplots()
+    if bright == True:
+        out_fwhm_pdf = rawdir+prefix+'_stack_FWHM.pdf'
+        fig, ax = plt.subplots()
 
-    FWHM0 = np.zeros(n_files)
-    seqno = [str0.replace('_dcorr.fits','')[-4:] for str0 in dcorr_files]
+        FWHM0 = np.zeros(n_files)
+        seqno = [str0.replace('_dcorr.fits','')[-4:] for str0 in dcorr_files]
 
-    for ii in range(n_files):
-        im0    = shift_cube0_mask[ii]
-        med0   = np.ma.median(im0, axis=0)
-        x0     = np.arange(len(med0))
-        x0_max = np.argmax(med0)
+        for ii in range(n_files):
+            im0    = shift_cube0_mask[ii]
+            med0   = np.ma.median(im0, axis=0)
+            x0     = np.arange(len(med0))
+            x0_max = np.argmax(med0)
 
-        p0         = [0.0, max(med0), x0_max, 2.0]
-        popt, pcov = curve_fit(gauss1d, x0, med0, p0=p0)
-        FWHM0[ii]  = popt[3]*2*np.sqrt(2*np.log(2)) * pscale
+            p0         = [0.0, max(med0), x0_max, 2.0]
+            popt, pcov = curve_fit(gauss1d, x0, med0, p0=p0)
+            FWHM0[ii]  = popt[3]*2*np.sqrt(2*np.log(2)) * pscale
 
-    ax.scatter(seqno, FWHM0, marker='o', color='b', alpha=0.5)
-    ax.set_xlabel('Image Frame No.')
-    ax.set_ylabel('FWHM [arcsec]')
-    ax.minorticks_on()
-    fig.set_size_inches(8,8)
-    fig.savefig(out_fwhm_pdf, bbox_inches='tight')
+        ax.scatter(seqno, FWHM0, marker='o', color='b', alpha=0.5)
+        ax.set_xlabel('Image Frame No.')
+        ax.set_ylabel('FWHM [arcsec]')
+        ax.minorticks_on()
+        fig.set_size_inches(8,8)
+        fig.savefig(out_fwhm_pdf, bbox_inches='tight')
 
     if silent == False: log.info('### End main : '+systime())
 #enddef
