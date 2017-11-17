@@ -105,6 +105,7 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', silent=False,
      - Write npz file of arrays to expedite analysis
      - Write npz file in compressed form
      - Handle masked arrays
+     - Simplify npz to limit to just masked arrays
     '''
     
     if silent == False: log.info('### Begin main : '+systime())
@@ -223,10 +224,9 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', silent=False,
 
     # + on 17/11/2017
     if silent == False: log.info('## Writing : '+npz_file)
-    np.savez_compressed(npz_file, stack0d=stack0.data, stack0m=stack0.mask,
-                        d_cube0=d_cube0, dither_tab=dither_tab,
-                        shift_cube0_mask_d=shift_cube0_mask.data,
-                        shift_cube0_mask_m=shift_cube0_mask.mask)
+    np.savez_compressed(npz_file, dither_tab=dither_tab,
+                        shift_cube0_mask=shift_cube0_mask.mask)
+    #stack0d=stack0.data, stack0m=stack0.mask,
 
     # Mod on 07/11/2017
     fits.writeto(rawdir+prefix+'_stack.fits', stack0.data, overwrite=True)
