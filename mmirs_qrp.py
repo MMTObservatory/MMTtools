@@ -107,6 +107,7 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', silent=False,
      - Handle masked arrays
      - Simplify npz to limit to just masked arrays
      - Read in npz file, Use npz file for sigma_clip mask
+     - Bug fix: seqno handling of .gz files
     '''
     
     if silent == False: log.info('### Begin main : '+systime())
@@ -246,7 +247,8 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', silent=False,
         fig, ax = plt.subplots()
 
         FWHM0 = np.zeros(n_files)
-        seqno = [str0.replace('_dcorr.fits','')[-4:] for str0 in dcorr_files]
+        seqno = [str0.replace('.gz','').replace('_dcorr.fits','')[-4:] for \
+                 str0 in dcorr_files] # Mod on 17/11/2017
 
         for ii in range(n_files):
             im0    = shift_cube0_mask[ii]
