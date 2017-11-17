@@ -101,6 +101,8 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', silent=False,
      - Plot seqno on x-axis for FWHM plot
      - Aesthetics for plots
      - Require bright=True for FWHM calculations
+    Modified by Chun Ly, 17 November 2017
+     - Write npz file of arrays to expedite analysis
     '''
     
     if silent == False: log.info('### Begin main : '+systime())
@@ -112,6 +114,8 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', silent=False,
     
     hdu0 = fits.getheader(dcorr_files[0])
     naxis1, naxis2 = hdu0['NAXIS1'], hdu0['NAXIS2']
+
+    npz_file = rawdir+prefix+'.npz'
     
     d_cube0     = np.zeros((n_files, naxis1, naxis2))
     peak_val    = np.zeros(n_files)
@@ -215,6 +219,11 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', silent=False,
     shift_cube0_mask = sigma_clip(shift_cube0, sigma=3., iters=5, axis=0)
     stack0 = np.ma.average(shift_cube0_mask, axis=0)
 
+    # + on 17/11/2017
+    if silent == False: log.info('## Writing : '+npz_file)
+    np.savez(npz_file, stack0=stack0, shift_cube0_mask=shift_cube0_mask,
+             d_cube0=d_cube0, dither_tab=dither_tab)
+
     # Mod on 07/11/2017
     fits.writeto(rawdir+prefix+'_stack.fits', stack0.data, overwrite=True)
     #fits.writeto(rawdir+prefix+'_stack.fits', stack0, overwrite=True)
@@ -237,7 +246,7 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', silent=False,
             popt, pcov = curve_fit(gauss1d, x0, med0, p0=p0)
             FWHM0[ii]  = popt[3]*2*np.sqrt(2*np.log(2)) * pscale
 
-        ax.scatter(seqno, FWHM0, marker='o', color='b', alpha=0.5)
+        ax.plot(seqno, FWHM0, marker='o', color='b', alpha=0.5)
         ax.set_xlabel('Image Frame No.')
         ax.set_ylabel('FWHM [arcsec]')
         ax.minorticks_on()
