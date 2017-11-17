@@ -106,6 +106,7 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', silent=False,
      - Write npz file in compressed form
      - Handle masked arrays
      - Simplify npz to limit to just masked arrays
+     - Read in npz file, Use npz file for sigma_clip mask
     '''
     
     if silent == False: log.info('### Begin main : '+systime())
@@ -119,7 +120,10 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', silent=False,
     naxis1, naxis2 = hdu0['NAXIS1'], hdu0['NAXIS2']
 
     npz_file = rawdir+prefix+'.npz'
-    
+    if exists(npz_file):
+        if silent == False: log.info('## Reading : '+npz_file)
+        npz0 = np.load(npz_file)
+
     d_cube0     = np.zeros((n_files, naxis1, naxis2))
     peak_val    = np.zeros(n_files)
     shift_cube0 = np.zeros((n_files, naxis1, naxis2))
@@ -219,7 +223,11 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', silent=False,
         shift_cube0[ii] = shift(diff_cube0[ii], [0,shift_val[ii]])
 
     # + on 07/11/2017
-    shift_cube0_mask = sigma_clip(shift_cube0, sigma=3., iters=5, axis=0)
+    if not exists(npz_file):
+        shift_cube0_mask = sigma_clip(shift_cube0, sigma=3., iters=5, axis=0)
+    else:
+        shift_cube0_mask = np.ma.array(shift_cube0, mask=npz0['shift_cube0_mask'])
+
     stack0 = np.ma.average(shift_cube0_mask, axis=0)
 
     # + on 17/11/2017
