@@ -108,6 +108,8 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', silent=False,
      - Simplify npz to limit to just masked arrays
      - Read in npz file, Use npz file for sigma_clip mask
      - Bug fix: seqno handling of .gz files
+    Modified by Chun Ly, 18 November 2017
+     - Minor bug fix: NAXIS2 -> NAXIS1 and vice versa
     '''
     
     if silent == False: log.info('### Begin main : '+systime())
@@ -125,14 +127,14 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', silent=False,
         if silent == False: log.info('## Reading : '+npz_file)
         npz0 = np.load(npz_file)
 
-    d_cube0     = np.zeros((n_files, naxis1, naxis2))
+    d_cube0     = np.zeros((n_files, naxis2, naxis1))
     peak_val    = np.zeros(n_files)
-    shift_cube0 = np.zeros((n_files, naxis1, naxis2))
+    shift_cube0 = np.zeros((n_files, naxis2, naxis1))
 
     # Mod on 12/11/2017
     dither_az   = np.zeros(n_files)
     dither_el   = np.zeros(n_files)
-    diff_cube0  = np.zeros((n_files, naxis1, naxis2))
+    diff_cube0  = np.zeros((n_files, naxis2, naxis1))
 
     if dither == 'ABApBp' or dither == 'ABBA':
         i_off = [1, -1] * (n_files/2)
