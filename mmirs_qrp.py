@@ -29,6 +29,10 @@ from astropy.stats import sigma_clip
 
 from scipy.optimize import curve_fit
 
+# + on 20/11/2017
+from matplotlib.backends.backend_pdf import PdfPages
+from pylab import subplots_adjust
+
 # + on 12/11/2017
 import astropy.units as u
 pscale = 0.2012008872545049 # arcsec/pix
@@ -110,6 +114,8 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', silent=False,
      - Bug fix: seqno handling of .gz files
     Modified by Chun Ly, 18 November 2017
      - Minor bug fix: NAXIS2 -> NAXIS1 and vice versa
+    Modified by Chun Ly, 20 November 2017
+     - Plot fit to PSF profiles
     '''
     
     if silent == False: log.info('### Begin main : '+systime())
@@ -246,28 +252,83 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', silent=False,
     # Compute FWHM and plot | + on 12/11/2017
     if bright == True:
         out_fwhm_pdf = rawdir+prefix+'_stack_FWHM.pdf'
-        fig, ax = plt.subplots()
+
+        # + on 20/11/2017
+        pp = PdfPages(out_fwhm_pdf)
+        ncols, nrows = 3, 2
 
         FWHM0 = np.zeros(n_files)
         seqno = [str0.replace('.gz','').replace('_dcorr.fits','')[-4:] for \
                  str0 in dcorr_files] # Mod on 17/11/2017
 
         for ii in range(n_files):
+            if ii % (ncols*nrows) == 0: # + on 20/11/2017
+                fig, ax = plt.subplots(nrows, ncols)
+
+            row, col = ii / ncols % nrows, ii % ncols # + on 20/11/2017
+
             im0    = shift_cube0_mask[ii]
             med0   = np.ma.median(im0, axis=0)
             x0     = np.arange(len(med0))
             x0_max = np.argmax(med0)
+            y0_max = np.max(med0)
 
-            p0         = [0.0, max(med0), x0_max, 2.0]
+            p0         = [0.0, y0_max, x0_max, 2.0]
+
             popt, pcov = curve_fit(gauss1d, x0, med0, p0=p0)
             FWHM0[ii]  = popt[3]*2*np.sqrt(2*np.log(2)) * pscale
 
+            # + on 20/11/2017
+            ax[row,col].plot((x0-popt[2])*pscale, med0/y0_max, color='black')
+            ax[row,col].plot((x0-popt[2])*pscale, gauss1d(x0, *popt)/y0_max,
+                             color='blue', alpha=0.5)
+
+            # + on 20/11/2017
+            if row == nrows-1:
+                ax[row,col].set_xlabel('X [arcsec]')
+            else:
+                if ((n_files-1)-ii) > ncols-1:
+                    ax[row,col].set_xticklabels([])
+
+            # + on 20/11/2017
+            if col == 0:
+                ax[row,col].set_ylabel('Normalized Flux')
+            else: ax[row,col].set_yticklabels([])
+
+            # + on 20/11/2017
+            ax[row,col].annotate(seqno[ii], [0.025,0.975], ha='left',
+                                 va='top', xycoords='axes fraction',
+                                 weight='bold', fontsize=10)
+            ax[row,col].annotate('FWHM = %.2f"' % FWHM0[ii], [0.975,0.975], ha='right',
+                                 va='top', xycoords='axes fraction',
+                                 weight='bold', fontsize=10)
+
+            # + on 20/11/2017
+            ax[row,col].set_xlim([-2.5,2.5])
+            ax[row,col].set_ylim([-0.05,1.1])
+
+            # + on 20/11/2017
+            if ii % (ncols*nrows) == ncols*nrows-1 or ii == n_files-1:
+                subplots_adjust(left=0.025, bottom=0.025, top=0.975, right=0.975,
+                                wspace=0.02, hspace=0.02)
+                fig.set_size_inches(8,6)
+                fig.savefig(pp, format='pdf', bbox_inches='tight')
+        #endfor
+
+        fig, ax = plt.subplots() # + on 20/11/2017
         ax.plot(seqno, FWHM0, marker='o', color='b', alpha=0.5)
         ax.set_xlabel('Image Frame No.')
         ax.set_ylabel('FWHM [arcsec]')
         ax.minorticks_on()
-        fig.set_size_inches(8,8)
-        fig.savefig(out_fwhm_pdf, bbox_inches='tight')
+
+        # Mod on 20/11/2017
+        fig.set_size_inches(8,6)
+        fig.savefig(pp, format='pdf', bbox_inches='tight')
+
+        # + on 20/11/2017
+        if silent == False:
+            log.info('## Writing : '+out_fwhm_pdf+' | '+systime())
+            pp.close()
 
     if silent == False: log.info('### End main : '+systime())
 #enddef
