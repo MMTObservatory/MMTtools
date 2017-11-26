@@ -116,6 +116,13 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', silent=False,
      - Minor bug fix: NAXIS2 -> NAXIS1 and vice versa
     Modified by Chun Ly, 20 November 2017
      - Plot fit to PSF profiles
+    Modified by Chun Ly, 25 November 2017
+     - PSF profiles showed double peak with a lower peak that is 20% of max,
+       but visual inspection does not indicate double-peaked PSF.
+     - Unclear of the full cause, but ultimately computed FWHM in the central
+       200 pix without masking (masking seems to reject pixels from bright objects)
+     - Masking was part of the cause as it would produce a double peak
+       distribution
     '''
     
     if silent == False: log.info('### Begin main : '+systime())
@@ -267,8 +274,8 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', silent=False,
 
             row, col = ii / ncols % nrows, ii % ncols # + on 20/11/2017
 
-            im0    = shift_cube0_mask[ii]
-            med0   = np.ma.median(im0, axis=0)
+            im0    = shift_cube0_mask[ii].data
+            med0   = np.median(im0[1024-100:1024+100], axis=0) # Mod on 25/11/2017
             x0     = np.arange(len(med0))
             x0_max = np.argmax(med0)
             y0_max = np.max(med0)
