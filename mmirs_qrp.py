@@ -217,7 +217,7 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', silent=False,
 
     # Mod on 12/11/2017
     if bright == True:
-        if do_curve_fit_center: # Mod on 26/11/2017
+        if do_curvefit_center: # Mod on 26/11/2017
             shift_val = peak_val0[0] - peak_val0 # Mod on 26/11/2017
         else:
             shift_val = peak_val[0] - peak_val
