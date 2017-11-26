@@ -123,6 +123,8 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', silent=False,
        200 pix without masking (masking seems to reject pixels from bright objects)
      - Masking was part of the cause as it would produce a double peak
        distribution
+    Modified by Chun Ly, 26 November 2017
+     - Run curve_fit to get accurate line center for shifting
     '''
     
     if silent == False: log.info('### Begin main : '+systime())
@@ -142,6 +144,7 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', silent=False,
 
     d_cube0     = np.zeros((n_files, naxis2, naxis1))
     peak_val    = np.zeros(n_files)
+    peak_val0   = np.zeros(n_files) # + on 26/11/2017
     shift_cube0 = np.zeros((n_files, naxis2, naxis1))
 
     # Mod on 12/11/2017
@@ -195,6 +198,12 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', silent=False,
 
             med0_col     = np.median(im_test, axis=0)
             peak_val[ii] = np.argmax(med0_col)
+
+            # + on 26/11/2017
+            p0 = [0.0, np.max(med0_col), peak_val[ii], 2.0]
+            x0 = np.arange(len(med0_col))
+            popt, pcov    = curve_fit(gauss1d, x0, med0_col, p0=p0)
+            peak_val0[ii] = popt[2]
         else:
             if ii == 0: log.info('### Using FITS dither information')
 
@@ -202,7 +211,7 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', silent=False,
 
     # Mod on 12/11/2017
     if bright == True:
-        shift_val = peak_val[0] - peak_val
+        shift_val = peak_val0[0] - peak_val0 # Mod on 26/11/2017
     else:
         shift_val = dither_diff.value
 
