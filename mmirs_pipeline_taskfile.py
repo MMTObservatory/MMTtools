@@ -84,6 +84,42 @@ def get_header_info(files0):
     return tab0
 #enddef
 
+def organize_targets(tab0):
+    '''
+    Use FITS header information to organize targets based on name, aperture, filter, and
+    disperse
+
+    Parameters
+    ----------
+    tab0: astropy.table.table
+      Astropy Table containing FITS header info
+
+    Returns
+    -------
+
+    Notes
+    -----
+    Created by Chun Ly, 28 November 2017
+    '''
+
+    len0 = len(tab0)
+
+    itype = tab0['imagetype']
+    nondark = [ii for ii in range(len0) if itype[ii] == 'dark']
+    obj     = [ii for ii in range(len0) if itype[ii] == 'object']
+    comp    = [ii for ii in range(len0) if itype[ii] == 'comp']
+    flat    = [ii for ii in range(len0) if itype[ii] == 'flat']
+
+    comb0 = ['N/A'] * len0
+
+    for kk in [obj, comp, flat]:
+        for ii in kk:
+            tab0_o = tab0[ii]
+            comb0[ii] = tab0_o['object'] + '_' + tab0_o['aperture'] + '_' + \
+                        tab0_o['filter'] + '_' + tab0_o['disperse']
+
+#enddef
+
 def create(rawdir, silent=False, verbose=True):
 
     '''
@@ -124,7 +160,7 @@ def create(rawdir, silent=False, verbose=True):
 
     # Get header information
     tab0 = get_header_info(files0)
-    print tab0
+    tab0.pprint(max_lines=-1, max_width=-1)
 
     if silent == False: log.info('### End create : '+systime())
 #enddef
