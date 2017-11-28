@@ -99,17 +99,22 @@ def create(rawdir, silent=False, verbose=True):
     Notes
     -----
     Created by Chun Ly, 28 November 2017
+     - Include .gz files
+     - Call get_header_info
     '''
     
     if silent == False: log.info('### Begin create : '+systime())
 
     if rawdir[-1] != '/': rawdir = rawdir + '/'
 
-    files0   = glob.glob(rawdir+'*.????.fits')
+    files0   = glob.glob(rawdir+'*.????.fits*')
     n_files0 = len(files0)
     if silent == False: log.info('### Number of FITS files found : '+str(n_files0))
 
-    
+    # Get header information
+    tab0 = get_header_info(files0)
+    print tab0
+
     if silent == False: log.info('### End create : '+systime())
 #enddef
 
