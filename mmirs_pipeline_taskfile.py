@@ -47,26 +47,26 @@ def get_header_info(files0):
     '''
 
     n_files0 = len(files0)
-    filename = np.array(['']*n_files0)
+    filename = [] #np.array(['']*n_files0)
     exptime  = np.zeros(n_files0)
-    object0  = np.array(['']*n_files0)
-    imagetyp = np.array(['']*n_files0)
-    aptype   = np.array(['']*n_files0)
-    aperture = np.array(['']*n_files0)
-    filter0  = np.array(['']*n_files0)
-    disperse = np.array(['']*n_files0)
+    object0  = [] #np.array(['']*n_files0)
+    imagetyp = [] #np.array(['']*n_files0)
+    aptype   = [] #np.array(['']*n_files0)
+    aperture = [] #np.array(['']*n_files0)
+    filter0  = [] #np.array(['']*n_files0)
+    disperse = [] #np.array(['']*n_files0)
     
     for ii in range(n_files0):
         hdr = fits.getheader(files0[ii])
 
-        filename[ii] = hdr['FILENAME'].split('/')[-1]
         exptime[ii]  = hdr['EXPTIME']
-        object0[ii]  = hdr['OBJECT']
-        imagetyp[ii] = hdr['IMAGETYP']
-        aptype[ii]   = hdr['APTYPE']
-        aperture[ii] = hdr['APERTURE']
-        filter0[ii]  = hdr['FILTER']
-        disperse[ii] = hdr['DISPERSE']
+        filename.append(hdr['FILENAME'].split('/')[-1])
+        object0.append(hdr['OBJECT'])
+        imagetyp.append(hdr['IMAGETYP'])
+        aptype.append(hdr['APTYPE'])
+        aperture.append(hdr['APERTURE'])
+        filter0.append(hdr['FILTER'])
+        disperse.append(hdr['DISPERSE'])
 
     #endfor
 
