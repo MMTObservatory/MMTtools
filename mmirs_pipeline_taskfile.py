@@ -103,13 +103,17 @@ def create(rawdir, silent=False, verbose=True):
     Created by Chun Ly, 28 November 2017
      - Include .gz files
      - Call get_header_info
+     - Bug fix: Ignore align_ and QRP _stack files
     '''
     
     if silent == False: log.info('### Begin create : '+systime())
 
     if rawdir[-1] != '/': rawdir = rawdir + '/'
 
-    files0   = glob.glob(rawdir+'*.????.fits*')
+    files0 = glob.glob(rawdir+'*.????.fits*')
+    files0 = [t_file for t_file in files0 if 'align_' not in t_file]
+    files0 = [t_file for t_file in files0 if '_stack' not in t_file]
+
     n_files0 = len(files0)
     if silent == False: log.info('### Number of FITS files found : '+str(n_files0))
 
