@@ -46,10 +46,12 @@ def get_header_info(files0):
      - Return Astropy Table
      - List for variables with strings
      - Get proper FITS extension
+     - Add [seqno] for sorting purposes
     '''
 
     n_files0 = len(files0)
     filename = [] #np.array(['']*n_files0)
+    seqno    = []
     exptime  = np.zeros(n_files0)
     object0  = [] #np.array(['']*n_files0)
     imagetyp = [] #np.array(['']*n_files0)
@@ -61,21 +63,24 @@ def get_header_info(files0):
     for ii in range(n_files0):
         hdr = fits.getheader(files0[ii], ext=1)
 
-        exptime[ii]  = hdr['EXPTIME']
-        filename.append(hdr['FILENAME'].split('/')[-1])
+        exptime[ii] = hdr['EXPTIME']
+
+        t_filename = hdr['FILENAME'].split('/')[-1]
+        seqno.append(t_filename.split('.')[-1])
+        filename.append(t_filename)
         object0.append(hdr['OBJECT'])
         imagetyp.append(hdr['IMAGETYP'])
         aptype.append(hdr['APTYPE'])
         aperture.append(hdr['APERTURE'])
         filter0.append(hdr['FILTER'])
         disperse.append(hdr['DISPERSE'])
-
     #endfor
 
-    arr0   = [filename, exptime, object0, imagetyp, aptype, aperture, filter0, disperse]
-    names0 = ('filename','exptime','object','imagetype','aptype','aperture','filter',
+    arr0   = [filename, seqno, exptime, object0, imagetyp, aptype, aperture, filter0, disperse]
+    names0 = ('filename','seqno','exptime','object','imagetype','aptype','aperture','filter',
               'disperse')
     tab0 = Table(arr0, names=names0)
+    tab0.sort('seqno')
     return tab0
 #enddef
 
