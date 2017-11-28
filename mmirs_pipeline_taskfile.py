@@ -26,6 +26,25 @@ from astropy.table import Table
 from astropy import log
 
 def get_header_info(files0):
+    '''
+    Get information from FITS header
+
+    Parameters
+    ----------
+    files0 : list
+      List containing full path to MMIRS files
+
+    Returns
+    -------
+    tab0: astropy.table.table
+      Astropy Table containing FITS header
+
+    Notes
+    -----
+    Created by Chun Ly, 28 November 2017
+     - Added documentation
+     - Return Astropy Table
+    '''
 
     n_files0 = len(files0)
     filename = np.array(['']*n_files0)
@@ -50,6 +69,12 @@ def get_header_info(files0):
         disperse[ii] = hdr['DISPERSE']
 
     #endfor
+
+    arr0   = [filename, exptime, object0, imagetyp, aptype, aperture, filter0, disperse]
+    names0 = ('filename','exptime','object','imagetype','aptype','aperture','filter',
+              'disperse')
+    tab0 = Table(arr0, names=names0)
+    return tab0
 #enddef
 
 def create(rawdir, silent=False, verbose=True):
@@ -83,8 +108,8 @@ def create(rawdir, silent=False, verbose=True):
     files0   = glob.glob(rawdir+'*.????.fits')
     n_files0 = len(files0)
     if silent == False: log.info('### Number of FITS files found : '+str(n_files0))
+
     
-        
     if silent == False: log.info('### End create : '+systime())
 #enddef
 
