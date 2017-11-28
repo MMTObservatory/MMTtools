@@ -44,6 +44,8 @@ def get_header_info(files0):
     Created by Chun Ly, 28 November 2017
      - Added documentation
      - Return Astropy Table
+     - List for variables with strings
+     - Get proper FITS extension
     '''
 
     n_files0 = len(files0)
@@ -57,7 +59,7 @@ def get_header_info(files0):
     disperse = [] #np.array(['']*n_files0)
     
     for ii in range(n_files0):
-        hdr = fits.getheader(files0[ii])
+        hdr = fits.getheader(files0[ii], ext=1)
 
         exptime[ii]  = hdr['EXPTIME']
         filename.append(hdr['FILENAME'].split('/')[-1])
