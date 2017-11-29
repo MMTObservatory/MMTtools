@@ -100,6 +100,7 @@ def organize_targets(tab0):
     Notes
     -----
     Created by Chun Ly, 28 November 2017
+     - Get unique lists of combinations
     '''
 
     len0 = len(tab0)
@@ -118,6 +119,14 @@ def organize_targets(tab0):
             comb0[ii] = tab0_o['object'] + '_' + tab0_o['aperture'] + '_' + \
                         tab0_o['filter'] + '_' + tab0_o['disperse']
 
+    obj_comb0 = list(set(np.array(comb0)[obj]))
+
+    n_obj_comb0 = len(obj_comb0)
+    log.info('## Total number of combinations found : '+str(n_obj_comb0))
+    for oo in range(n_obj_comb0):
+        print '## '+obj_comb0[oo]
+
+    return comb0, obj_comb0
 #enddef
 
 def create(rawdir, silent=False, verbose=True):
@@ -145,6 +154,7 @@ def create(rawdir, silent=False, verbose=True):
      - Include .gz files
      - Call get_header_info
      - Bug fix: Ignore align_ and QRP _stack files
+     - Call organize_targets
     '''
     
     if silent == False: log.info('### Begin create : '+systime())
@@ -161,6 +171,8 @@ def create(rawdir, silent=False, verbose=True):
     # Get header information
     tab0 = get_header_info(files0)
     tab0.pprint(max_lines=-1, max_width=-1)
+
+    comb0, obj_comb0 = organize_targets(tab0)
 
     if silent == False: log.info('### End create : '+systime())
 #enddef
