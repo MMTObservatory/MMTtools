@@ -155,6 +155,8 @@ def create(rawdir, silent=False, verbose=True):
      - Call get_header_info
      - Bug fix: Ignore align_ and QRP _stack files
      - Call organize_targets
+    Modified by Chun Ly, 29 November 2017
+     - Write ASCII table containing header info -> 'obs_summary.tbl'
     '''
     
     if silent == False: log.info('### Begin create : '+systime())
@@ -171,6 +173,15 @@ def create(rawdir, silent=False, verbose=True):
     # Get header information
     tab0 = get_header_info(files0)
     tab0.pprint(max_lines=-1, max_width=-1)
+
+    tab0_outfile = rawdir + 'obs_summary.tbl'
+    if silent == False:
+        if exists(tab0_outfile):
+            log.info('## Overwriting : '+tab0_outfile)
+        else:
+            log.info('## Writing : '+tab0_outfile)
+    #endif
+    tab0.write(tab0_outfile, format='ascii.fixed_width_two_line', overwrite=True)
 
     comb0, obj_comb0 = organize_targets(tab0)
 
