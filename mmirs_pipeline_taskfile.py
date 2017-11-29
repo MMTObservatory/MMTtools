@@ -157,6 +157,7 @@ def create(rawdir, silent=False, verbose=True):
      - Call organize_targets
     Modified by Chun Ly, 29 November 2017
      - Write ASCII table containing header info -> 'obs_summary.tbl'
+     - Begin for loop for writing MMIRS pipeline control task files
     '''
     
     if silent == False: log.info('### Begin create : '+systime())
@@ -174,6 +175,7 @@ def create(rawdir, silent=False, verbose=True):
     tab0 = get_header_info(files0)
     tab0.pprint(max_lines=-1, max_width=-1)
 
+    # + on 30/11/2017
     tab0_outfile = rawdir + 'obs_summary.tbl'
     if silent == False:
         if exists(tab0_outfile):
@@ -184,6 +186,14 @@ def create(rawdir, silent=False, verbose=True):
     tab0.write(tab0_outfile, format='ascii.fixed_width_two_line', overwrite=True)
 
     comb0, obj_comb0 = organize_targets(tab0)
+
+    # Create task files | + on 30/11/2017
+    for name in obj_comb0:
+        if 'HD' not in name and 'HIP' not in name and 'BD' not in name:
+            if verbose == True: log.info('## Working on : '+name)
+
+            idx   = [ii for ii in range(len(comb0)) if comb0[ii] == name]
+            n_idx = len(idx)
 
     if silent == False: log.info('### End create : '+systime())
 #enddef
