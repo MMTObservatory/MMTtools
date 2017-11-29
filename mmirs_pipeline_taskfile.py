@@ -119,6 +119,7 @@ def read_template(longslit=False, mos=False):
     if mos == True:
         temp_file = co_path + 'mmirs_mos_template.txt'
 
+    #log.info('## Reading : '+temp_file)
     f = open(temp_file)
 
     f0 = f.readlines()
@@ -203,6 +204,7 @@ def create(rawdir, silent=False, verbose=True):
     Modified by Chun Ly, 29 November 2017
      - Write ASCII table containing header info -> 'obs_summary.tbl'
      - Begin for loop for writing MMIRS pipeline control task files
+     - Call read_template function
     '''
     
     if silent == False: log.info('### Begin create : '+systime())
@@ -239,6 +241,12 @@ def create(rawdir, silent=False, verbose=True):
 
             idx   = [ii for ii in range(len(comb0)) if comb0[ii] == name]
             n_idx = len(idx)
+
+            longslit, mos = False, False
+            if '-long' in name: longslit = True
+            if 'mos' in name: mos = True
+
+            keyword, text0 = read_template(longslit=longslit, mos=mos)
 
     if silent == False: log.info('### End create : '+systime())
 #enddef
