@@ -25,6 +25,10 @@ import glob
 from astropy.table import Table
 from astropy import log
 
+# + on 30/11/2017
+co_filename = __file__
+co_path     = os.path.dirname(co_filename) + '/'
+
 def get_header_info(files0):
     '''
     Get information from FITS header
@@ -82,6 +86,47 @@ def get_header_info(files0):
     tab0 = Table(arr0, names=names0)
     tab0.sort('seqno')
     return tab0
+#enddef
+
+def read_template(longslit=False, mos=False):
+    '''
+    Read in MMIRS templates to populate with information
+
+    Parameters
+    ----------
+    longslit : bool
+      Indicate whether to use longslit template. Default: False
+
+    mos : bool
+      Indicate whether to use MOS template. Default: False
+
+    Returns
+    -------
+
+    Notes
+    -----
+    Created by Chun Ly, 29 November 2017
+    '''
+
+    if longslit == False and mos == False:
+        log.warn('## Must specify longslit or mos keyword!!!')
+        log.warn('## Exiting!')
+        return
+
+    if longslit == True:
+        temp_file = co_path + 'mmirs_longslit_template.txt'
+
+    if mos == True:
+        temp_file = co_path + 'mmirs_mos_template.txt'
+
+    f = open(temp_file)
+
+    f0 = f.readlines()
+
+    keyword = [str0.split('=')[0] for str0 in f0]
+    text0   = [str0.split('=')[-1] for str0 in f0]
+
+    return keyword, text0
 #enddef
 
 def organize_targets(tab0):
