@@ -80,9 +80,10 @@ def get_header_info(files0):
         disperse.append(hdr['DISPERSE'])
     #endfor
 
-    arr0   = [filename, seqno, exptime, object0, imagetyp, aptype, aperture, filter0, disperse]
-    names0 = ('filename','seqno','exptime','object','imagetype','aptype','aperture','filter',
-              'disperse')
+    arr0   = [filename, seqno, exptime, object0, imagetyp, aptype, aperture,
+              filter0, disperse]
+    names0 = ('filename','seqno','exptime','object','imagetype','aptype',
+              'aperture','filter','disperse')
     tab0 = Table(arr0, names=names0)
     tab0.sort('seqno')
     return tab0
@@ -132,8 +133,8 @@ def read_template(longslit=False, mos=False):
 
 def organize_targets(tab0):
     '''
-    Use FITS header information to organize targets based on name, aperture, filter, and
-    disperse
+    Use FITS header information to organize targets based on name, aperture,
+    filter, and disperse
 
     Parameters
     ----------
@@ -216,7 +217,8 @@ def create(rawdir, silent=False, verbose=True):
     files0 = [t_file for t_file in files0 if '_stack' not in t_file]
 
     n_files0 = len(files0)
-    if silent == False: log.info('### Number of FITS files found : '+str(n_files0))
+    if silent == False:
+        log.info('### Number of FITS files found : '+str(n_files0))
 
     # Get header information
     tab0 = get_header_info(files0)
@@ -230,7 +232,8 @@ def create(rawdir, silent=False, verbose=True):
         else:
             log.info('## Writing : '+tab0_outfile)
     #endif
-    tab0.write(tab0_outfile, format='ascii.fixed_width_two_line', overwrite=True)
+    tab0.write(tab0_outfile, format='ascii.fixed_width_two_line',
+               overwrite=True)
 
     comb0, obj_comb0 = organize_targets(tab0)
 
