@@ -131,6 +131,31 @@ def read_template(longslit=False, mos=False):
     return keyword, text0
 #enddef
 
+def generate_taskfile(keyword, text0, tab0):
+    '''
+    Modify the default task file templates for each case
+
+    Parameters
+    ----------
+
+    Returns
+    -------
+
+    Notes
+    -----
+    Created by Chun Ly, 29 November 2017
+    '''
+
+    col1 = ['RAW_DIR', 'R_DIR', 'W_DIR', 'RAWEXT', 'SLIT', 'GRISM', 'FILTER',
+            'BRIGHT', 'SCI', 'SCI2', 'DITHPOS', 'DITHPOS2', 'DARKSCI', 'ARC',
+            'DARKARC', 'FLAT', 'DARKFLAT']
+
+    common0 = ['STAR', 'DARKST', 'STTYPE']
+    for ss in range(1,6):
+        col1 += [t0 + ('%02i' % ss) for t0 in common0]
+
+#enddef
+
 def organize_targets(tab0):
     '''
     Use FITS header information to organize targets based on name, aperture,
@@ -250,6 +275,7 @@ def create(rawdir, silent=False, verbose=True):
             if 'mos' in name: mos = True
 
             keyword, text0 = read_template(longslit=longslit, mos=mos)
+
 
     if silent == False: log.info('### End create : '+systime())
 #enddef
