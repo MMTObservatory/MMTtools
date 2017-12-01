@@ -25,6 +25,8 @@ import glob
 from astropy.table import Table
 from astropy import log
 
+import collections
+
 # + on 30/11/2017
 co_filename = __file__
 co_path     = os.path.dirname(co_filename) + '/'
@@ -115,6 +117,9 @@ def read_template(longslit=False, mos=False):
     Notes
     -----
     Created by Chun Ly, 29 November 2017
+
+    Modified by Chun Ly, 30 November 2017
+     - Output ordered dictionary
     '''
 
     if longslit == False and mos == False:
@@ -136,7 +141,11 @@ def read_template(longslit=False, mos=False):
     keyword = [str0.split('=')[0] for str0 in f0]
     text0   = [str0.split('=')[-1] for str0 in f0]
 
-    return keyword, text0
+    temp_dict0 = collections.OrderedDict()
+    temp_dict0['keyword'] = keyword
+    temp_dict0['text']    = text0
+
+    return temp_dict0 #{'keyword': keyword, 'text': text0}
 #enddef
 
 def generate_taskfile(keyword, text0, tab0):
@@ -283,7 +292,6 @@ def create(rawdir, silent=False, verbose=True):
             if 'mos' in name: mos = True
 
             keyword, text0 = read_template(longslit=longslit, mos=mos)
-
 
     if silent == False: log.info('### End create : '+systime())
 #enddef
