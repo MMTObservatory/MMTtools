@@ -148,6 +148,75 @@ def read_template(longslit=False, mos=False):
     return temp_dict0 #{'keyword': keyword, 'text': text0}
 #enddef
 
+def get_calib_files(name, tab0):
+    '''
+    Get appropriate calibration files for each dataset
+
+    Parameters
+    ----------
+    name : str
+      object + aperture + filter + disperse name from organize_targets()
+
+    tab0: astropy.table.table
+      Astropy Table containing FITS header info
+
+    Returns
+    -------
+
+    Notes
+    -----
+    Created by Chun Ly, 1 December 2017
+    '''
+    len0 = len(tab0)
+
+    itype0 = tab0['imagetype']
+    aper0  = tab0['aperture']
+    filt0  = tab0['filter']
+    disp0  = tab0['disperse']
+
+    t_str  = name.split('_')
+    t_obj  = t_str[0]
+    t_ap   = t_str[1]
+    t_filt = t_str[2]
+    t_disp = t_str[3]
+
+    ## COMPS
+    i_comp = [ii for ii in range(len0) if
+              (itype0[ii] == 'comp' and aper0[ii] == t_ap and \
+               filt0[ii] == t_filt and disp0[ii] == t_disp)]
+
+    comp_str0  = ",".join(tab0['filename'][i_comp])
+    comp_itime = tab0['exptime'][i_comp[0]]
+
+    # Darks for comps
+    id_comp = [ii for ii in range(len0) if
+               (itype0[ii] == 'dark' and tab0['exptime'][ii] == comp_itime)]
+    comp_dark = ",".join(tab0['filename'][id_comp])
+
+
+    ## FLATS
+    i_flat = [ii for ii in range(len0) if
+              (itype0[ii] == 'flat' and aper0[ii] == t_ap and \
+               filt0[ii] == t_filt and disp0[ii] == t_disp)]
+
+
+    flat_str0 = ",".join(tab0['filename'][i_flat])
+    flat_itime = tab0['exptime'][i_flat[0]]
+
+    # Darks for flats
+    id_flat = [ii for ii in range(len0) if
+               (itype0[ii] == 'dark' and tab0['exptime'][ii] == flat_itime)]
+    flat_dark = ",".join(tab0['filename'][id_flat])
+
+    log.info("## List of comp files : "+comp_str0)
+    log.info("## List of comp dark files : "+comp_dark)
+
+    log.info("## List of flat files : "+flat_str0)
+    log.info("## List of flat dark files : "+flat_dark)
+
+    return comp_str0, flat_str0
+#enddef
+
 def generate_taskfile(temp0, tab0):
     '''
     Modify the default task file template for each science exposure
@@ -181,6 +250,7 @@ def generate_taskfile(temp0, tab0):
     # + on 01/12/2017
     t_keyword = temp0['keyword']
     t_text    = temp0['text']
+
 
 #enddef
 
