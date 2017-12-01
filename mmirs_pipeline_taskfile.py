@@ -51,12 +51,18 @@ def get_header_info(files0):
      - List for variables with strings
      - Get proper FITS extension
      - Add [seqno] for sorting purposes
+    Modified by Chun Ly, 30 November 2017
+     - Add airmass info
+     - Add date-obs info
+     - Re-order table columns
     '''
 
     n_files0 = len(files0)
     filename = [] #np.array(['']*n_files0)
     seqno    = []
     exptime  = np.zeros(n_files0)
+    airmass  = np.zeros(n_files0)
+    dateobs  = [] #np.array(['']*n_files0)
     object0  = [] #np.array(['']*n_files0)
     imagetyp = [] #np.array(['']*n_files0)
     aptype   = [] #np.array(['']*n_files0)
@@ -68,10 +74,12 @@ def get_header_info(files0):
         hdr = fits.getheader(files0[ii], ext=1)
 
         exptime[ii] = hdr['EXPTIME']
+        airmass[ii] = hdr['AIRMASS']
 
         t_filename = hdr['FILENAME'].split('/')[-1]
         seqno.append(t_filename.split('.')[-1])
         filename.append(t_filename)
+        dateobs.append(hdr['DATE-OBS'])
         object0.append(hdr['OBJECT'])
         imagetyp.append(hdr['IMAGETYP'])
         aptype.append(hdr['APTYPE'])
@@ -80,10 +88,10 @@ def get_header_info(files0):
         disperse.append(hdr['DISPERSE'])
     #endfor
 
-    arr0   = [filename, seqno, exptime, object0, imagetyp, aptype, aperture,
-              filter0, disperse]
-    names0 = ('filename','seqno','exptime','object','imagetype','aptype',
-              'aperture','filter','disperse')
+    arr0   = [filename, seqno, dateobs, object0, imagetyp, aptype,
+              exptime, airmass, aperture, filter0, disperse]
+    names0 = ('filename','seqno','dateobs','object','imagetype','aptype',
+              'exptime','airmass','aperture','filter','disperse')
     tab0 = Table(arr0, names=names0)
     tab0.sort('seqno')
     return tab0
