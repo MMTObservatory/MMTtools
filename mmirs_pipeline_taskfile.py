@@ -148,19 +148,26 @@ def read_template(longslit=False, mos=False):
     return temp_dict0 #{'keyword': keyword, 'text': text0}
 #enddef
 
-def generate_taskfile(keyword, text0, tab0):
+def generate_taskfile(temp0, tab0):
     '''
-    Modify the default task file templates for each case
+    Modify the default task file template for each science exposure
 
     Parameters
     ----------
+    temp0 : dict
+      Dictionary containing task file info
 
     Returns
     -------
+    tab0: astropy.table.table
+      Astropy Table containing FITS header
 
     Notes
     -----
     Created by Chun Ly, 29 November 2017
+
+    Modified by Chun Ly, 1 December 2017
+     - Change input to accept temp0 dict
     '''
 
     col1 = ['RAW_DIR', 'R_DIR', 'W_DIR', 'RAWEXT', 'SLIT', 'GRISM', 'FILTER',
@@ -170,6 +177,10 @@ def generate_taskfile(keyword, text0, tab0):
     common0 = ['STAR', 'DARKST', 'STTYPE']
     for ss in range(1,6):
         col1 += [t0 + ('%02i' % ss) for t0 in common0]
+
+    # + on 01/12/2017
+    t_keyword = temp0['keyword']
+    t_text    = temp0['text']
 
 #enddef
 
