@@ -248,6 +248,8 @@ def create(rawdir, silent=False, verbose=True):
      - Write ASCII table containing header info -> 'obs_summary.tbl'
      - Begin for loop for writing MMIRS pipeline control task files
      - Call read_template function
+    Modified by Chun Ly, 30 November 2017
+     - Get template dict from read_template()
     '''
     
     if silent == False: log.info('### Begin create : '+systime())
@@ -279,6 +281,10 @@ def create(rawdir, silent=False, verbose=True):
 
     comb0, obj_comb0 = organize_targets(tab0)
 
+    # Get default templates | + on 30/11/2017
+    longslit_temp0 = read_template(longslit=True)
+    mos_temp0      = read_template(mos=True)
+
     # Create task files | + on 30/11/2017
     for name in obj_comb0:
         if 'HD' not in name and 'HIP' not in name and 'BD' not in name:
@@ -287,11 +293,10 @@ def create(rawdir, silent=False, verbose=True):
             idx   = [ii for ii in range(len(comb0)) if comb0[ii] == name]
             n_idx = len(idx)
 
-            longslit, mos = False, False
-            if '-long' in name: longslit = True
-            if 'mos' in name: mos = True
+            # Mod on 30/11/2017
+            if '-long' in name: temp0 = longslit_temp0.copy()
+            if 'mos' in name: temp0 = mos_temp0.copy()
 
-            keyword, text0 = read_template(longslit=longslit, mos=mos)
 
     if silent == False: log.info('### End create : '+systime())
 #enddef
