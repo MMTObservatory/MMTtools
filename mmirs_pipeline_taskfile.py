@@ -166,6 +166,8 @@ def get_calib_files(name, tab0):
     Notes
     -----
     Created by Chun Ly, 1 December 2017
+    Modified by Chun Ly, 5 December 2017
+     - Determine and return dark frames for science exposures
     '''
     len0 = len(tab0)
 
@@ -179,6 +181,19 @@ def get_calib_files(name, tab0):
     t_ap   = t_str[1]
     t_filt = t_str[2]
     t_disp = t_str[3]
+
+    # + on 05/12/2017
+    exptime    = tab0['exptime']
+    i_obj      = [ii for ii in range(len0) if tab0['object'][ii] == t_obj]
+    dark_etime = list(set(np.array(exptime)[i_obj]))
+    dark_str0  = []
+    for etime in dark_etime:
+        i_dark = [ii for ii in range(len0) if
+                  (itype0[ii] == 'dark' and exptime[ii] == etime)]
+        print i_dark
+        t_txt = ",".join(tab0['filename'][i_dark])
+        dark_str0.append(t_txt)
+        log.info("## List of science dark files for %.3fs : %s" % (etime, t_txt))
 
     ## COMPS
     i_comp = [ii for ii in range(len0) if
@@ -214,7 +229,7 @@ def get_calib_files(name, tab0):
     log.info("## List of flat files : "+flat_str0)
     log.info("## List of flat dark files : "+flat_dark)
 
-    return comp_str0, flat_str0
+    return comp_str0, flat_str0, dark_etime, dark_str0
 #enddef
 
 def generate_taskfile(temp0, tab0):
