@@ -1,0 +1,72 @@
+SIMPLE  =                                 T / FITS-like header
+LONGSTRN= 'OGIP 1.0'           / The OGIP long string convention may be used.
+RAW_DIR = '/data/mmirs/Archive/rawdata/data/MMIRS/2011/2011.1203/'
+R_DIR   = '/d1/data1/mmirs/preproc/2011/2011.1203/'
+W_DIR   = '/d1/data1/mmirs/reduced/2011/2011.1203/lei1.a1_mask1_HK_HK/01/'
+RAWEXT  = '.gz'
+INSTRUME= 'MMIRS' / spectrograph name
+SLIT    = 'mos' / slit name or MOS
+GRISM   = 'HK' / grism
+FILTER  = 'HK' / filter
+BRIGHT  = 0 / bright source 1=Yes 0=No
+SCI     = 'lei1.a1_mos.8456' / science frame (only one)
+SCI2    = 'lei1.a1_mos.8457' / second science frame (only one)
+DITHPOS = 1.8000 / current dithering position in arcsec
+DITHPOS2= -1.4000 / dithering position for the second frame
+DARKSCI = 'dark.8653,dark.8654,dark.8655,dark.8656,dark.8657' / dark frame(s) for science
+ARC     = 'comp_mos.8468' / arc frames
+DARKARC = 'dark.8638,dark.8639,dark.8640,dark.8641,dark.8642' / dark frame(s) for arc
+FLAT    = 'flat_mos.8470'
+DARKFLAT= 'dark.8628,dark.8629,dark.8630,dark.8631,dark.8632' / dark frame(s) for flat
+STAR01  = 'HIP-16904_mos.8491,HIP-16904_mos.8492,HIP-16904_mos.8494,&'
+CONTINUE  'HIP-16904_mos.8514,HIP-16904_mos.8516,HIP-16904_mos.8518,&'
+CONTINUE  'HIP-16904_mos.8519,HIP-16904_mos.8521'
+DARKST01= 'dark.8638,dark.8639,dark.8640,dark.8641,dark.8642'
+STTYPE01= 'a0v'
+STAR02  = 'HIP-16904_mos.8596,HIP-16904_mos.8597,HIP-16904_mos.8598,&'
+CONTINUE  'HIP-16904_mos.8599,HIP-16904_mos.8600,HIP-16904_mos.8601,&'
+CONTINUE  'HIP-16904_mos.8602,HIP-16904_mos.8603,HIP-16904_mos.8604,&'
+CONTINUE  'HIP-16904_mos.8605,HIP-16904_mos.8606,HIP-16904_mos.8607,&'
+CONTINUE  'HIP-16904_mos.8608,HIP-16904_mos.8609,HIP-16904_mos.8610,&'
+CONTINUE  'HIP-16904_mos.8611,HIP-16904_mos.8612,HIP-16904_mos.8613,&'
+CONTINUE  'HIP-16904_mos.8614,HIP-16904_mos.8615,HIP-16904_mos.8616,&'
+CONTINUE  'HIP-16904_mos.8617,HIP-16904_mos.8618'
+DARKST02= 'dark.8638,dark.8639,dark.8640,dark.8641,dark.8642'
+STTYPE02= 'a0v'
+COMMENT   flat fielding settings
+FFSCFLAT= 0  / subtract scattered light from flat field?
+FFSCSCI = 0  / subtract scattered light from science frames?
+FFNSLIT = -1 / normalize to slit #N, -1 for per-slit normalization
+COMMENT   wavelength calibration settings
+WLNDEG  = 3 / polynomial degree along dispersion
+WLYNDEG = 3 / polynomial degree across dispersion
+WLDEBUG = 0 / debug setting
+WLPLOT  = 0 / plot the arc line identification spectrum on the screen
+WLADJ   = 1 / adjust wavelength solution using all slits
+WLOH    = 1 / use OH lines to build the wavelength solution
+SKIPLINE= ' ' / arc lines NOT to use
+COMMENT   sky subtraction settings
+SSADJWL = 1 / use the adjusted wavelength solution?
+SSDIM   = 3 / 3-dimension or 2-dimension sky model?
+SSDEBUG = 0 / debug for sky subtraction
+COMMENT   linearisation settings
+LINADJWL= 1 / use the adjusted wavelength solution?
+LINSSBOX= 1 / sky subtraction in linearized spectra in all "BOX" slits
+LINSSTRG= 1 / sky subtraction in linearized spectra in all "TARGET" slits
+COMMENT   extraction settings
+EXTMETH = 1 / 1 - box extraction, 2 - optimal extraction
+EXTAPW  = 5 / extraction aperture in pixels, window with or gaussian FWHM
+EXTDFBOX= 0 / use alignbox star positions to get empirical dithering offset?
+EXTBOXEX= 'obj-sky' / image type to use alignbox positions from
+COMMENT   process the following reduction steps (yes=1/no=0)
+S01PROC = 1 / up-the-ramp fitting (if needed) and dark subtraction
+S02PROC = 1 / distortion map creation
+S03PROC = 1 / flat-fielding and 2D slit extraction
+S04PROC = 1 / wavelength calibration
+S05PROC = 1 / sky subtraction
+S06PROC = 1 / linearisation
+S07PROC = 1 / extraction
+S08PROC = 1 / telluric star processing
+S09PROC = 0 / telluric correction
+COMMENT   create_task.pl -m lei1.a1 -t mask1 -g HK -f HK -d lei1_HK_HK/ -s HIP% -x HIP-16904_mos.8439.fits,HIP-16904_mos.844%,HIP-16904_mos.848%,HIP-16904_mos.8490%,HIP-16904_mos.8493%,HIP-16904_mos.8495%,HIP-16904_mos.8496%,HIP-16904_mos.8497%,HIP-16904_mos.8498%,HIP-16904_mos.8499%,HIP-16904_mos.850%,HIP-16904_mos.8510%,HIP-16904_mos.8511%,HIP-16904_mos.8512%,HIP-16904_mos.8513%,HIP-16904_mos.8515%,HIP-16904_mos.8517%,HIP-16904_mos.8520%
+END
