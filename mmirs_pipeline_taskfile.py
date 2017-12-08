@@ -174,6 +174,8 @@ def get_calib_files(name, tab0):
     Created by Chun Ly, 1 December 2017
     Modified by Chun Ly, 5 December 2017
      - Determine and return dark frames for science exposures
+    Modified by Chun Ly, 8 December 2017
+     - Return ordered dict instead of individual variables
     '''
     len0 = len(tab0)
 
@@ -235,7 +237,13 @@ def get_calib_files(name, tab0):
     log.info("## List of flat files : "+flat_str0)
     log.info("## List of flat dark files : "+flat_dark)
 
-    return comp_str0, flat_str0, dark_etime, dark_str0
+    calib_dict0 = collections.OrderedDict()
+    calib_dict0['comp_str']   = comp_str0
+    calib_dict0['flat_str']   = flat_str0
+    calib_dict0['dark_etime'] = dark_etime
+    calib_dict0['dark_str']   = dark_str0
+
+    return calib_dict0
 #enddef
 
 def generate_taskfile(temp0, tab0):
