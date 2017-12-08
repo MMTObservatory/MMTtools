@@ -57,6 +57,8 @@ def get_header_info(files0):
      - Add airmass info
      - Add date-obs info
      - Re-order table columns
+    Modified by Chun Ly, 8 December 2017
+     - Add PI and PropID info
     '''
 
     n_files0 = len(files0)
@@ -71,7 +73,9 @@ def get_header_info(files0):
     aperture = [] #np.array(['']*n_files0)
     filter0  = [] #np.array(['']*n_files0)
     disperse = [] #np.array(['']*n_files0)
-    
+    pi       = [] # + on 08/12/2017
+    propid   = [] # + on 08/12/2017
+
     for ii in range(n_files0):
         hdr = fits.getheader(files0[ii], ext=1)
 
@@ -88,12 +92,14 @@ def get_header_info(files0):
         aperture.append(hdr['APERTURE'])
         filter0.append(hdr['FILTER'])
         disperse.append(hdr['DISPERSE'])
+        pi.append(hdr['PI']) # + on 08/12/2017
+        propid.append(hdr['PROPID']) # + on 08/12/2017
     #endfor
 
-    arr0   = [filename, seqno, dateobs, object0, imagetyp, aptype,
-              exptime, airmass, aperture, filter0, disperse]
-    names0 = ('filename','seqno','dateobs','object','imagetype','aptype',
-              'exptime','airmass','aperture','filter','disperse')
+    arr0   = [filename, seqno, dateobs, object0, pi, propid, imagetyp,
+              aptype, exptime, airmass, aperture, filter0, disperse]
+    names0 = ('filename','seqno','dateobs','object','PI','PropID','imagetype',
+              'aptype','exptime','airmass','aperture','filter','disperse')
     tab0 = Table(arr0, names=names0)
     tab0.sort('seqno')
     return tab0
