@@ -360,6 +360,8 @@ def create(rawdir, silent=False, verbose=True):
      - Call read_template function
     Modified by Chun Ly, 30 November 2017
      - Get template dict from read_template()
+    Modified by Chun Ly, 8 December 2017
+     - Call get_calib_files()
     '''
     
     if silent == False: log.info('### Begin create : '+systime())
@@ -407,6 +409,8 @@ def create(rawdir, silent=False, verbose=True):
             if '-long' in name: temp0 = longslit_temp0.copy()
             if 'mos' in name: temp0 = mos_temp0.copy()
 
+            # on 08/12/2017
+            calib_dict0 = get_calib_files(name, tab0)
 
     if silent == False: log.info('### End create : '+systime())
 #enddef
