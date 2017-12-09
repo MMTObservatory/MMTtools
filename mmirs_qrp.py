@@ -127,6 +127,8 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', silent=False,
      - Run curve_fit to get accurate line center for shifting
      - Set default shifting as integer pixels since CRs are present
        in stack (may need to grow mask)
+    Modified by Chun Ly, 9 December 2017
+     - Compute transparency: Integrate flux for bright source and plot
     '''
     
     if silent == False: log.info('### Begin main : '+systime())
@@ -274,8 +276,8 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', silent=False,
     fits.writeto(rawdir+prefix+'_stack.fits', stack0.data, overwrite=True)
     #fits.writeto(rawdir+prefix+'_stack.fits', stack0, overwrite=True)
 
-    # Compute FWHM and plot | + on 12/11/2017
     if bright == True:
+        # Compute FWHM and plot | + on 12/11/2017
         out_fwhm_pdf = rawdir+prefix+'_stack_FWHM.pdf'
 
         # + on 20/11/2017
@@ -353,6 +355,45 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', silent=False,
         # + on 20/11/2017
         if silent == False:
             log.info('## Writing : '+out_fwhm_pdf+' | '+systime())
+            pp.close()
+
+        # Compute transparency and plot | + on 09/12/2017
+        out_trans_pdf = rawdir+prefix+'_stack_trans.pdf'
+
+        pp = PdfPages(out_trans_pdf)
+
+        trans0 = np.zeros(n_files)
+        spec0  = np.zeros((n_files, naxis2))
+
+        fig, ax = plt.subplots()
+
+        for ii in range(n_files):
+            x0    = np.arange(naxis1)
+            t_sig = FWHM0[ii] / (2*np.sqrt(2*np.log(2))) / pscale
+            idx   = np.where(np.abs(x0 - peak_val[ii])/t_sig <= 2.5)[0]
+
+            im0        = diff_cube0[ii]
+            spec0[ii]  = np.sum(im0[:,idx], axis=1)
+            trans0[ii] = np.sum(im0[:,idx])
+
+            ax.plot(x0, spec0[ii])
+
+        fig.set_size_inches(8,6)
+        fig.savefig(pp, format='pdf', bbox_inches='tight')
+
+        fig, ax = plt.subplots() # + on 20/11/2017
+        ax.plot(seqno, trans0, marker='o', color='b', alpha=0.5)
+        ax.set_xlabel('Image Frame No.')
+        ax.set_ylabel('Relative Transparency')
+        ax.minorticks_on()
+
+        # Mod on 20/11/2017
+        fig.set_size_inches(8,6)
+        fig.savefig(pp, format='pdf', bbox_inches='tight')
+
+        # + on 20/11/2017
+        if silent == False:
+            log.info('## Writing : '+out_trans_pdf+' | '+systime())
             pp.close()
 
     if silent == False: log.info('### End main : '+systime())
