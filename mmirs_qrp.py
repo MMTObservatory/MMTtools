@@ -131,6 +131,7 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', silent=False,
      - Compute transparency: Integrate flux for bright source and plot
      - Normalize spectrum by exposure time for proper transparency computation
      - Plotting aesthetic improvements: legend, labels
+     - Normalize transparency value to best, plotting aesthetics
     '''
     
     if silent == False: log.info('### Begin main : '+systime())
@@ -384,7 +385,7 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', silent=False,
 
             ax.plot(x0, spec0[ii], linewidth=0.25, label=seqno[ii], alpha=0.5)
 
-        ax.set_xlim([0,2050])
+        ax.set_xlim([0,2100])
         ax.set_xlabel('X [pixels]')
         ax.set_ylabel('Flux [ADU/s]')
         ax.legend(loc='upper left', fontsize='8', ncol=3, framealpha=0.5)
@@ -393,9 +394,13 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', silent=False,
         fig.savefig(pp, format='pdf', bbox_inches='tight')
 
         fig, ax = plt.subplots() # + on 20/11/2017
-        ax.plot(seqno, trans0, marker='o', color='b', alpha=0.5)
+        i_max = np.argmax(trans0)
+        ax.plot(seqno, trans0/trans0[i_max], marker='o', color='b', alpha=0.5)
         ax.set_xlabel('Image Frame No.')
         ax.set_ylabel('Relative Transparency')
+        ax.set_ylim([0,1.1])
+        ax.annotate(prefix, [0.025, 0.975], ha='left', va='top',
+                    xycoords='axes fraction')
         ax.minorticks_on()
 
         # Mod on 20/11/2017
