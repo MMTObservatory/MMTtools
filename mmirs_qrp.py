@@ -40,8 +40,8 @@ pscale = 0.2012008872545049 # arcsec/pix
 def gauss1d(x, a0, a, x0, sigma):
     return a0 + a * np.exp(-(x - x0)**2 / (2 * sigma**2))
 
-def main(rawdir, prefix, bright=False, dither='ABApBp', silent=False,
-         verbose=True):
+def main(rawdir, prefix, bright=False, dither='ABApBp', flats=[],
+         silent=False, verbose=True):
 
     '''
     Main function of mmirs_qrp
@@ -64,6 +64,13 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', silent=False,
     dither : str
       Dither sequence type.  Accepts 'ABApBp', 'ABAB' (to be implemented),
       and 'ABBA' (to be implemented). Default: 'ABApBp'
+
+    flats: list
+      List of files or seqno for flats.
+      For example, flats=[1100,1101] or flats=['flat.1100','flat.1101']
+      If not provided, flat fielding will not be performed
+
+      NOTE: THERE ARE SOME BUGS WITH FLATFIELDING
 
     silent : boolean
       Turns off stdout messages. Default: False
@@ -134,6 +141,8 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', silent=False,
      - Normalize transparency value to best, plotting aesthetics
      - Plotting aesthetic improvements: different linestyle and widths, smaller
        legend
+
+     - Incorporate flat fielding
     '''
     
     if silent == False: log.info('### Begin main : '+systime())
@@ -158,6 +167,35 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', silent=False,
 
     exptime0 = np.zeros(n_files) # + on 09/12/2017
 
+    # Define and combine flat files | + on 09/12/2017
+    do_flat = 0
+    if len(flats) != 0:
+        if 'flat' in str(flats[0]):
+            flats = [flat+'_dcorr.fits' for flat in flats]
+        else:
+            flats = ['flat.%04i_dcorr.fits' % t_seq for t_seq in flats]
+
+        flat_arr = np.zeros((len(flats), naxis2, naxis1))
+        for ff in range(len(flats)):
+            t_flat, flat_hdr = fits.getdata(rawdir+flats[ff], header=True)
+
+            flat_arr[ff] = t_flat / np.max(t_flat)
+
+        flat_arr_mask = sigma_clip(flat_arr, sigma=3., iters=3, axis=0)
+
+        flat_avg = np.ma.average(flat_arr_mask, axis=0)
+        flat0 = flat_avg.data
+
+        bad = np.where((np.isfinite(flat0) == False) | (flat0 == 0) |
+                       (flat0 == np.min(flat0)))
+        if len(bad) > 0: flat0[bad] = 1.0
+        # print np.min(flat0), np.max(flat0)
+
+        out_fits_file = rawdir+prefix+'_flat.fits'
+        log.info('### Writing : '+out_fits_file)
+        fits.writeto(out_fits_file, flat0, flat_hdr, overwrite=True)
+        do_flat = 1
+
     # Set this to use curvefit to compute fractional offset
     do_curvefit_center = 0 # + on 26/11/2017
 
@@ -173,7 +211,14 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', silent=False,
     print i_sky
 
     for ii in range(n_files):
-        d_cube0[ii], t_hdr = fits.getdata(dcorr_files[ii], header=True)
+        d_data, t_hdr = fits.getdata(dcorr_files[ii], header=True)
+        # print ii, np.min(d_data), np.max(d_data)
+
+        if do_flat: d_data = d_data / flat0
+        # print ii, np.min(d_data), np.max(d_data)
+
+        d_cube0[ii] = d_data
+
         # Mod on 12/11/2017
         dither_az[ii] = t_hdr['INSTAZ']
         dither_el[ii] = t_hdr['INSTEL']
