@@ -129,6 +129,7 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', silent=False,
        in stack (may need to grow mask)
     Modified by Chun Ly, 9 December 2017
      - Compute transparency: Integrate flux for bright source and plot
+     - Normalize spectrum by exposure time for proper transparency computation
     '''
     
     if silent == False: log.info('### Begin main : '+systime())
@@ -151,6 +152,8 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', silent=False,
     peak_val0   = np.zeros(n_files) # + on 26/11/2017
     shift_cube0 = np.zeros((n_files, naxis2, naxis1))
 
+    exptime0 = np.zeros(n_files) # + on 09/12/2017
+
     # Set this to use curvefit to compute fractional offset
     do_curvefit_center = 0 # + on 26/11/2017
 
@@ -170,6 +173,8 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', silent=False,
         # Mod on 12/11/2017
         dither_az[ii] = t_hdr['INSTAZ']
         dither_el[ii] = t_hdr['INSTEL']
+
+        exptime0[ii] = t_hdr['EXPTIME'] # + on 09/12/2017
 
         ## + on 19/10/2017. Mod on 07/11/2017
         #data_crfree, crmask = cosmicray_median(d_cube0[ii], thresh=5, rbox=11)
@@ -372,7 +377,7 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', silent=False,
             t_sig = FWHM0[ii] / (2*np.sqrt(2*np.log(2))) / pscale
             idx   = np.where(np.abs(x0 - peak_val[ii])/t_sig <= 2.5)[0]
 
-            im0        = diff_cube0[ii]
+            im0        = diff_cube0[ii] / exptime0[ii]
             spec0[ii]  = np.sum(im0[:,idx], axis=1)
             trans0[ii] = np.sum(im0[:,idx])
 
