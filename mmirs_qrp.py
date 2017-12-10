@@ -130,6 +130,7 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', silent=False,
     Modified by Chun Ly, 9 December 2017
      - Compute transparency: Integrate flux for bright source and plot
      - Normalize spectrum by exposure time for proper transparency computation
+     - Plotting aesthetic improvements: legend, labels
     '''
     
     if silent == False: log.info('### Begin main : '+systime())
@@ -381,7 +382,12 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', silent=False,
             spec0[ii]  = np.sum(im0[:,idx], axis=1)
             trans0[ii] = np.sum(im0[:,idx])
 
-            ax.plot(x0, spec0[ii])
+            ax.plot(x0, spec0[ii], linewidth=0.25, label=seqno[ii], alpha=0.5)
+
+        ax.set_xlim([0,2050])
+        ax.set_xlabel('X [pixels]')
+        ax.set_ylabel('Flux [ADU/s]')
+        ax.legend(loc='upper left', fontsize='8', ncol=3, framealpha=0.5)
 
         fig.set_size_inches(8,6)
         fig.savefig(pp, format='pdf', bbox_inches='tight')
