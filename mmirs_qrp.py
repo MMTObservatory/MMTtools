@@ -132,6 +132,8 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', silent=False,
      - Normalize spectrum by exposure time for proper transparency computation
      - Plotting aesthetic improvements: legend, labels
      - Normalize transparency value to best, plotting aesthetics
+     - Plotting aesthetic improvements: different linestyle and widths, smaller
+       legend
     '''
     
     if silent == False: log.info('### Begin main : '+systime())
@@ -333,8 +335,8 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', silent=False,
             ax[row,col].annotate(seqno[ii], [0.025,0.975], ha='left',
                                  va='top', xycoords='axes fraction',
                                  weight='bold', fontsize=10)
-            ax[row,col].annotate('FWHM = %.2f"' % FWHM0[ii], [0.975,0.975], ha='right',
-                                 va='top', xycoords='axes fraction',
+            ax[row,col].annotate('FWHM = %.2f"' % FWHM0[ii], [0.975,0.975],
+                                 ha='right', va='top', xycoords='axes fraction',
                                  weight='bold', fontsize=10)
 
             # + on 20/11/2017
@@ -343,8 +345,8 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', silent=False,
 
             # + on 20/11/2017
             if ii % (ncols*nrows) == ncols*nrows-1 or ii == n_files-1:
-                subplots_adjust(left=0.025, bottom=0.025, top=0.975, right=0.975,
-                                wspace=0.02, hspace=0.02)
+                subplots_adjust(left=0.025, bottom=0.025, top=0.975,
+                                right=0.975, wspace=0.02, hspace=0.02)
                 fig.set_size_inches(8,6)
                 fig.savefig(pp, format='pdf', bbox_inches='tight')
         #endfor
@@ -374,6 +376,10 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', silent=False,
 
         fig, ax = plt.subplots()
 
+        lstyle0 = ['solid','dashed','dashdot','dotted',
+                   'solid','dashed','dashdot','dotted']
+        lw0 = [0.25, 0.33, 0.50, 0.75, 0.25, 0.33, 0.50, 0.75]
+
         for ii in range(n_files):
             x0    = np.arange(naxis1)
             t_sig = FWHM0[ii] / (2*np.sqrt(2*np.log(2))) / pscale
@@ -383,12 +389,15 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', silent=False,
             spec0[ii]  = np.sum(im0[:,idx], axis=1)
             trans0[ii] = np.sum(im0[:,idx])
 
-            ax.plot(x0, spec0[ii], linewidth=0.25, label=seqno[ii], alpha=0.5)
+            lstyle, lw = lstyle0[ii / 7], lw0[ii / 7]
+            ax.plot(x0, spec0[ii], linewidth=lw, label=seqno[ii], alpha=0.5,
+                    linestyle=lstyle)
 
         ax.set_xlim([0,2100])
         ax.set_xlabel('X [pixels]')
         ax.set_ylabel('Flux [ADU/s]')
-        ax.legend(loc='upper left', fontsize='8', ncol=3, framealpha=0.5)
+        ax.legend(loc='upper left', fontsize='9', ncol=3, framealpha=0.5,
+                  columnspacing=0.5)
 
         fig.set_size_inches(8,6)
         fig.savefig(pp, format='pdf', bbox_inches='tight')
