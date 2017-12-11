@@ -152,6 +152,7 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', flats=[],
      - Add annotation of avg/median/sigma for FWHM
      - Handle unused FWHM subplots
      - Minor stdout for avg/median/sigma for FWHM
+     - Annotation for source info in FWHM and transparency plots
     '''
     
     if silent == False: log.info('### Begin main : '+systime())
@@ -421,6 +422,13 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', flats=[],
         ax.set_ylabel('FWHM [arcsec]')
         ax.minorticks_on()
 
+        filt0, disp0, ap0 = t_hdr['FILTER'], t_hdr['DISPERSE'], \
+                            t_hdr['APERTURE']
+
+        label0 = '%s   %s   %s   %s' % (prefix, filt0, disp0, ap0)
+        ax.annotate(label0, [0.025,0.975], ha='left', va='top', weight='bold',
+                    xycoords='axes fraction', fontsize=11, bbox=bbox_props)
+
         # + on 11/12/2017
         avg_FWHM0 = np.average(FWHM0)
         med_FWHM0 = np.median(FWHM0)
@@ -486,8 +494,8 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', flats=[],
         ax.set_xlabel('Image Frame No.')
         ax.set_ylabel('Relative Transparency')
         ax.set_ylim([0,1.1])
-        ax.annotate(prefix, [0.025, 0.975], ha='left', va='top',
-                    xycoords='axes fraction')
+        ax.annotate(label0, [0.025,0.975], ha='left', va='top', weight='bold',
+                    xycoords='axes fraction', fontsize=11, bbox=bbox_props)
         ax.minorticks_on()
 
         # Mod on 20/11/2017
