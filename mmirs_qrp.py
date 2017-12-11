@@ -151,6 +151,7 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', flats=[],
      - Expand dither_tab stdout,
      - Add annotation of avg/median/sigma for FWHM
      - Handle unused FWHM subplots
+     - Minor stdout for avg/median/sigma for FWHM
     '''
     
     if silent == False: log.info('### Begin main : '+systime())
@@ -426,7 +427,11 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', flats=[],
         sig_FWHM0 = np.std(FWHM0)
         txt0  = 'Average : %.2f"\n Median : %.2f"\n' % (avg_FWHM0, med_FWHM0)
         txt0 += r'$\sigma$ : %.2f"' % sig_FWHM0
-        print txt0
+        if silent == False:
+            log.info('Average : %.2f"' % avg_FWHM0)
+            log.info('Median  : %.2f"' % med_FWHM0)
+            log.info('Sigma   : %.2f"' % sig_FWHM0)
+
         ax.annotate(txt0, [0.975,0.975], ha='right', va='top',
                     xycoords='axes fraction', fontsize=11, bbox=bbox_props)
 
