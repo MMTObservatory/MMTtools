@@ -176,6 +176,8 @@ def get_calib_files(name, tab0):
      - Determine and return dark frames for science exposures
     Modified by Chun Ly, 8 December 2017
      - Return ordered dict instead of individual variables
+    Modified by Chun Ly, 11 December 2017
+     - Use PI and PropID to further filter out comps and flats. Need a time constraint
     '''
     len0 = len(tab0)
 
@@ -184,15 +186,24 @@ def get_calib_files(name, tab0):
     filt0  = tab0['filter']
     disp0  = tab0['disperse']
 
+    # + on 11/12/2017
+    pi     = tab0['PI']
+    propid = tab0['PropID']
+
     t_str  = name.split('_')
     t_obj  = t_str[0]
     t_ap   = t_str[1]
     t_filt = t_str[2]
     t_disp = t_str[3]
 
+    i_obj      = [ii for ii in range(len0) if tab0['object'][ii] == t_obj]
+
+    # + on 11/12/2017
+    t_pi     = pi[i_obj[0]]
+    t_propid = propid[i_obj[0]]
+
     # + on 05/12/2017
     exptime    = tab0['exptime']
-    i_obj      = [ii for ii in range(len0) if tab0['object'][ii] == t_obj]
     dark_etime = list(set(np.array(exptime)[i_obj]))
     dark_str0  = []
     for etime in dark_etime:
@@ -204,9 +215,13 @@ def get_calib_files(name, tab0):
         log.info("## List of science dark files for %.3fs : %s" % (etime, t_txt))
 
     ## COMPS
+    # Mod on 11/12/2017
     i_comp = [ii for ii in range(len0) if
-              (itype0[ii] == 'comp' and aper0[ii] == t_ap and \
-               filt0[ii] == t_filt and disp0[ii] == t_disp)]
+              (itype0[ii] == 'comp' and aper0[ii] == t_ap and
+               filt0[ii] == t_filt and disp0[ii] == t_disp and \
+               pi[ii] == t_pi and propid[ii] == t_propid)]
+    if len(i_comp) > 2:
+        log.warn('### Too many comps!!!')
 
     comp_str0  = ",".join(tab0['filename'][i_comp])
     comp_itime = tab0['exptime'][i_comp[0]]
@@ -218,10 +233,13 @@ def get_calib_files(name, tab0):
 
 
     ## FLATS
+    # Mod on 11/12/2017
     i_flat = [ii for ii in range(len0) if
               (itype0[ii] == 'flat' and aper0[ii] == t_ap and \
-               filt0[ii] == t_filt and disp0[ii] == t_disp)]
-
+               filt0[ii] == t_filt and disp0[ii] == t_disp and \
+               pi[ii] == t_pi and propid[ii] == t_propid)]
+    if len(i_flat) > 2:
+        log.warn('### Too many flats!!!')
 
     flat_str0 = ",".join(tab0['filename'][i_flat])
     flat_itime = tab0['exptime'][i_flat[0]]
