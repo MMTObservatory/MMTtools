@@ -35,7 +35,10 @@ from pylab import subplots_adjust
 
 # + on 12/11/2017
 import astropy.units as u
+
 pscale = 0.2012008872545049 # arcsec/pix
+
+bbox_props = dict(boxstyle="square,pad=0.15", fc="w", alpha=0.75, ec="none")
 
 def gauss1d(x, a0, a, x0, sigma):
     return a0 + a * np.exp(-(x - x0)**2 / (2 * sigma**2))
@@ -142,7 +145,11 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', flats=[],
      - Plotting aesthetic improvements: different linestyle and widths, smaller
        legend
 
-     - Incorporate flat fielding
+     - Incorporate flat fielding (still some unexpected problems)
+
+    Modified by Chun Ly, 11 December 2017
+     - Expand dither_tab stdout,
+     - Add annotation of avg/median/sigma for FWHM
     '''
     
     if silent == False: log.info('### Begin main : '+systime())
@@ -295,7 +302,7 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', flats=[],
         names0 = ('file','dither_az','dither_el','dither_diff')
 
     dither_tab = Table(arr0, names=names0)
-    dither_tab.pprint(max_lines=-1)
+    dither_tab.pprint(max_lines=-1, max_width=-1)
 
     # + on 12/11/2017
     out_dither_file1 = rawdir+prefix+'_dither_ecsv.cat'
@@ -401,6 +408,16 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', flats=[],
         ax.set_xlabel('Image Frame No.')
         ax.set_ylabel('FWHM [arcsec]')
         ax.minorticks_on()
+
+        # + on 11/12/2017
+        avg_FWHM0 = np.average(FWHM0)
+        med_FWHM0 = np.median(FWHM0)
+        sig_FWHM0 = np.std(FWHM0)
+        txt0  = 'Average : %.2f"\n Median : %.2f"\n' % (avg_FWHM0, med_FWHM0)
+        txt0 += r'$\sigma$ : %.2f"' % sig_FWHM0
+        print txt0
+        ax.annotate(txt0, [0.975,0.975], ha='right', va='top',
+                    xycoords='axes fraction', fontsize=11, bbox=bbox_props)
 
         # Mod on 20/11/2017
         fig.set_size_inches(8,6)
