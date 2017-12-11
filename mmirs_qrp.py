@@ -150,6 +150,7 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', flats=[],
     Modified by Chun Ly, 11 December 2017
      - Expand dither_tab stdout,
      - Add annotation of avg/median/sigma for FWHM
+     - Handle unused FWHM subplots
     '''
     
     if silent == False: log.info('### Begin main : '+systime())
@@ -378,6 +379,10 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', flats=[],
                 if ((n_files-1)-ii) > ncols-1:
                     ax[row,col].set_xticklabels([])
 
+            # + on 11/12/2017
+            if ii == n_files-1:
+                for cc in range(ncols): ax[row,cc].set_xlabel('X [arcsec]')
+
             # + on 20/11/2017
             if col == 0:
                 ax[row,col].set_ylabel('Normalized Flux')
@@ -394,6 +399,12 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', flats=[],
             # + on 20/11/2017
             ax[row,col].set_xlim([-2.5,2.5])
             ax[row,col].set_ylim([-0.05,1.1])
+
+            # + on 11/12/2017
+            if ii == n_files-1:
+                for cc in range(col+1,ncols): ax[row,cc].axis('off')
+                for rr in range(row+1,nrows):
+                    for cc in range(ncols): ax[rr,cc].axis('off')
 
             # + on 20/11/2017
             if ii % (ncols*nrows) == ncols*nrows-1 or ii == n_files-1:
