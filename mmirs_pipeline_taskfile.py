@@ -303,6 +303,7 @@ def generate_taskfile(temp0, rawdir, w_dir, name, tab0):
     Modified by Chun Ly, 11 December 2017
      - Pass in rawdir, w_dir, name
      - Define val0 list to update template
+     - Update taskfile template and return
     '''
 
     col1 = ['RAW_DIR', 'R_DIR', 'W_DIR', 'RAWEXT', 'SLIT', 'GRISM', 'FILTER',
@@ -322,11 +323,24 @@ def generate_taskfile(temp0, rawdir, w_dir, name, tab0):
     t_obj, t_ap, t_filt, t_disp  = t_str[0], t_str[1], t_str[2], t_str[3]
 
     # + on 11/12/2017
-    if '-long' in t_str:
+    if '-long' in name:
         slit = t_ap.replace('pixel','_pixel').replace('-long','')
     else: slit = 'mos'
 
     val0 = ['/data/ccd/MMIRS', rawdir, w_dir, '.gz', slit, t_disp, t_filt]
+
+    # + on 11/12/2017
+    for vv in range(len(val0)):
+        t_i = [ii for ii in range(len(t_keyword)) if col1[vv] in t_keyword[ii]][0]
+        tmp0 = t_text[t_i]
+        l1, h1 = tmp0.find("'"), tmp0.rfind("'")
+
+        str0 = tmp0[l1+1:h1]
+        t_text[t_i] = tmp0.replace(str0,val0[vv])
+        print t_text[t_i]
+
+    temp1 = [a+'= '+b for a,b in zip(t_keyword,t_text)]
+    return temp1
 #enddef
 
 def organize_targets(tab0):
