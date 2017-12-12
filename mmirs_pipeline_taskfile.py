@@ -186,6 +186,7 @@ def get_calib_files(name, tab0):
      - Return ordered dict instead of individual variables
     Modified by Chun Ly, 11 December 2017
      - Use PI and PropID to further filter out comps and flats. Need a time constraint
+     - Include darks for comps, flats
     '''
     len0 = len(tab0)
 
@@ -265,7 +266,9 @@ def get_calib_files(name, tab0):
 
     calib_dict0 = collections.OrderedDict()
     calib_dict0['comp_str']   = comp_str0
+    calib_dict0['comp_dark']  = comp_dark # + on 11/12/2017
     calib_dict0['flat_str']   = flat_str0
+    calib_dict0['flat_dark']  = flat_dark # + on 11/12/2017
     calib_dict0['dark_etime'] = dark_etime
     calib_dict0['dark_str']   = dark_str0
 
@@ -311,6 +314,7 @@ def generate_taskfile(temp0, rawdir, w_dir, name, c_dict0, tab0):
        confusion
      - Pass in calibration dict, c_dict0
      - Simplify col1 to include common changes
+     - Bug fix for dark_str
     '''
 
     col1 = ['RAW_DIR', 'R_DIR', 'W_DIR', 'RAWEXT', 'SLIT', 'GRISM', 'FILTER',
@@ -335,8 +339,9 @@ def generate_taskfile(temp0, rawdir, w_dir, name, c_dict0, tab0):
     else: slit = 'mos'
 
     val0 = ['/data/ccd/MMIRS', rawdir, w_dir, '.gz', slit, t_disp, t_filt,
-            c_dict0['dark_str'], c_dict0['comp_str'], c_dict0['comp_dark'],
+            c_dict0['dark_str'][0], c_dict0['comp_str'], c_dict0['comp_dark'],
             c_dict0['flat_str'], c_dict0['flat_dark']]
+    # Note: need to handle dark_str for different exposure time
 
     # + on 11/12/2017
     for vv in range(len(val0)):
