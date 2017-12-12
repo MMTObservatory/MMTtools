@@ -269,7 +269,7 @@ def get_calib_files(name, tab0):
     return calib_dict0
 #enddef
 
-def generate_taskfile(temp0, tab0):
+def generate_taskfile(temp0, rawdir, w_dir, name, tab0):
     '''
     Modify the default task file template for each science exposure
 
@@ -278,10 +278,20 @@ def generate_taskfile(temp0, tab0):
     temp0 : dict
       Dictionary containing task file info
 
-    Returns
-    -------
+    rawdir : str
+      Full path for where raw files are
+
+    w_dir : str
+      Full path for where to place reduction data
+
+    name : str
+      object + aperture + filter + disperse name from organize_targets()
+
     tab0: astropy.table.table
       Astropy Table containing FITS header
+
+    Returns
+    -------
 
     Notes
     -----
@@ -289,6 +299,10 @@ def generate_taskfile(temp0, tab0):
 
     Modified by Chun Ly, 1 December 2017
      - Change input to accept temp0 dict
+
+    Modified by Chun Ly, 11 December 2017
+     - Pass in rawdir, w_dir, name
+     - Define val0 list to update template
     '''
 
     col1 = ['RAW_DIR', 'R_DIR', 'W_DIR', 'RAWEXT', 'SLIT', 'GRISM', 'FILTER',
@@ -303,7 +317,16 @@ def generate_taskfile(temp0, tab0):
     t_keyword = temp0['keyword']
     t_text    = temp0['text']
 
+    # + on 11/12/2017
+    t_str = name.split('_')
+    t_obj, t_ap, t_filt, t_disp  = t_str[0], t_str[1], t_str[2], t_str[3]
 
+    # + on 11/12/2017
+    if '-long' in t_str:
+        slit = t_ap.replace('pixel','_pixel').replace('-long','')
+    else: slit = 'mos'
+
+    val0 = ['/data/ccd/MMIRS', rawdir, w_dir, '.gz', slit, t_disp, t_filt]
 #enddef
 
 def organize_targets(tab0):
