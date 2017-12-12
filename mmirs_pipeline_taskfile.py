@@ -134,6 +134,7 @@ def read_template(longslit=False, mos=False):
 
     Modified by Chun Ly, 11 December 2017
      - Bug fix for splitting with '='
+     - Bug fix for COMMENT entries
     '''
 
     if longslit == False and mos == False:
@@ -152,8 +153,12 @@ def read_template(longslit=False, mos=False):
 
     f0 = f.readlines()
 
-    keyword = [str0.split('= ')[0] for str0 in f0]
-    text0   = [str0.split('= ')[-1] for str0 in f0]
+    keyword = np.array([str0.split('= ')[0] for str0 in f0])
+    text0   = np.array([str0.split('= ')[-1] for str0 in f0])
+
+    i_comm0 = [ii for ii in range(len(text0)) if
+               ('COMMENT' in text0[ii] or 'END' in text0[ii])]
+    keyword[i_comm0] = ''
 
     temp_dict0 = collections.OrderedDict()
     temp_dict0['keyword'] = keyword
@@ -315,6 +320,7 @@ def generate_taskfile(temp0, rawdir, w_dir, name, c_dict0, tab0):
      - Pass in calibration dict, c_dict0
      - Simplify col1 to include common changes
      - Bug fix for dark_str
+     - Bug fix for COMMENT and END entries
     '''
 
     col1 = ['RAW_DIR', 'R_DIR', 'W_DIR', 'RAWEXT', 'SLIT', 'GRISM', 'FILTER',
@@ -355,6 +361,9 @@ def generate_taskfile(temp0, rawdir, w_dir, name, c_dict0, tab0):
     col2 = ['BRIGHT', 'SCI', 'SCI2', 'DITHPOS', 'DITHPOS2']
 
     temp1 = [a+'= '+b for a,b in zip(t_keyword0,t_text)]
+    temp1 = [str0.replace('= COMMENT','COMMENT') for str0 in temp1]
+    temp1 = [str0.replace('= END','END') for str0 in temp1]
+
     return temp1
 #enddef
 
