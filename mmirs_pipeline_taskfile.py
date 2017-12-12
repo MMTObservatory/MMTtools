@@ -131,6 +131,9 @@ def read_template(longslit=False, mos=False):
 
     Modified by Chun Ly, 30 November 2017
      - Output ordered dictionary
+
+    Modified by Chun Ly, 11 December 2017
+     - Bug fix for splitting with '='
     '''
 
     if longslit == False and mos == False:
@@ -149,8 +152,8 @@ def read_template(longslit=False, mos=False):
 
     f0 = f.readlines()
 
-    keyword = [str0.split('=')[0] for str0 in f0]
-    text0   = [str0.split('=')[-1] for str0 in f0]
+    keyword = [str0.split('= ')[0] for str0 in f0]
+    text0   = [str0.split('= ')[-1] for str0 in f0]
 
     temp_dict0 = collections.OrderedDict()
     temp_dict0['keyword'] = keyword
