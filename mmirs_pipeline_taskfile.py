@@ -307,6 +307,8 @@ def generate_taskfile(temp0, rawdir, w_dir, name, tab0):
      - Pass in rawdir, w_dir, name
      - Define val0 list to update template
      - Update taskfile template and return
+     - Strip spaces in keywords for exact match. Deals with W_DIR and RAW_DIR
+       confusion
     '''
 
     col1 = ['RAW_DIR', 'R_DIR', 'W_DIR', 'RAWEXT', 'SLIT', 'GRISM', 'FILTER',
@@ -318,7 +320,8 @@ def generate_taskfile(temp0, rawdir, w_dir, name, tab0):
         col1 += [t0 + ('%02i' % ss) for t0 in common0]
 
     # + on 01/12/2017
-    t_keyword = temp0['keyword']
+    t_keyword0 = temp0['keyword']
+    t_keyword  = [str0.replace(' ','') for str0 in t_keyword0]
     t_text    = temp0['text']
 
     # + on 11/12/2017
@@ -334,15 +337,14 @@ def generate_taskfile(temp0, rawdir, w_dir, name, tab0):
 
     # + on 11/12/2017
     for vv in range(len(val0)):
-        t_i = [ii for ii in range(len(t_keyword)) if col1[vv] in t_keyword[ii]][0]
+        t_i = [ii for ii in range(len(t_keyword)) if t_keyword[ii] == col1[vv]][0]
         tmp0 = t_text[t_i]
         l1, h1 = tmp0.find("'"), tmp0.rfind("'")
 
         str0 = tmp0[l1+1:h1]
         t_text[t_i] = tmp0.replace(str0,val0[vv])
-        print t_text[t_i]
 
-    temp1 = [a+'= '+b for a,b in zip(t_keyword,t_text)]
+    temp1 = [a+'= '+b for a,b in zip(t_keyword0,t_text)]
     return temp1
 #enddef
 
@@ -431,6 +433,8 @@ def create(rawdir, w_dir='', silent=False, verbose=True):
      - Call get_calib_files()
     Modified by Chun Ly, 8 December 2017
      - Add w_dir keyword input
+    Modified by Chun Ly, 11 December 2017
+     - Call generate_taskfile()
     '''
     
     if silent == False: log.info('### Begin create : '+systime())
@@ -482,6 +486,14 @@ def create(rawdir, w_dir='', silent=False, verbose=True):
             calib_dict0 = get_calib_files(name, tab0)
 
             if w_dir == '': w_dir = rawdir + 'reduced/'
+
+            # + on 11/12/2017
+            temp1 = generate_taskfile(temp0, rawdir, w_dir, name, tab0)
+            outfile = 'test_template.txt'
+            log.info('## Writing : '+outfile)
+            f0 = open(outfile, 'w')
+            f0.writelines(temp1)
+            f0.close()
 
     if silent == False: log.info('### End create : '+systime())
 #enddef
