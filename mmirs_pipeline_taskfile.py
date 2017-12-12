@@ -59,6 +59,8 @@ def get_header_info(files0):
      - Re-order table columns
     Modified by Chun Ly, 8 December 2017
      - Add PI and PropID info
+    Modified by Chun Ly, 11 December 2017
+     - Add instrument elevation offset (dithers along slit)
     '''
 
     n_files0 = len(files0)
@@ -75,6 +77,7 @@ def get_header_info(files0):
     disperse = [] #np.array(['']*n_files0)
     pi       = [] # + on 08/12/2017
     propid   = [] # + on 08/12/2017
+    instel   = np.zeros(n_files0) # + on 11/12/2017
 
     for ii in range(n_files0):
         hdr = fits.getheader(files0[ii], ext=1)
@@ -94,12 +97,14 @@ def get_header_info(files0):
         disperse.append(hdr['DISPERSE'])
         pi.append(hdr['PI']) # + on 08/12/2017
         propid.append(hdr['PROPID']) # + on 08/12/2017
+
+        instel[ii] = hdr['INSTEL'] # + on 11/12/2017
     #endfor
 
     arr0   = [filename, seqno, dateobs, object0, pi, propid, imagetyp,
-              aptype, exptime, airmass, aperture, filter0, disperse]
+              aptype, exptime, airmass, aperture, filter0, disperse, instel]
     names0 = ('filename','seqno','dateobs','object','PI','PropID','imagetype',
-              'aptype','exptime','airmass','aperture','filter','disperse')
+              'aptype','exptime','airmass','aperture','filter','disperse','instel')
     tab0 = Table(arr0, names=names0)
     tab0.sort('seqno')
     return tab0
