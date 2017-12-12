@@ -391,7 +391,7 @@ def organize_targets(tab0):
     return comb0, obj_comb0
 #enddef
 
-def create(rawdir, silent=False, verbose=True):
+def create(rawdir, w_dir='', silent=False, verbose=True):
 
     '''
     Main function to create task files to execute
@@ -400,6 +400,10 @@ def create(rawdir, silent=False, verbose=True):
     ----------
     rawdir : str
       Full path to MMIRS files
+
+    w_dir : str
+      Full path for where to place reduction data
+      Default: based on rawdir path with 'reduced' appended
 
     silent : boolean
       Turns off stdout messages. Default: False
@@ -425,6 +429,8 @@ def create(rawdir, silent=False, verbose=True):
      - Get template dict from read_template()
     Modified by Chun Ly, 8 December 2017
      - Call get_calib_files()
+    Modified by Chun Ly, 8 December 2017
+     - Add w_dir keyword input
     '''
     
     if silent == False: log.info('### Begin create : '+systime())
@@ -474,6 +480,8 @@ def create(rawdir, silent=False, verbose=True):
 
             # on 08/12/2017
             calib_dict0 = get_calib_files(name, tab0)
+
+            if w_dir == '': w_dir = rawdir + 'reduced/'
 
     if silent == False: log.info('### End create : '+systime())
 #enddef
