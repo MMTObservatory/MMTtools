@@ -440,6 +440,7 @@ def create(rawdir, w_dir='', silent=False, verbose=True):
      - Add w_dir keyword input
     Modified by Chun Ly, 11 December 2017
      - Call generate_taskfile()
+     - Pass calibration dict into generate_taskfile
     '''
     
     if silent == False: log.info('### Begin create : '+systime())
@@ -488,12 +489,12 @@ def create(rawdir, w_dir='', silent=False, verbose=True):
             if 'mos' in name: temp0 = mos_temp0.copy()
 
             # on 08/12/2017
-            calib_dict0 = get_calib_files(name, tab0)
+            c_dict0 = get_calib_files(name, tab0)
 
             if w_dir == '': w_dir = rawdir + 'reduced/'
 
             # + on 11/12/2017
-            temp1 = generate_taskfile(temp0, rawdir, w_dir, name, tab0)
+            temp1 = generate_taskfile(temp0, rawdir, w_dir, name, c_dict0, tab0)
             outfile = 'test_template.txt'
             log.info('## Writing : '+outfile)
             f0 = open(outfile, 'w')
