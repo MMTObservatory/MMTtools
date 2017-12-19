@@ -292,14 +292,14 @@ def get_calib_files(name, tab0):
     return calib_dict0
 #enddef
 
-def generate_taskfile(temp0, rawdir, w_dir, name, c_dict0, tab0):
+def generate_taskfile(hdr0, rawdir, w_dir, name, c_dict0, tab0):
     '''
     Modify the default task file template for each science exposure
 
     Parameters
     ----------
-    temp0 : dict
-      Dictionary containing task file info
+    hdr0 : astropy.io.fits.header.Header
+      Astropy FITS-formatted header class containing task file info
 
     rawdir : str
       Full path for where raw files are
@@ -333,6 +333,9 @@ def generate_taskfile(temp0, rawdir, w_dir, name, c_dict0, tab0):
      - Simplify col1 to include common changes
      - Bug fix for dark_str
      - Bug fix for COMMENT and END entries
+
+    Modified by Chun Ly, 18 December 2017
+     - Switch modifications from ASCII to FITS header
     '''
 
     col1 = ['RAW_DIR', 'R_DIR', 'W_DIR', 'RAWEXT', 'SLIT', 'GRISM', 'FILTER',
@@ -342,10 +345,10 @@ def generate_taskfile(temp0, rawdir, w_dir, name, c_dict0, tab0):
     for ss in range(1,6):
         col1 += [t0 + ('%02i' % ss) for t0 in common0]
 
-    # + on 01/12/2017
-    t_keyword0 = temp0['keyword']
-    t_keyword  = [str0.replace(' ','') for str0 in t_keyword0]
-    t_text    = temp0['text']
+    ## + on 01/12/2017
+    #t_keyword0 = temp0['keyword']
+    #t_keyword  = [str0.replace(' ','') for str0 in t_keyword0]
+    #t_text    = temp0['text']
 
     # + on 11/12/2017
     t_str = name.split('_')
@@ -363,20 +366,16 @@ def generate_taskfile(temp0, rawdir, w_dir, name, c_dict0, tab0):
 
     # + on 11/12/2017
     for vv in range(len(val0)):
-        t_i = [ii for ii in range(len(t_keyword)) if t_keyword[ii] == col1[vv]][0]
-        tmp0 = t_text[t_i]
-        l1, h1 = tmp0.find("'"), tmp0.rfind("'")
-
-        str0 = tmp0[l1+1:h1]
-        t_text[t_i] = tmp0.replace(str0,val0[vv])
+        hdr0[col1[vv]] = val0[vv] # Mod on 18/12/2017
 
     col2 = ['BRIGHT', 'SCI', 'SCI2', 'DITHPOS', 'DITHPOS2']
 
-    temp1 = [a+'= '+b for a,b in zip(t_keyword0,t_text)]
-    temp1 = [str0.replace('= COMMENT','COMMENT') for str0 in temp1]
-    temp1 = [str0.replace('= END','END') for str0 in temp1]
+    #temp1 = [a+'= '+b for a,b in zip(t_keyword0,t_text)]
+    #temp1 = [str0.replace('= COMMENT','COMMENT') for str0 in temp1]
+    #temp1 = [str0.replace('= END','END') for str0 in temp1]
+    #return temp1
 
-    return temp1
+    return hdr0
 #enddef
 
 def organize_targets(tab0):
