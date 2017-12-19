@@ -135,6 +135,9 @@ def read_template(longslit=False, mos=False):
     Modified by Chun Ly, 11 December 2017
      - Bug fix for splitting with '='
      - Bug fix for COMMENT entries
+
+    Modified by Chun Ly, 18 December 2017
+     - Switch from dict to FITS header for simplification
     '''
 
     if longslit == False and mos == False:
@@ -153,18 +156,22 @@ def read_template(longslit=False, mos=False):
 
     f0 = f.readlines()
 
-    keyword = np.array([str0.split('= ')[0] for str0 in f0])
-    text0   = np.array([str0.split('= ')[-1] for str0 in f0])
+    # + on 18/12/2017
+    temp_hdr = fits.Header.fromstring("".join(f0), sep='\n')
+    return temp_hdr
 
-    i_comm0 = [ii for ii in range(len(text0)) if
-               ('COMMENT' in text0[ii] or 'END' in text0[ii])]
-    keyword[i_comm0] = ''
-
-    temp_dict0 = collections.OrderedDict()
-    temp_dict0['keyword'] = keyword
-    temp_dict0['text']    = text0
-
-    return temp_dict0 #{'keyword': keyword, 'text': text0}
+    #keyword = np.array([str0.split('= ')[0] for str0 in f0])
+    #text0   = np.array([str0.split('= ')[-1] for str0 in f0])
+    #
+    #i_comm0 = [ii for ii in range(len(text0)) if
+    #           ('COMMENT' in text0[ii] or 'END' in text0[ii])]
+    #keyword[i_comm0] = ''
+    #
+    #temp_dict0 = collections.OrderedDict()
+    #temp_dict0['keyword'] = keyword
+    #temp_dict0['text']    = text0
+    #
+    #return temp_dict0 #{'keyword': keyword, 'text': text0}
 #enddef
 
 def get_calib_files(name, tab0):
