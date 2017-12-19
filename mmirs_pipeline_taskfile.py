@@ -118,12 +118,16 @@ def read_template(longslit=False, mos=False):
     ----------
     longslit : bool
       Indicate whether to use longslit template. Default: False
+      Either longslit=True or mos=True
 
     mos : bool
       Indicate whether to use MOS template. Default: False
+      Either mos=True or longslit=True
 
     Returns
     -------
+    temp_hdr : astropy.io.fits.header.Header
+      Astropy FITS-formatted header class
 
     Notes
     -----
@@ -138,6 +142,7 @@ def read_template(longslit=False, mos=False):
 
     Modified by Chun Ly, 18 December 2017
      - Switch from dict to FITS header for simplification
+     - Update documentation
     '''
 
     if longslit == False and mos == False:
