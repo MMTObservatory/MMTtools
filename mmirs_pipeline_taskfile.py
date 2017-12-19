@@ -462,6 +462,8 @@ def create(rawdir, w_dir='', silent=False, verbose=True):
     Modified by Chun Ly, 11 December 2017
      - Call generate_taskfile()
      - Pass calibration dict into generate_taskfile
+    Modified by Chun Ly, 18 December 2017
+     - Rename variables from template dict to FITS header
     '''
     
     if silent == False: log.info('### Begin create : '+systime())
@@ -493,9 +495,9 @@ def create(rawdir, w_dir='', silent=False, verbose=True):
 
     comb0, obj_comb0 = organize_targets(tab0)
 
-    # Get default templates | + on 30/11/2017
-    longslit_temp0 = read_template(longslit=True)
-    mos_temp0      = read_template(mos=True)
+    # Get default FITS template headers | + on 30/11/2017, Mod on 18/12/2017
+    longslit_hdr0 = read_template(longslit=True)
+    mos_hdr0      = read_template(mos=True)
 
     # Create task files | + on 30/11/2017
     for name in obj_comb0:
@@ -506,8 +508,8 @@ def create(rawdir, w_dir='', silent=False, verbose=True):
             n_idx = len(idx)
 
             # Mod on 30/11/2017
-            if '-long' in name: temp0 = longslit_temp0.copy()
-            if 'mos' in name: temp0 = mos_temp0.copy()
+            if '-long' in name: hdr0 = longslit_hdr0.copy()
+            if 'mos' in name: hdr0 = mos_hdr0.copy()
 
             # on 08/12/2017
             c_dict0 = get_calib_files(name, tab0)
