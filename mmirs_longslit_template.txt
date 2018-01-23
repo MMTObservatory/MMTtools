@@ -68,5 +68,4 @@ S06PROC = 1 / linearisation
 S07PROC = 1 / extraction
 S08PROC = 1 / telluric star processing
 S09PROC = 0 / telluric correction
-COMMENT   create_task.pl -m 2pixel -d O1.0315_HK_HK/ -g HK -f HK -t O1.0315 -s 16:32:13.003
 END

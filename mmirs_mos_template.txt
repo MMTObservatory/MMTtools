@@ -68,5 +68,4 @@ S06PROC = 1 / linearisation
 S07PROC = 1 / extraction
 S08PROC = 1 / telluric star processing
 S09PROC = 0 / telluric correction
-COMMENT   create_task.pl -m lei1.a1 -t mask1 -g HK -f HK -d lei1_HK_HK/ -s HIP% -x HIP-16904_mos.8439.fits,HIP-16904_mos.844%,HIP-16904_mos.848%,HIP-16904_mos.8490%,HIP-16904_mos.8493%,HIP-16904_mos.8495%,HIP-16904_mos.8496%,HIP-16904_mos.8497%,HIP-16904_mos.8498%,HIP-16904_mos.8499%,HIP-16904_mos.850%,HIP-16904_mos.8510%,HIP-16904_mos.8511%,HIP-16904_mos.8512%,HIP-16904_mos.8513%,HIP-16904_mos.8515%,HIP-16904_mos.8517%,HIP-16904_mos.8520%
 END
