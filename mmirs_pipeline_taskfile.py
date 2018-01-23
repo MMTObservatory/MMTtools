@@ -468,6 +468,8 @@ def create(rawdir, w_dir='', silent=False, verbose=True):
      - Pass calibration dict into generate_taskfile
     Modified by Chun Ly, 18 December 2017
      - Rename variables from template dict to FITS header
+    Modified by Chun Ly, 22 January 2018
+     - Bug fix: Write out FITS header file via fits.Header.tofile()
     '''
     
     if silent == False: log.info('### Begin create : '+systime())
@@ -521,12 +523,13 @@ def create(rawdir, w_dir='', silent=False, verbose=True):
             if w_dir == '': w_dir = rawdir + 'reduced/'
 
             # + on 11/12/2017
-            temp1 = generate_taskfile(temp0, rawdir, w_dir, name, c_dict0, tab0)
+            temp1 = generate_taskfile(hdr0, rawdir, w_dir, name, c_dict0, tab0)
             outfile = 'test_template.txt'
             log.info('## Writing : '+outfile)
-            f0 = open(outfile, 'w')
-            f0.writelines(temp1)
-            f0.close()
+            temp1.tofile(outfile, overwrite=True)
+            #f0 = open(outfile, 'w')
+            #f0.writelines(temp1)
+            #f0.close()
 
     if silent == False: log.info('### End create : '+systime())
 #enddef
