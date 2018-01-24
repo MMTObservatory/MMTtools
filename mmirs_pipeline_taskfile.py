@@ -381,6 +381,34 @@ def generate_taskfile(hdr0, rawdir, w_dir, name, c_dict0, tab0):
     return hdr0
 #enddef
 
+def get_header_comments(f0):
+    '''
+    Extract FITS header comments. This function is to resolve issue with FITS block size,
+    which prevents fits.Header.tofile() from working
+
+    Parameters
+    ----------
+    f0 : list
+      List containing full header as strings
+
+
+    Returns
+    -------
+    comm0 : list
+      List containing FITS header comments
+
+    Notes
+    -----
+    Created by Chun Ly, 25 January 2018
+    '''
+
+    split0 = [str0.split(' / ')[-1].replace('\n','') for str0 in f0]
+
+    comm0 = [split0[xx] if split0[xx] != f0[xx].replace('\n','') else ''
+             for xx in range(len(split0))]
+    return comm0
+#enddef
+
 def organize_targets(tab0):
     '''
     Use FITS header information to organize targets based on name, aperture,
