@@ -505,6 +505,7 @@ def create(rawdir, w_dir='', silent=False, verbose=True):
      - Get list containing FITS header in string (handle larger than 80 characters)
     Modified by Chun Ly, 24 January 2018
      - Get/save string list of template from read_template()
+     - Call get_header_comments() and add FITS comments to list string [str0]
     '''
     
     if silent == False: log.info('### Begin create : '+systime())
@@ -556,6 +557,8 @@ def create(rawdir, w_dir='', silent=False, verbose=True):
                 hdr0 = mos_hdr0.copy()
                 hdr0_str = list(mos_str0)
 
+            hdr0_comm = get_header_comments(hdr0_str) # + on 24/01/2018
+
             # on 08/12/2017
             c_dict0 = get_calib_files(name, tab0)
 
@@ -574,8 +577,10 @@ def create(rawdir, w_dir='', silent=False, verbose=True):
                 if keys1[tt] == 'COMMENT':
                     str0 = keys1[tt].ljust(8)+right0 #+' / '+comm1
                 else:
+                    # Mod on 24/01/2018
+                    comm1 = ' / '+hdr0_comm[tt] if hdr0_comm[tt] != '' else ''
                     s_right0 = "'%s'" % right0 if type(right0) == str else str(right0)
-                    str0 = keys1[tt].ljust(8)+'= '+s_right0 #+' / '+comm1
+                    str0 = keys1[tt].ljust(8)+'= '+s_right0+comm1
                 print str0
                 str_hdr.append(str0)
             #endfor
