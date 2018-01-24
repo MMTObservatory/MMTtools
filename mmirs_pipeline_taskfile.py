@@ -470,6 +470,8 @@ def create(rawdir, w_dir='', silent=False, verbose=True):
      - Rename variables from template dict to FITS header
     Modified by Chun Ly, 22 January 2018
      - Bug fix: Write out FITS header file via fits.Header.tofile()
+    Modified by Chun Ly, 23 January 2018
+     - Get list containing FITS header in string (handle larger than 80 characters)
     '''
     
     if silent == False: log.info('### Begin create : '+systime())
@@ -524,9 +526,29 @@ def create(rawdir, w_dir='', silent=False, verbose=True):
 
             # + on 11/12/2017
             temp1 = generate_taskfile(hdr0, rawdir, w_dir, name, c_dict0, tab0)
-            outfile = 'test_template.txt'
-            log.info('## Writing : '+outfile)
-            temp1.tofile(outfile, overwrite=True)
+
+            # Get list containing FITS header to string (handle larger than 80 characters)
+            # + on 23/01/2018
+            keys1 = temp1.keys()
+            str_hdr = []
+            for tt in range(len(keys1)):
+                right0 = temp1[tt]
+
+                if keys1[tt] == 'COMMENT':
+                    str0 = keys1[tt].ljust(8)+right0 #+' / '+comm1
+                else:
+                    s_right0 = "'%s'" % right0 if type(right0) == str else str(right0)
+                    str0 = keys1[tt].ljust(8)+'= '+s_right0 #+' / '+comm1
+                print str0
+                str_hdr.append(str0)
+            #endfor
+
+
+            #test = temp1.tostring(sep='\\n', endcard=False, padding=True)
+            #print test
+            #outfile = rawdir+'test_template.txt'
+            #log.info('## Writing : '+outfile)
+            #temp1.tofile(outfile, overwrite=True)
             #f0 = open(outfile, 'w')
             #f0.writelines(temp1)
             #f0.close()
