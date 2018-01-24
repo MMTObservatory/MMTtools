@@ -506,6 +506,7 @@ def create(rawdir, w_dir='', silent=False, verbose=True):
     Modified by Chun Ly, 24 January 2018
      - Get/save string list of template from read_template()
      - Call get_header_comments() and add FITS comments to list string [str0]
+     - Bug fix: Missing '\n' for str_hdr
     '''
     
     if silent == False: log.info('### Begin create : '+systime())
@@ -581,8 +582,9 @@ def create(rawdir, w_dir='', silent=False, verbose=True):
                     comm1 = ' / '+hdr0_comm[tt] if hdr0_comm[tt] != '' else ''
                     s_right0 = "'%s'" % right0 if type(right0) == str else str(right0)
                     str0 = keys1[tt].ljust(8)+'= '+s_right0+comm1
-                print str0
-                str_hdr.append(str0)
+                #endelse
+
+                str_hdr.append(str0+'\n')
             #endfor
 
 
@@ -590,9 +592,8 @@ def create(rawdir, w_dir='', silent=False, verbose=True):
             #print test
             #outfile = rawdir+'test_template.txt'
             #log.info('## Writing : '+outfile)
-            #temp1.tofile(outfile, overwrite=True)
             #f0 = open(outfile, 'w')
-            #f0.writelines(temp1)
+            #f0.writelines(str_hdr)
             #f0.close()
 
     if silent == False: log.info('### End create : '+systime())
