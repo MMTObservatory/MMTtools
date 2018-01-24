@@ -295,6 +295,62 @@ def get_calib_files(name, tab0):
     return calib_dict0
 #enddef
 
+def get_diff_images(tab0, idx, dither=None):
+    '''
+    Determining dither pattern and identify sky frame for image differencing
+
+    Parameters
+    ----------
+    tab0: astropy.table.table
+      Astropy Table containing FITS header
+
+    idx : list or np.array
+      Index for those associated with target
+
+    dither : boolean
+      Dithering style. Either: 'ABApBp', 'ABAB', or 'ABBA'.
+      If not given, determines based on dither pattern. Default: None
+
+    Returns
+    -------
+    im_dict : dict
+      Ordered dictionary with science and sky frames and dither positions
+
+    Notes
+    -----
+    Created by Chun Ly, 24 January 2018
+    '''
+
+    tab0 = tab0[idx]
+    n_files = len(tab0)
+
+    instel = tab0['instel']
+    offset_val = list(set(instel))
+
+    if dither == None:
+        log.info('### Determining dither sequence...')
+
+        if len(offset_val) == 4: dither="ABApBp"
+        if len(offset_val) == 2:
+            if offset_val[1] == offset_val[2]: dither="ABBA"
+            if offset_val[1] != offset_val[2]: dither="ABAB"
+
+        log.info('## Dither sequence is : '+dither)
+
+    i_off = [1, -1] * (n_files/2)
+    if dither != 'ABBA':
+        if n_files % 2 == 1: i_off.append(-1) # Odd number correction
+    i_sky = np.arange(n_files)+np.array(i_off)
+
+    im_dict = collections.OrderedDict()
+    im_dict['sci']      = tab0['filename']
+    im_dict['sci2']     = tab0['filename'][i_sky] # This is the sky frame
+    im_dict['dithpos']  = instel
+    im_dict['dithpos2'] = instel[i_sky]
+
+    return im_dict
+#enddef
+
 def generate_taskfile(hdr0, rawdir, w_dir, name, c_dict0, tab0):
     '''
     Modify the default task file template for each science exposure
