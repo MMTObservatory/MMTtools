@@ -143,6 +143,9 @@ def read_template(longslit=False, mos=False):
     Modified by Chun Ly, 18 December 2017
      - Switch from dict to FITS header for simplification
      - Update documentation
+
+    Modified by Chun Ly, 24 January 2018
+     - Return string list version of template
     '''
 
     if longslit == False and mos == False:
@@ -163,7 +166,7 @@ def read_template(longslit=False, mos=False):
 
     # + on 18/12/2017
     temp_hdr = fits.Header.fromstring("".join(f0), sep='\n')
-    return temp_hdr
+    return temp_hdr, f0
 
     #keyword = np.array([str0.split('= ')[0] for str0 in f0])
     #text0   = np.array([str0.split('= ')[-1] for str0 in f0])
@@ -472,6 +475,8 @@ def create(rawdir, w_dir='', silent=False, verbose=True):
      - Bug fix: Write out FITS header file via fits.Header.tofile()
     Modified by Chun Ly, 23 January 2018
      - Get list containing FITS header in string (handle larger than 80 characters)
+    Modified by Chun Ly, 24 January 2018
+     - Get/save string list of template from read_template()
     '''
     
     if silent == False: log.info('### Begin create : '+systime())
@@ -503,9 +508,9 @@ def create(rawdir, w_dir='', silent=False, verbose=True):
 
     comb0, obj_comb0 = organize_targets(tab0)
 
-    # Get default FITS template headers | + on 30/11/2017, Mod on 18/12/2017
-    longslit_hdr0 = read_template(longslit=True)
-    mos_hdr0      = read_template(mos=True)
+    # Get default FITS template headers | + on 30/11/2017, Mod on 18/12/2017, 24/01/2018
+    longslit_hdr0, longslit_str0 = read_template(longslit=True)
+    mos_hdr0, mos_str0           = read_template(mos=True)
 
     # Create task files | + on 30/11/2017
     for name in obj_comb0:
@@ -515,9 +520,13 @@ def create(rawdir, w_dir='', silent=False, verbose=True):
             idx   = [ii for ii in range(len(comb0)) if comb0[ii] == name]
             n_idx = len(idx)
 
-            # Mod on 30/11/2017
-            if '-long' in name: hdr0 = longslit_hdr0.copy()
-            if 'mos' in name: hdr0 = mos_hdr0.copy()
+            # Mod on 30/11/2017, 24/01/2018
+            if '-long' in name:
+                hdr0     = longslit_hdr0.copy()
+                hdr0_str = list(longslit_str0)
+            if 'mos' in name:
+                hdr0 = mos_hdr0.copy()
+                hdr0_str = list(mos_str0)
 
             # on 08/12/2017
             c_dict0 = get_calib_files(name, tab0)
