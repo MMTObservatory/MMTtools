@@ -624,6 +624,8 @@ def create(rawdir, w_dir='', dither=None, silent=False, verbose=True):
      - Pass idx to generate_taskfile()
      - Add dither keyword input
      - Pass hdr0_comm to generate_taskfile()
+    Modified by Chun Ly, 25 January 2018
+     - Get FITS keywords' comments from read_template() to improve efficiency
     '''
     
     if silent == False: log.info('### Begin create : '+systime())
@@ -656,8 +658,8 @@ def create(rawdir, w_dir='', dither=None, silent=False, verbose=True):
     comb0, obj_comb0 = organize_targets(tab0)
 
     # Get default FITS template headers | + on 30/11/2017, Mod on 18/12/2017, 24/01/2018
-    longslit_hdr0, longslit_str0 = read_template(longslit=True)
-    mos_hdr0, mos_str0           = read_template(mos=True)
+    LS_hdr0, LS_str0, LS_comm0    = read_template(longslit=True)
+    mos_hdr0, mos_str0, mos_comm0 = read_template(mos=True)
 
     # Create task files | + on 30/11/2017
     for name in obj_comb0:
@@ -669,13 +671,13 @@ def create(rawdir, w_dir='', dither=None, silent=False, verbose=True):
 
             # Mod on 30/11/2017, 24/01/2018
             if '-long' in name:
-                hdr0     = longslit_hdr0.copy()
-                hdr0_str = list(longslit_str0)
+                hdr0      = LS_hdr0.copy()
+                hdr0_str  = list(LS_str0)
+                hdr0_comm = LS_comm0
             if 'mos' in name:
-                hdr0 = mos_hdr0.copy()
-                hdr0_str = list(mos_str0)
-
-            hdr0_comm = get_header_comments(hdr0_str) # + on 24/01/2018
+                hdr0      = mos_hdr0.copy()
+                hdr0_str  = list(mos_str0)
+                hdr0_comm = mos_comm0
 
             # on 08/12/2017
             c_dict0 = get_calib_files(name, tab0)
