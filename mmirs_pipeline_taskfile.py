@@ -110,6 +110,36 @@ def get_header_info(files0):
     return tab0
 #enddef
 
+def get_header_comments(f0):
+    '''
+    Extract FITS header comments. This function is to resolve issue with FITS block size,
+    which prevents fits.Header.tofile() from working
+
+    Parameters
+    ----------
+    f0 : list
+      List containing full header as strings
+
+
+    Returns
+    -------
+    comm0 : list
+      List containing FITS header comments
+
+    Notes
+    -----
+    Created by Chun Ly, 24 January 2018
+    Modified by Chun Ly, 25 January 2018
+     Moved up to work with read_template()
+    '''
+
+    split0 = [str0.split(' / ')[-1].replace('\n','') for str0 in f0]
+
+    comm0 = [split0[xx] if split0[xx] != f0[xx].replace('\n','') else ''
+             for xx in range(len(split0))]
+    return comm0
+#enddef
+
 def read_template(longslit=False, mos=False):
     '''
     Read in MMIRS templates to populate with information
@@ -477,34 +507,6 @@ def generate_taskfile(hdr0, hdr0_comm, rawdir, w_dir, name, c_dict0, tab0,
     #endfor
 
     return hdr0
-#enddef
-
-def get_header_comments(f0):
-    '''
-    Extract FITS header comments. This function is to resolve issue with FITS block size,
-    which prevents fits.Header.tofile() from working
-
-    Parameters
-    ----------
-    f0 : list
-      List containing full header as strings
-
-
-    Returns
-    -------
-    comm0 : list
-      List containing FITS header comments
-
-    Notes
-    -----
-    Created by Chun Ly, 25 January 2018
-    '''
-
-    split0 = [str0.split(' / ')[-1].replace('\n','') for str0 in f0]
-
-    comm0 = [split0[xx] if split0[xx] != f0[xx].replace('\n','') else ''
-             for xx in range(len(split0))]
-    return comm0
 #enddef
 
 def organize_targets(tab0):
