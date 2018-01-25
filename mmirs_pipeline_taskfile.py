@@ -351,8 +351,8 @@ def get_diff_images(tab0, idx, dither=None):
     return im_dict
 #enddef
 
-def generate_taskfile(hdr0, rawdir, w_dir, name, c_dict0, tab0, idx,
-                      dither=None):
+def generate_taskfile(hdr0, hdr0_comm, rawdir, w_dir, name, c_dict0, tab0,
+                      idx, dither=None):
     '''
     Modify the default task file template for each science exposure
 
@@ -360,6 +360,9 @@ def generate_taskfile(hdr0, rawdir, w_dir, name, c_dict0, tab0, idx,
     ----------
     hdr0 : astropy.io.fits.header.Header
       Astropy FITS-formatted header class containing task file info
+
+    hdr0_comm : list
+      List of strings containing FITS keyword comments
 
     rawdir : str
       Full path for where raw files are
@@ -404,6 +407,7 @@ def generate_taskfile(hdr0, rawdir, w_dir, name, c_dict0, tab0, idx,
      - Add idx input
      - Call get_diff_images()
      - Add dither keyword input
+     - Add hdr0_comm input
     '''
 
     col1 = ['RAW_DIR', 'R_DIR', 'W_DIR', 'RAWEXT', 'SLIT', 'GRISM', 'FILTER',
@@ -652,7 +656,6 @@ def create(rawdir, w_dir='', dither=None, silent=False, verbose=True):
 
                 str_hdr.append(str0+'\n')
             #endfor
-
 
             #test = temp1.tostring(sep='\\n', endcard=False, padding=True)
             #print test
