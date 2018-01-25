@@ -440,12 +440,6 @@ def generate_taskfile(hdr0, rawdir, w_dir, name, c_dict0, tab0, idx,
 
     # + on 24/01/2018
     im_dict = get_diff_images(tab0, idx, dither=dither)
-    print im_dict
-
-    #temp1 = [a+'= '+b for a,b in zip(t_keyword0,t_text)]
-    #temp1 = [str0.replace('= COMMENT','COMMENT') for str0 in temp1]
-    #temp1 = [str0.replace('= END','END') for str0 in temp1]
-    #return temp1
 
     return hdr0
 #enddef
