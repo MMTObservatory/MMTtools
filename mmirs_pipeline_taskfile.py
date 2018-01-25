@@ -351,7 +351,8 @@ def get_diff_images(tab0, idx, dither=None):
     return im_dict
 #enddef
 
-def generate_taskfile(hdr0, rawdir, w_dir, name, c_dict0, tab0, idx):
+def generate_taskfile(hdr0, rawdir, w_dir, name, c_dict0, tab0, idx,
+                      dither=None):
     '''
     Modify the default task file template for each science exposure
 
@@ -402,6 +403,7 @@ def generate_taskfile(hdr0, rawdir, w_dir, name, c_dict0, tab0, idx):
     Modified by Chun Ly, 24 January 2018
      - Add idx input
      - Call get_diff_images()
+     - Add dither keyword input
     '''
 
     col1 = ['RAW_DIR', 'R_DIR', 'W_DIR', 'RAWEXT', 'SLIT', 'GRISM', 'FILTER',
@@ -437,7 +439,7 @@ def generate_taskfile(hdr0, rawdir, w_dir, name, c_dict0, tab0, idx):
     col2 = ['BRIGHT', 'SCI', 'SCI2', 'DITHPOS', 'DITHPOS2']
 
     # + on 24/01/2018
-    im_dict = get_diff_images(tab0, idx)
+    im_dict = get_diff_images(tab0, idx, dither=dither)
     print im_dict
 
     #temp1 = [a+'= '+b for a,b in zip(t_keyword0,t_text)]
