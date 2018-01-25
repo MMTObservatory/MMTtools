@@ -523,7 +523,7 @@ def organize_targets(tab0):
     return comb0, obj_comb0
 #enddef
 
-def create(rawdir, w_dir='', silent=False, verbose=True):
+def create(rawdir, w_dir='', dither=None, silent=False, verbose=True):
 
     '''
     Main function to create task files to execute
@@ -577,6 +577,7 @@ def create(rawdir, w_dir='', silent=False, verbose=True):
      - Call get_header_comments() and add FITS comments to list string [str0]
      - Bug fix: Missing '\n' for str_hdr
      - Pass idx to generate_taskfile()
+     - Add dither keyword input
     '''
     
     if silent == False: log.info('### Begin create : '+systime())
@@ -637,7 +638,7 @@ def create(rawdir, w_dir='', silent=False, verbose=True):
 
             # + on 11/12/2017
             temp1 = generate_taskfile(hdr0, rawdir, w_dir, name, c_dict0,
-                                      tab0, idx)
+                                      tab0, idx, dither=dither)
 
             # Get list containing FITS header to string (handle larger than 80 characters)
             # + on 23/01/2018
