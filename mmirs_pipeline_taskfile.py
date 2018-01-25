@@ -574,6 +574,7 @@ def create(rawdir, w_dir='', silent=False, verbose=True):
      - Get/save string list of template from read_template()
      - Call get_header_comments() and add FITS comments to list string [str0]
      - Bug fix: Missing '\n' for str_hdr
+     - Pass idx to generate_taskfile()
     '''
     
     if silent == False: log.info('### Begin create : '+systime())
@@ -633,7 +634,8 @@ def create(rawdir, w_dir='', silent=False, verbose=True):
             if w_dir == '': w_dir = rawdir + 'reduced/'
 
             # + on 11/12/2017
-            temp1 = generate_taskfile(hdr0, rawdir, w_dir, name, c_dict0, tab0)
+            temp1 = generate_taskfile(hdr0, rawdir, w_dir, name, c_dict0,
+                                      tab0, idx)
 
             # Get list containing FITS header to string (handle larger than 80 characters)
             # + on 23/01/2018
