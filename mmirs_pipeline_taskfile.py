@@ -453,6 +453,10 @@ def generate_taskfile(hdr0, hdr0_comm, rawdir, w_dir, name, c_dict0, tab0,
      - Add dither keyword input
      - Add hdr0_comm input
      - Write ASCII taskfile for each science exposure
+
+    Modified by Chun Ly, 25 January 2018
+     - Remove handling BRIGHT FITS keyword (handled prior to generate_taskfile()
+       call in create())
     '''
 
     col1 = ['RAW_DIR', 'R_DIR', 'W_DIR', 'RAWEXT', 'SLIT', 'GRISM', 'FILTER',
@@ -485,7 +489,7 @@ def generate_taskfile(hdr0, hdr0_comm, rawdir, w_dir, name, c_dict0, tab0,
     for vv in range(len(val0)):
         hdr0[col1[vv]] = val0[vv] # Mod on 18/12/2017
 
-    col2 = ['BRIGHT', 'SCI', 'SCI2', 'DITHPOS', 'DITHPOS2']
+    col2 = ['SCI', 'SCI2', 'DITHPOS', 'DITHPOS2']
 
     # + on 24/01/2018
     im_dict = get_diff_images(tab0, idx, dither=dither)
@@ -495,8 +499,8 @@ def generate_taskfile(hdr0, hdr0_comm, rawdir, w_dir, name, c_dict0, tab0,
 
     for ii in range(len(im_dict['sci'])):
         print log.info('### Writing taskfile for : '+im_dict['sci'][ii])
-        for cc in range(1,len(col2)):
-            hdr0[col2[cc]] = im_dict[col2[cc].lower()][ii]
+        for t_key in col2:
+            hdr0[t_key] = im_dict[t_key.lower()][ii]
 
         str_hdr = []
         for tt in range(len(keys1)):
