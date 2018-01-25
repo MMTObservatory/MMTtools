@@ -568,7 +568,8 @@ def organize_targets(tab0):
     return comb0, obj_comb0
 #enddef
 
-def create(rawdir, w_dir='', dither=None, silent=False, verbose=True):
+def create(rawdir, w_dir='', dither=None, bright=False, silent=False,
+           verbose=True):
 
     '''
     Main function to create task files to execute
@@ -585,6 +586,9 @@ def create(rawdir, w_dir='', dither=None, silent=False, verbose=True):
     dither : str
       Dithering style. Either: 'ABApBp', 'ABAB', or 'ABBA'.
       If not given, determines based on dither pattern. Default: None
+
+    bright: boolean
+      Indicate whether spectra has a bright target. Default: False
 
     silent : boolean
       Turns off stdout messages. Default: False
@@ -632,6 +636,7 @@ def create(rawdir, w_dir='', dither=None, silent=False, verbose=True):
      - Get FITS keywords' comments from read_template() to improve efficiency
      - Remove obsolete code (incorporated into generate_taskfile())
      - Minor code documentation
+     - Add bright keyword input, Update BRIGHT keyword for hdr0
     '''
     
     if silent == False: log.info('### Begin create : '+systime())
@@ -684,6 +689,14 @@ def create(rawdir, w_dir='', dither=None, silent=False, verbose=True):
                 hdr0      = mos_hdr0.copy()
                 hdr0_str  = list(mos_str0)
                 hdr0_comm = mos_comm0
+
+            # + on 25/01/2018
+            if bright:
+                log.info('## Bright source flag set!')
+                hdr0['BRIGHT'] = 1
+            else:
+                log.info('## No bright source indicated!')
+                hdr0['BRIGHT'] = 0
 
             # on 08/12/2017
             c_dict0 = get_calib_files(name, tab0)
