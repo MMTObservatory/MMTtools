@@ -408,6 +408,7 @@ def generate_taskfile(hdr0, hdr0_comm, rawdir, w_dir, name, c_dict0, tab0,
      - Call get_diff_images()
      - Add dither keyword input
      - Add hdr0_comm input
+     - Write ASCII taskfile for each science exposure
     '''
 
     col1 = ['RAW_DIR', 'R_DIR', 'W_DIR', 'RAWEXT', 'SLIT', 'GRISM', 'FILTER',
@@ -444,6 +445,36 @@ def generate_taskfile(hdr0, hdr0_comm, rawdir, w_dir, name, c_dict0, tab0,
 
     # + on 24/01/2018
     im_dict = get_diff_images(tab0, idx, dither=dither)
+
+    # Write ASCII taskfiles | + on 24/01/2018
+    keys1 = hdr0.keys()
+
+    for ii in range(len(im_dict['sci'])):
+        print log.info('### Writing taskfile for : '+im_dict['sci'][ii])
+        for cc in range(1,len(col2)):
+            hdr0[col2[cc]] = im_dict[col2[cc].lower()][ii]
+
+        str_hdr = []
+        for tt in range(len(keys1)):
+            right0 = hdr0[tt]
+
+            if keys1[tt] == 'COMMENT':
+                str0 = keys1[tt].ljust(8)+right0
+            else:
+                comm1 = ' / '+hdr0_comm[tt] if hdr0_comm[tt] != '' else ''
+                s_right0 = "'%s'" % right0 if type(right0) == str else str(right0)
+                str0 = keys1[tt].ljust(8)+'= '+s_right0+comm1
+            #endelse
+
+            str_hdr.append(str0+'\n')
+        #endfor
+
+        outfile = rawdir+name+'_'+str(ii+1)+'.txt'
+        log.info('## Writing : '+outfile)
+        f0 = open(outfile, 'w')
+        f0.writelines(str_hdr)
+        f0.close()
+    #endfor
 
     return hdr0
 #enddef
