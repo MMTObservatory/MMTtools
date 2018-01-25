@@ -305,7 +305,7 @@ def get_diff_images(tab0, idx, dither=None):
       Astropy Table containing FITS header
 
     idx : list or np.array
-      Index for those associated with target
+      Index of entries for a given target
 
     dither : boolean
       Dithering style. Either: 'ABApBp', 'ABAB', or 'ABBA'.
@@ -351,7 +351,7 @@ def get_diff_images(tab0, idx, dither=None):
     return im_dict
 #enddef
 
-def generate_taskfile(hdr0, rawdir, w_dir, name, c_dict0, tab0):
+def generate_taskfile(hdr0, rawdir, w_dir, name, c_dict0, tab0, idx):
     '''
     Modify the default task file template for each science exposure
 
@@ -371,6 +371,9 @@ def generate_taskfile(hdr0, rawdir, w_dir, name, c_dict0, tab0):
 
     tab0: astropy.table.table
       Astropy Table containing FITS header
+
+    idx : list or np.array
+      Index of entries for a given target
 
     Returns
     -------
@@ -395,6 +398,10 @@ def generate_taskfile(hdr0, rawdir, w_dir, name, c_dict0, tab0):
 
     Modified by Chun Ly, 18 December 2017
      - Switch modifications from ASCII to FITS header
+
+    Modified by Chun Ly, 24 January 2018
+     - Add idx input
+     - Call get_diff_images()
     '''
 
     col1 = ['RAW_DIR', 'R_DIR', 'W_DIR', 'RAWEXT', 'SLIT', 'GRISM', 'FILTER',
@@ -428,6 +435,10 @@ def generate_taskfile(hdr0, rawdir, w_dir, name, c_dict0, tab0):
         hdr0[col1[vv]] = val0[vv] # Mod on 18/12/2017
 
     col2 = ['BRIGHT', 'SCI', 'SCI2', 'DITHPOS', 'DITHPOS2']
+
+    # + on 24/01/2018
+    im_dict = get_diff_images(tab0, idx)
+    print im_dict
 
     #temp1 = [a+'= '+b for a,b in zip(t_keyword0,t_text)]
     #temp1 = [str0.replace('= COMMENT','COMMENT') for str0 in temp1]
