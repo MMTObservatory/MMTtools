@@ -159,6 +159,12 @@ def read_template(longslit=False, mos=False):
     temp_hdr : astropy.io.fits.header.Header
       Astropy FITS-formatted header class
 
+    f0 : list
+      List of strings from readlines()
+
+    hdr0_comm : list
+      List of strings containing FITS keywords' comments
+
     Notes
     -----
     Created by Chun Ly, 29 November 2017
@@ -176,6 +182,10 @@ def read_template(longslit=False, mos=False):
 
     Modified by Chun Ly, 24 January 2018
      - Return string list version of template
+
+    Modified by Chun Ly, 25 January 2018
+     - Call get_header_comments() to get FITS keywords' comments
+     - Return hdr0_comm, FITS keywords' comments
     '''
 
     if longslit == False and mos == False:
@@ -196,7 +206,11 @@ def read_template(longslit=False, mos=False):
 
     # + on 18/12/2017
     temp_hdr = fits.Header.fromstring("".join(f0), sep='\n')
-    return temp_hdr, f0
+
+    hdr0_comm = get_header_comments(f0) # + on 25/01/2018
+
+    return temp_hdr, f0, hdr0_comm
+
 
     #keyword = np.array([str0.split('= ')[0] for str0 in f0])
     #text0   = np.array([str0.split('= ')[-1] for str0 in f0])
