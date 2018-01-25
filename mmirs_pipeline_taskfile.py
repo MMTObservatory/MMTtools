@@ -576,6 +576,7 @@ def create(rawdir, w_dir='', dither=None, silent=False, verbose=True):
      - Bug fix: Missing '\n' for str_hdr
      - Pass idx to generate_taskfile()
      - Add dither keyword input
+     - Pass hdr0_comm to generate_taskfile()
     '''
     
     if silent == False: log.info('### Begin create : '+systime())
@@ -635,8 +636,8 @@ def create(rawdir, w_dir='', dither=None, silent=False, verbose=True):
             if w_dir == '': w_dir = rawdir + 'reduced/'
 
             # + on 11/12/2017
-            temp1 = generate_taskfile(hdr0, rawdir, w_dir, name, c_dict0,
-                                      tab0, idx, dither=dither)
+            temp1 = generate_taskfile(hdr0, hdr0_comm, rawdir, w_dir, name,
+                                      c_dict0, tab0, idx, dither=dither)
 
             # Get list containing FITS header to string (handle larger than 80 characters)
             # + on 23/01/2018
