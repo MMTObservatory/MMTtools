@@ -351,7 +351,7 @@ def get_diff_images(tab0, idx, dither=None):
     idx : list or np.array
       Index of entries for a given target
 
-    dither : boolean
+    dither : str
       Dithering style. Either: 'ABApBp', 'ABAB', or 'ABBA'.
       If not given, determines based on dither pattern. Default: None
 
@@ -582,6 +582,10 @@ def create(rawdir, w_dir='', dither=None, silent=False, verbose=True):
       Full path for where to place reduction data
       Default: based on rawdir path with 'reduced' appended
 
+    dither : str
+      Dithering style. Either: 'ABApBp', 'ABAB', or 'ABBA'.
+      If not given, determines based on dither pattern. Default: None
+
     silent : boolean
       Turns off stdout messages. Default: False
 
@@ -627,6 +631,7 @@ def create(rawdir, w_dir='', dither=None, silent=False, verbose=True):
     Modified by Chun Ly, 25 January 2018
      - Get FITS keywords' comments from read_template() to improve efficiency
      - Remove obsolete code (incorporated into generate_taskfile())
+     - Minor code documentation
     '''
     
     if silent == False: log.info('### Begin create : '+systime())
