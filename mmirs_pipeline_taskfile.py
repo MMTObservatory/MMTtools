@@ -626,6 +626,7 @@ def create(rawdir, w_dir='', dither=None, silent=False, verbose=True):
      - Pass hdr0_comm to generate_taskfile()
     Modified by Chun Ly, 25 January 2018
      - Get FITS keywords' comments from read_template() to improve efficiency
+     - Remove obsolete code (incorporated into generate_taskfile())
     '''
     
     if silent == False: log.info('### Begin create : '+systime())
@@ -687,33 +688,6 @@ def create(rawdir, w_dir='', dither=None, silent=False, verbose=True):
             # + on 11/12/2017
             temp1 = generate_taskfile(hdr0, hdr0_comm, rawdir, w_dir, name,
                                       c_dict0, tab0, idx, dither=dither)
-
-            # Get list containing FITS header to string (handle larger than 80 characters)
-            # + on 23/01/2018
-            keys1 = temp1.keys()
-            str_hdr = []
-            for tt in range(len(keys1)):
-                right0 = temp1[tt]
-
-                if keys1[tt] == 'COMMENT':
-                    str0 = keys1[tt].ljust(8)+right0 #+' / '+comm1
-                else:
-                    # Mod on 24/01/2018
-                    comm1 = ' / '+hdr0_comm[tt] if hdr0_comm[tt] != '' else ''
-                    s_right0 = "'%s'" % right0 if type(right0) == str else str(right0)
-                    str0 = keys1[tt].ljust(8)+'= '+s_right0+comm1
-                #endelse
-
-                str_hdr.append(str0+'\n')
-            #endfor
-
-            #test = temp1.tostring(sep='\\n', endcard=False, padding=True)
-            #print test
-            #outfile = rawdir+'test_template.txt'
-            #log.info('## Writing : '+outfile)
-            #f0 = open(outfile, 'w')
-            #f0.writelines(str_hdr)
-            #f0.close()
 
     if silent == False: log.info('### End create : '+systime())
 #enddef
