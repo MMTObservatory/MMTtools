@@ -339,6 +339,63 @@ def get_calib_files(name, tab0):
     return calib_dict0
 #enddef
 
+def get_tellurics(tab0, idx, comb0):
+    '''
+    Determining tellurics to use
+
+    Parameters
+    ----------
+    tab0: astropy.table.table
+      Astropy Table containing FITS header
+
+    idx : list or np.array
+      Index of entries for a given target
+
+    comb0 : list
+      List of strings that combines name, aperture, filter, and disperse
+
+    Returns
+    -------
+
+    Notes
+    -----
+    Created by Chun Ly, 25 January 2018
+    '''
+
+    obj = tab0['object']
+
+    mmirs_setup = [b.replace(a+'_','') for a,b in zip(obj, comb0)]
+
+    target_setup = mmirs_setup[idx[0]]
+
+    i_tell = [xx for xx in range(len(obj)) if
+              (('HD' in obj[xx] or 'HIP' in obj[xx]) and
+               (mmirs_setup[xx] == target_setup))]
+
+    tell_comb0 = list(set(np.array(obj)[i_tell]))
+
+    n_tell    = len(tell_comb0)
+
+    if n_tell == 0:
+        log.warn('### No telluric data found!!!')
+
+    if n_tell == 1:
+        log.info('### Only one telluric star is found!!!')
+        str_tell = ",".join(tab0['filename'][i_tell])
+
+    if n_tell > 1:
+        # tell_time = [''] * len(n_tell)
+        str_tell = [''] * len(n_tell)
+
+        for tt in range(n_tell):
+            tmp = [xx for xx in range(len(obj)) if obj[xx] == tell_comb0]
+            # tell_time[tt] = tab0['dateobs'][tmp[0]]
+            str_tell[tt] = ",".join(tab0['filename'][tmp])
+        #endfor
+
+    return str_tell
+#enddef
+
 def get_diff_images(tab0, idx, dither=None):
     '''
     Determining dither pattern and identify sky frame for image differencing
