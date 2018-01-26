@@ -360,6 +360,7 @@ def get_tellurics(tab0, idx, comb0):
     Notes
     -----
     Created by Chun Ly, 25 January 2018
+     - Require that str_tell be a list
     '''
 
     obj = tab0['object']
@@ -378,14 +379,16 @@ def get_tellurics(tab0, idx, comb0):
 
     if n_tell == 0:
         log.warn('### No telluric data found!!!')
+        str_tell = []
+
+    str_tell = [''] * len(n_tell)
 
     if n_tell == 1:
         log.info('### Only one telluric star is found!!!')
-        str_tell = ",".join(tab0['filename'][i_tell])
+        str_tell[0] = ",".join(tab0['filename'][tmp])
 
     if n_tell > 1:
         # tell_time = [''] * len(n_tell)
-        str_tell = [''] * len(n_tell)
 
         for tt in range(n_tell):
             tmp = [xx for xx in range(len(obj)) if obj[xx] == tell_comb0]
