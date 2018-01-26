@@ -701,6 +701,7 @@ def create(rawdir, w_dir='', dither=None, bright=False, silent=False,
      - Remove obsolete code (incorporated into generate_taskfile())
      - Minor code documentation
      - Add bright keyword input, Update BRIGHT keyword for hdr0
+     - Call get_tellurics()
     '''
     
     if silent == False: log.info('### Begin create : '+systime())
@@ -764,6 +765,8 @@ def create(rawdir, w_dir='', dither=None, bright=False, silent=False,
 
             # on 08/12/2017
             c_dict0 = get_calib_files(name, tab0)
+
+            str_tell = get_tellurics(tab0, idx, comb0)
 
             if w_dir == '': w_dir = rawdir + 'reduced/'
 
