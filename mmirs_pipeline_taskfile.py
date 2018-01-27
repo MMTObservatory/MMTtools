@@ -356,11 +356,15 @@ def get_tellurics(tab0, idx, comb0):
 
     Returns
     -------
+    str_tell : list
+      List containing strings of telluric filenames
 
     Notes
     -----
     Created by Chun Ly, 25 January 2018
      - Require that str_tell be a list
+    Modified by Chun Ly, 26 January 2018
+     - Minor code documentation
     '''
 
     obj = tab0['object']
