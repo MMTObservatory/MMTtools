@@ -727,6 +727,7 @@ def create(rawdir, w_dir='', dither=None, bright=False, silent=False,
      - Minor code documentation
      - Add bright keyword input, Update BRIGHT keyword for hdr0
      - Call get_tellurics()
+     - Pass str_tell to generate_taskfile()
     '''
     
     if silent == False: log.info('### Begin create : '+systime())
@@ -797,7 +798,8 @@ def create(rawdir, w_dir='', dither=None, bright=False, silent=False,
 
             # + on 11/12/2017
             temp1 = generate_taskfile(hdr0, hdr0_comm, rawdir, w_dir, name,
-                                      c_dict0, tab0, idx, dither=dither)
+                                      c_dict0, str_tell, tab0, idx,
+                                      dither=dither)
 
     if silent == False: log.info('### End create : '+systime())
 #enddef
