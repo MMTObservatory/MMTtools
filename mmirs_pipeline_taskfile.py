@@ -463,8 +463,8 @@ def get_diff_images(tab0, idx, dither=None):
     return im_dict
 #enddef
 
-def generate_taskfile(hdr0, hdr0_comm, rawdir, w_dir, name, c_dict0, tab0,
-                      idx, dither=None):
+def generate_taskfile(hdr0, hdr0_comm, rawdir, w_dir, name, c_dict0,
+                      str_tell, tab0, idx, dither=None):
     '''
     Modify the default task file template for each science exposure
 
@@ -487,6 +487,9 @@ def generate_taskfile(hdr0, hdr0_comm, rawdir, w_dir, name, c_dict0, tab0,
 
     c_dict0 : dict
       Ordered dictionary containing information of calibration files
+
+    str_tell : list
+      List containing strings of telluric filenames
 
     tab0: astropy.table.table
       Astropy Table containing FITS header
@@ -528,13 +531,20 @@ def generate_taskfile(hdr0, hdr0_comm, rawdir, w_dir, name, c_dict0, tab0,
     Modified by Chun Ly, 25 January 2018
      - Remove handling BRIGHT FITS keyword (handled prior to generate_taskfile()
        call in create())
+
+    Modified by Chun Ly, 26 January 2018
+     - Minor code documentation
+     - Update col1 for only tellurics that is needed
+     - Update val0 for str_tell
     '''
 
     col1 = ['RAW_DIR', 'R_DIR', 'W_DIR', 'RAWEXT', 'SLIT', 'GRISM', 'FILTER',
             'DARKSCI', 'ARC', 'DARKARC', 'FLAT', 'DARKFLAT']
 
+    n_tell = len(str_tell) # + on 26/01/2018
+
     common0 = ['STAR', 'DARKST', 'STTYPE']
-    for ss in range(1,6):
+    for ss in range(1,n_tell+1): # Mod on 26/01/2018
         col1 += [t0 + ('%02i' % ss) for t0 in common0]
 
     ## + on 01/12/2017
@@ -555,6 +565,10 @@ def generate_taskfile(hdr0, hdr0_comm, rawdir, w_dir, name, c_dict0, tab0,
             c_dict0['dark_str'][0], c_dict0['comp_str'], c_dict0['comp_dark'],
             c_dict0['flat_str'], c_dict0['flat_dark']]
     # Note: need to handle dark_str for different exposure time
+
+    # + on 26/01/2018
+    for ss in range(n_tell):
+        val0.append(str_tell[ss])
 
     # + on 11/12/2017
     for vv in range(len(val0)):
