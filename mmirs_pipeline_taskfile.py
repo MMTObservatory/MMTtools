@@ -431,6 +431,8 @@ def get_diff_images(tab0, idx, dither=None):
     Notes
     -----
     Created by Chun Ly, 24 January 2018
+    Modified by Chun Ly, 26 January 2018
+     - Bug fix: Incorrectly used offset_val over instel
     '''
 
     tab0 = tab0[idx]
@@ -444,8 +446,9 @@ def get_diff_images(tab0, idx, dither=None):
 
         if len(offset_val) == 4: dither="ABApBp"
         if len(offset_val) == 2:
-            if offset_val[1] == offset_val[2]: dither="ABBA"
-            if offset_val[1] != offset_val[2]: dither="ABAB"
+            # Mod on 26/01/2018
+            if instel[1] == instel[2]: dither="ABBA"
+            if instel[1] != instel[2]: dither="ABAB"
 
         log.info('## Dither sequence is : '+dither)
 
