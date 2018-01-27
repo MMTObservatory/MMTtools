@@ -369,6 +369,7 @@ def get_tellurics(tab0, idx, comb0):
      - Require that str_tell be a list
     Modified by Chun Ly, 26 January 2018
      - Minor code documentation
+     - Bug fix: incorrect indexing, tmp -> i_tell
     '''
 
     obj = tab0['object']
@@ -393,7 +394,7 @@ def get_tellurics(tab0, idx, comb0):
 
     if n_tell == 1:
         log.info('### Only one telluric star is found!!!')
-        str_tell[0] = ",".join(tab0['filename'][tmp])
+        str_tell[0] = ",".join(tab0['filename'][i_tell])
 
     if n_tell > 1:
         # tell_time = [''] * len(n_tell)
