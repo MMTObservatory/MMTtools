@@ -240,6 +240,8 @@ def get_calib_files(name, tab0):
 
     Returns
     -------
+    calib_dict0 : dict
+      Ordered dictionary containing information of calibration files
 
     Notes
     -----
@@ -251,6 +253,8 @@ def get_calib_files(name, tab0):
     Modified by Chun Ly, 11 December 2017
      - Use PI and PropID to further filter out comps and flats. Need a time constraint
      - Include darks for comps, flats
+    Modified by Chun Ly, 26 January 2018
+     - Minor code documentation
     '''
     len0 = len(tab0)
 
@@ -480,6 +484,9 @@ def generate_taskfile(hdr0, hdr0_comm, rawdir, w_dir, name, c_dict0, tab0,
 
     name : str
       object + aperture + filter + disperse name from organize_targets()
+
+    c_dict0 : dict
+      Ordered dictionary containing information of calibration files
 
     tab0: astropy.table.table
       Astropy Table containing FITS header
