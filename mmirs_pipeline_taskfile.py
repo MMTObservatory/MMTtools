@@ -565,6 +565,9 @@ def generate_taskfile(hdr0, hdr0_comm, rawdir, w_dir, name, c_dict0,
     Modified by Chun Ly, 28 January 2018
      - Change str_tell to tell_dict0
      - Update val0 with telluric filenames and darks for telluric datasets
+
+    Modified by Chun Ly, 29 January 2018
+     - Bug fix: Incorrect name, tell_dict -> tell_dict0
     '''
 
     col1 = ['RAW_DIR', 'R_DIR', 'W_DIR', 'RAWEXT', 'SLIT', 'GRISM', 'FILTER',
@@ -597,7 +600,7 @@ def generate_taskfile(hdr0, hdr0_comm, rawdir, w_dir, name, c_dict0,
 
     # + on 26/01/2018, Mod on 28/01/2018
     for ss in range(n_tell):
-        val0 += [tell_dict0['name'][ss], tell_dict['dark'][ss]]
+        val0 += [tell_dict0['name'][ss], tell_dict0['dark'][ss]]
 
     # + on 11/12/2017
     for vv in range(len(val0)):
