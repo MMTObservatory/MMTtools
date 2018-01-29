@@ -360,8 +360,8 @@ def get_tellurics(tab0, idx, comb0):
 
     Returns
     -------
-    str_tell : list
-      List containing strings of telluric filenames
+    tell_dict0 : dict
+      Dictionary containing telluric filenames, exptime, and associated darks
 
     Notes
     -----
@@ -373,6 +373,7 @@ def get_tellurics(tab0, idx, comb0):
     Modified by Chun Ly, 28 January 2018
      - Include exptime in separating telluric datasets
      - Get darks for each telluric datasets, str_dark
+     - Return full telluric information through dictionary, tell_dict0
     '''
 
     obj   = tab0['object']
@@ -421,7 +422,9 @@ def get_tellurics(tab0, idx, comb0):
             str_dark[tt] = ",".join(tab0['filename'][i_dark])
         #endfor
 
-    return str_tell
+    # Mod on 28/01/2018
+    tell_dict0 = {'name': str_tell, 'etime': tell_etime, 'dark': str_dark}
+    return tell_dict0
 #enddef
 
 def get_diff_images(tab0, idx, dither=None):
