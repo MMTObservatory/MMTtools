@@ -370,9 +370,12 @@ def get_tellurics(tab0, idx, comb0):
     Modified by Chun Ly, 26 January 2018
      - Minor code documentation
      - Bug fix: incorrect indexing, tmp -> i_tell
+    Modified by Chun Ly, 28 January 2018
+     - Include exptime in separating telluric datasets
     '''
 
-    obj = tab0['object']
+    obj   = tab0['object']
+    etime = tab0['exptime'] # + on 28/01/2018
 
     mmirs_setup = [b.replace(a+'_','') for a,b in zip(obj, comb0)]
 
@@ -382,27 +385,32 @@ def get_tellurics(tab0, idx, comb0):
               (('HD' in obj[xx] or 'HIP' in obj[xx]) and
                (mmirs_setup[xx] == target_setup))]
 
-    tell_comb0 = list(set(np.array(obj)[i_tell]))
+    # Include exptime should data with multiple exptime for same target is taken
+    # Mod on 28/01/2018
+    obj_etime  = [a+'_'+str(b) for a,b in zip(obj, etime)]
+    tell_comb0 = list(set(np.array(obj_etime)[i_tell]))
 
-    n_tell    = len(tell_comb0)
+    n_tell = len(tell_comb0)
 
     if n_tell == 0:
         log.warn('### No telluric data found!!!')
         str_tell = []
 
-    str_tell = [''] * len(n_tell)
+    str_tell   = ['']  * len(n_tell)
+    tell_etime = [0.0] * len(n_tell)
 
     if n_tell == 1:
         log.info('### Only one telluric star is found!!!')
-        str_tell[0] = ",".join(tab0['filename'][i_tell])
+        log.info('### '+obj[i_tell[0]]+' '+etime[i_tell[0]])
 
-    if n_tell > 1:
-        # tell_time = [''] * len(n_tell)
-
+    if n_tell >= 1:
         for tt in range(n_tell):
-            tmp = [xx for xx in range(len(obj)) if obj[xx] == tell_comb0]
+            tmp = [xx for xx in range(len(obj)) if
+                   obj_etime[xx] == tell_comb0[tt]]
+
             # tell_time[tt] = tab0['dateobs'][tmp[0]]
-            str_tell[tt] = ",".join(tab0['filename'][tmp])
+            str_tell[tt]   = ",".join(tab0['filename'][tmp])
+            tell_etime[tt] = etime[tmp[0]] # + on 28/01/2018
         #endfor
 
     return str_tell
