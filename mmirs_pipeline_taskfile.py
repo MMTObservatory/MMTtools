@@ -751,6 +751,9 @@ def create(rawdir, w_dir='', dither=None, bright=False, silent=False,
      - Add bright keyword input, Update BRIGHT keyword for hdr0
      - Call get_tellurics()
      - Pass str_tell to generate_taskfile()
+    Modified by Chun Ly, 28 January 2018
+     - Get tell_dict0 from get_tellurics()
+     - Pass tell_dict0 to generate_taskfile()
     '''
     
     if silent == False: log.info('### Begin create : '+systime())
@@ -815,13 +818,13 @@ def create(rawdir, w_dir='', dither=None, bright=False, silent=False,
             # on 08/12/2017
             c_dict0 = get_calib_files(name, tab0)
 
-            str_tell = get_tellurics(tab0, idx, comb0)
+            tell_dict0 = get_tellurics(tab0, idx, comb0) # Mod on 28/01/2018
 
             if w_dir == '': w_dir = rawdir + 'reduced/'
 
-            # + on 11/12/2017
+            # + on 11/12/2017, Mod on 28/01/2018
             temp1 = generate_taskfile(hdr0, hdr0_comm, rawdir, w_dir, name,
-                                      c_dict0, str_tell, tab0, idx,
+                                      c_dict0, tell_dict0, tab0, idx,
                                       dither=dither)
 
     if silent == False: log.info('### End create : '+systime())
