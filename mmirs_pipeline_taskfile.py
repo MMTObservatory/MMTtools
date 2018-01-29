@@ -372,6 +372,7 @@ def get_tellurics(tab0, idx, comb0):
      - Bug fix: incorrect indexing, tmp -> i_tell
     Modified by Chun Ly, 28 January 2018
      - Include exptime in separating telluric datasets
+     - Get darks for each telluric datasets, str_dark
     '''
 
     obj   = tab0['object']
@@ -398,6 +399,7 @@ def get_tellurics(tab0, idx, comb0):
 
     str_tell   = ['']  * len(n_tell)
     tell_etime = [0.0] * len(n_tell)
+    str_dark   = ['']  * len(n_tell) # + on 28/01/2018
 
     if n_tell == 1:
         log.info('### Only one telluric star is found!!!')
@@ -411,6 +413,12 @@ def get_tellurics(tab0, idx, comb0):
             # tell_time[tt] = tab0['dateobs'][tmp[0]]
             str_tell[tt]   = ",".join(tab0['filename'][tmp])
             tell_etime[tt] = etime[tmp[0]] # + on 28/01/2018
+
+            # + on 28/01/2018
+            i_dark = [xx for xx in range(obj) if
+                      (tab0['imagetype'][xx] == 'dark' and
+                       etime[xx] == tell_etime[tt])]
+            str_dark[tt] = ",".join(tab0['filename'][i_dark])
         #endfor
 
     return str_tell
