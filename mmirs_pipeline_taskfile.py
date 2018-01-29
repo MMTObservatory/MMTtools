@@ -25,6 +25,11 @@ import glob
 from astropy.table import Table
 from astropy import log
 
+# + on 29/01/2018
+from astroquery.simbad import Simbad
+if not any('sptype' in sfield for sfield in Simbad.get_votable_fields()):
+    Simbad.add_votable_fields('sptype')
+
 import collections
 
 # + on 30/11/2017
@@ -376,6 +381,8 @@ def get_tellurics(tab0, idx, comb0):
      - Return full telluric information through dictionary, tell_dict0
     Modified by Chun Ly, 29 January 2018
      - Bug fixes: len(n_tell) -> n_tell, str(etime), specify size when calling range
+     - Import astroquery.simbad to get spectral type for telluric star; export
+       in tell_dict0
     '''
 
     obj   = tab0['object']
@@ -403,6 +410,7 @@ def get_tellurics(tab0, idx, comb0):
     str_tell   = ['']  * n_tell
     tell_etime = [0.0] * n_tell
     str_dark   = ['']  * n_tell # + on 28/01/2018
+    tell_stype = ['']  * n_tell # + on 29/01/2018
 
     if n_tell == 1:
         log.info('### Only one telluric star is found!!!')
@@ -422,10 +430,15 @@ def get_tellurics(tab0, idx, comb0):
                       (tab0['imagetype'][xx] == 'dark' and
                        etime[xx] == tell_etime[tt])]
             str_dark[tt] = ",".join(tab0['filename'][i_dark])
+
+            # + on 29/01/2018
+            t_simbad = Simbad.query_object(tab0['object'][tmp[0]])
+            tell_stype[tt] = t_simbad['SP_TYPE'][0].lower()
         #endfor
 
-    # Mod on 28/01/2018
-    tell_dict0 = {'name': str_tell, 'etime': tell_etime, 'dark': str_dark}
+    # Mod on 28/01/2018, 29/01/2018
+    tell_dict0 = {'name': str_tell, 'etime': tell_etime, 'dark': str_dark,
+                  'stype': tell_stype}
     return tell_dict0
 #enddef
 
