@@ -581,6 +581,7 @@ def generate_taskfile(hdr0, hdr0_comm, rawdir, w_dir, name, c_dict0,
 
     Modified by Chun Ly, 29 January 2018
      - Bug fix: Incorrect name, tell_dict -> tell_dict0
+     - Update spectral type for telluric star from tell_dict0['stype']
     '''
 
     col1 = ['RAW_DIR', 'R_DIR', 'W_DIR', 'RAWEXT', 'SLIT', 'GRISM', 'FILTER',
@@ -588,7 +589,7 @@ def generate_taskfile(hdr0, hdr0_comm, rawdir, w_dir, name, c_dict0,
 
     n_tell = len(tell_dict0['name']) # + on 26/01/2018, Mod on 28/01/2018
 
-    common0 = ['STAR', 'DARKST'] #, 'STTYPE']
+    common0 = ['STAR', 'DARKST', 'STTYPE']
     for ss in range(1,n_tell+1): # Mod on 26/01/2018
         col1 += [t0 + ('%02i' % ss) for t0 in common0]
 
@@ -611,9 +612,10 @@ def generate_taskfile(hdr0, hdr0_comm, rawdir, w_dir, name, c_dict0,
             c_dict0['flat_str'], c_dict0['flat_dark']]
     # Note: need to handle dark_str for different exposure time
 
-    # + on 26/01/2018, Mod on 28/01/2018
+    # + on 26/01/2018, Mod on 28/01/2018, 29/01/2018
     for ss in range(n_tell):
-        val0 += [tell_dict0['name'][ss], tell_dict0['dark'][ss]]
+        val0 += [tell_dict0['name'][ss], tell_dict0['dark'][ss],
+                 tell_dict0['stype'][ss]]
 
     # + on 11/12/2017
     for vv in range(len(val0)):
