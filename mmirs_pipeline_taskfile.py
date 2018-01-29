@@ -487,7 +487,7 @@ def get_diff_images(tab0, idx, dither=None):
 #enddef
 
 def generate_taskfile(hdr0, hdr0_comm, rawdir, w_dir, name, c_dict0,
-                      str_tell, tab0, idx, dither=None):
+                      tell_dict0, tab0, idx, dither=None):
     '''
     Modify the default task file template for each science exposure
 
@@ -511,8 +511,8 @@ def generate_taskfile(hdr0, hdr0_comm, rawdir, w_dir, name, c_dict0,
     c_dict0 : dict
       Ordered dictionary containing information of calibration files
 
-    str_tell : list
-      List containing strings of telluric filenames
+    tell_dict0 : dict
+      Dictionary containing telluric filenames, exptime, and associated darks
 
     tab0: astropy.table.table
       Astropy Table containing FITS header
@@ -559,6 +559,9 @@ def generate_taskfile(hdr0, hdr0_comm, rawdir, w_dir, name, c_dict0,
      - Minor code documentation
      - Update col1 for only tellurics that is needed
      - Update val0 for str_tell
+
+    Modified by Chun Ly, 28 January 2018
+     - Change str_tell to tell_dict0
     '''
 
     col1 = ['RAW_DIR', 'R_DIR', 'W_DIR', 'RAWEXT', 'SLIT', 'GRISM', 'FILTER',
