@@ -797,8 +797,9 @@ def create(rawdir, w_dir='', dither=None, bright=False, silent=False,
      - Pass tell_dict0 to generate_taskfile()
     Modified by Chun Ly, 31 January 2018
      - Get and set appropriate RAW_DIR in hdr0
+     - Change w_dir to include object+aperture+filter+disperse in path
     '''
-    
+
     if silent == False: log.info('### Begin create : '+systime())
 
     if rawdir[-1] != '/': rawdir = rawdir + '/'
@@ -868,7 +869,8 @@ def create(rawdir, w_dir='', dither=None, bright=False, silent=False,
 
             tell_dict0 = get_tellurics(tab0, idx, comb0) # Mod on 28/01/2018
 
-            if w_dir == '': w_dir = rawdir + 'reduced/'
+            # Mod on 31/01/2018
+            if w_dir == '': w_dir = rawdir + 'reduced/'+name+'/'
 
             # + on 11/12/2017, Mod on 28/01/2018
             temp1 = generate_taskfile(hdr0, hdr0_comm, rawdir, w_dir, name,
