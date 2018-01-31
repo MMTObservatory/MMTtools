@@ -590,6 +590,7 @@ def generate_taskfile(hdr0, hdr0_comm, rawdir, w_dir, name, c_dict0,
 
     Modified by Chun Ly, 31 January 2018
      - Remove RAW_DIR keyword handling. Done in create()
+     - Change w_dir for each science exposure
     '''
 
     col1 = ['R_DIR', 'W_DIR', 'RAWEXT', 'SLIT', 'GRISM', 'FILTER',
@@ -650,6 +651,8 @@ def generate_taskfile(hdr0, hdr0_comm, rawdir, w_dir, name, c_dict0,
         print log.info('### Writing taskfile for : '+im_dict['sci'][ii])
         for t_key in col2:
             hdr0[t_key] = im_dict[t_key.lower()][ii]
+
+        hdr0['W_DIR'] = w_dir + format(ii+1, '02') + '/'
 
         str_hdr = []
         for tt in range(len(keys1)):
