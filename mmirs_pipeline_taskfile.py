@@ -582,6 +582,9 @@ def generate_taskfile(hdr0, hdr0_comm, rawdir, w_dir, name, c_dict0,
     Modified by Chun Ly, 29 January 2018
      - Bug fix: Incorrect name, tell_dict -> tell_dict0
      - Update spectral type for telluric star from tell_dict0['stype']
+
+    Modified by Chun Ly, 30 January 2018
+     - Remove extra keywords for telluric datasets
     '''
 
     col1 = ['RAW_DIR', 'R_DIR', 'W_DIR', 'RAWEXT', 'SLIT', 'GRISM', 'FILTER',
@@ -592,6 +595,15 @@ def generate_taskfile(hdr0, hdr0_comm, rawdir, w_dir, name, c_dict0,
     common0 = ['STAR', 'DARKST', 'STTYPE']
     for ss in range(1,n_tell+1): # Mod on 26/01/2018
         col1 += [t0 + ('%02i' % ss) for t0 in common0]
+
+    # + on 30/01/2018
+    hdr_star = [key0 for key0 in hdr0 if 'STAR' in key0]
+    if len(hdr_star) > n_tell:
+        del_idx = range(n_tell+1,len(hdr_star)+1)
+        keys0 = sum([[key1+('%02i' % ii) for key1 in common0] for
+                     ii in del_idx], [])
+        for key in keys0:
+            del hdr0[key]
 
     ## + on 01/12/2017
     #t_keyword0 = temp0['keyword']
