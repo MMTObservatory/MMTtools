@@ -591,6 +591,7 @@ def generate_taskfile(hdr0, hdr0_comm, rawdir, w_dir, name, c_dict0,
     Modified by Chun Ly, 31 January 2018
      - Remove RAW_DIR keyword handling. Done in create()
      - Change w_dir for each science exposure
+     - Change output file for zero padding
     '''
 
     col1 = ['R_DIR', 'W_DIR', 'RAWEXT', 'SLIT', 'GRISM', 'FILTER',
@@ -669,7 +670,7 @@ def generate_taskfile(hdr0, hdr0_comm, rawdir, w_dir, name, c_dict0,
             str_hdr.append(str0+'\n')
         #endfor
 
-        outfile = rawdir+name+'_'+str(ii+1)+'.txt'
+        outfile = rawdir+name+'_'+format(ii+1, '02')+'.txt'
         log.info('## Writing : '+outfile)
         f0 = open(outfile, 'w')
         f0.writelines(str_hdr)
