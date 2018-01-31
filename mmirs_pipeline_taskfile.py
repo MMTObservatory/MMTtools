@@ -587,9 +587,12 @@ def generate_taskfile(hdr0, hdr0_comm, rawdir, w_dir, name, c_dict0,
 
     Modified by Chun Ly, 30 January 2018
      - Remove extra keywords for telluric datasets
+
+    Modified by Chun Ly, 31 January 2018
+     - Remove RAW_DIR keyword handling. Done in create()
     '''
 
-    col1 = ['RAW_DIR', 'R_DIR', 'W_DIR', 'RAWEXT', 'SLIT', 'GRISM', 'FILTER',
+    col1 = ['R_DIR', 'W_DIR', 'RAWEXT', 'SLIT', 'GRISM', 'FILTER',
             'DARKSCI', 'ARC', 'DARKARC', 'FLAT', 'DARKFLAT']
 
     n_tell = len(tell_dict0['name']) # + on 26/01/2018, Mod on 28/01/2018
@@ -621,7 +624,7 @@ def generate_taskfile(hdr0, hdr0_comm, rawdir, w_dir, name, c_dict0,
         slit = t_ap.replace('pixel','_pixel').replace('-long','')
     else: slit = 'mos'
 
-    val0 = ['/data/ccd/MMIRS', rawdir, w_dir, '.gz', slit, t_disp, t_filt,
+    val0 = [rawdir, w_dir, '.gz', slit, t_disp, t_filt,
             c_dict0['dark_str'][0], c_dict0['comp_str'], c_dict0['comp_dark'],
             c_dict0['flat_str'], c_dict0['flat_dark']]
     # Note: need to handle dark_str for different exposure time
