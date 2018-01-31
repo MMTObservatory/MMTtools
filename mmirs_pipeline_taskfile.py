@@ -25,6 +25,8 @@ import glob
 from astropy.table import Table
 from astropy import log
 
+from astropy.time import Time # + on 31/01/2018
+
 # + on 29/01/2018
 from astroquery.simbad import Simbad
 if not any('sptype' in sfield for sfield in Simbad.get_votable_fields()):
@@ -790,6 +792,8 @@ def create(rawdir, w_dir='', dither=None, bright=False, silent=False,
     Modified by Chun Ly, 28 January 2018
      - Get tell_dict0 from get_tellurics()
      - Pass tell_dict0 to generate_taskfile()
+    Modified by Chun Ly, 31 January 2018
+     - Get and set appropriate RAW_DIR in hdr0
     '''
     
     if silent == False: log.info('### Begin create : '+systime())
@@ -842,6 +846,11 @@ def create(rawdir, w_dir='', dither=None, bright=False, silent=False,
                 hdr0      = mos_hdr0.copy()
                 hdr0_str  = list(mos_str0)
                 hdr0_comm = mos_comm0
+
+            datedir = Time(tab0['dateobs'][0]).datetime.strftime('%Y.%m%d')
+            orig_dir = '/data/ccd/MMIRS/'+datedir+'/'
+            print orig_dir
+            hdr0['RAW_DIR'] = orig_dir
 
             # + on 25/01/2018
             if bright:
