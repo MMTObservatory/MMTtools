@@ -803,6 +803,7 @@ def create(rawdir, w_dir='', dither=None, bright=False, silent=False,
     Modified by Chun Ly, 31 January 2018
      - Get and set appropriate RAW_DIR in hdr0
      - Change w_dir to include object+aperture+filter+disperse in path
+     - Create w_dir if not present
     '''
 
     if silent == False: log.info('### Begin create : '+systime())
@@ -876,6 +877,9 @@ def create(rawdir, w_dir='', dither=None, bright=False, silent=False,
 
             # Mod on 31/01/2018
             if w_dir == '': w_dir = rawdir + 'reduced/'+name+'/'
+
+            if not exists(w_dir):
+                commands.getoutput('mkdir -p '+w_dir)
 
             # + on 11/12/2017, Mod on 28/01/2018
             temp1 = generate_taskfile(hdr0, hdr0_comm, rawdir, w_dir, name,
