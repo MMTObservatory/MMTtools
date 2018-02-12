@@ -804,6 +804,8 @@ def create(rawdir, w_dir='', dither=None, bright=False, silent=False,
      - Get and set appropriate RAW_DIR in hdr0
      - Change w_dir to include object+aperture+filter+disperse in path
      - Create w_dir if not present
+    Modified by Chun Ly, 12 February 2018
+     - Generate ASCII input file for IDL pre-processing
     '''
 
     if silent == False: log.info('### Begin create : '+systime())
@@ -880,6 +882,24 @@ def create(rawdir, w_dir='', dither=None, bright=False, silent=False,
 
             if not exists(w_dir):
                 commands.getoutput('mkdir -p '+w_dir)
+
+            # Generate file containing science frames and darks to run
+            # MMIRS IDL preprocessing
+            # + on 12/02/2018
+            sci_files  = tab0['filename'][idx]
+            dark_files = np.array(['dark.XXXX.fits'] * len(idx))
+            for e_set, files in zip(c_dict0['dark_etime'],c_dict0['dark_str']):
+                tmp = np.array(idx)[np.array([xx for xx in range(len(idx)) if
+                                              tab0['exptime'][idx[xx]] == e_set])]
+                if len(tmp) > 0:
+                    print files.split(',')[0]
+                    dark_files[tmp] = files.split(',')[0]
+            #endfor
+
+            idl_input_file = rawdir + 'IDL_input.lis'
+            if silent == False: log.info('### Writing : '+idl_input_file)
+            asc.write([sci_files, dark_files], idl_input_file, format='no_header',
+                      overwrite=True)
 
             # + on 11/12/2017, Mod on 28/01/2018
             temp1 = generate_taskfile(hdr0, hdr0_comm, rawdir, w_dir, name,
