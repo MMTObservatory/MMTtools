@@ -806,6 +806,7 @@ def create(rawdir, w_dir='', dither=None, bright=False, silent=False,
      - Create w_dir if not present
     Modified by Chun Ly, 12 February 2018
      - Generate ASCII input file for IDL pre-processing
+     - Include comps, flats and associated darks for ASCII IDL pre-processing file
     '''
 
     if silent == False: log.info('### Begin create : '+systime())
@@ -886,7 +887,7 @@ def create(rawdir, w_dir='', dither=None, bright=False, silent=False,
             # Generate file containing science frames and darks to run
             # MMIRS IDL preprocessing
             # + on 12/02/2018
-            sci_files  = tab0['filename'][idx]
+            sci_files  = tab0['filename'][idx].data
             dark_files = np.array(['dark.XXXX.fits'] * len(idx))
             for e_set, files in zip(c_dict0['dark_etime'],c_dict0['dark_str']):
                 tmp = np.array(idx)[np.array([xx for xx in range(len(idx)) if
@@ -895,6 +896,17 @@ def create(rawdir, w_dir='', dither=None, bright=False, silent=False,
                     print files.split(',')[0]
                     dark_files[tmp] = files.split(',')[0]
             #endfor
+
+            # + on 12/02/2018
+            t_comps = c_dict0['comp_str'].split(',')
+            c_dark  = c_dict0['comp_dark'].split(',')[0]
+            sci_files  = np.append(sci_files, t_comps)
+            dark_files = np.append(dark_files, [c_dark] * len(t_comps))
+
+            t_flats = c_dict0['flat_str'].split(',')
+            f_dark  = c_dict0['flat_dark'].split(',')[0]
+            sci_files = np.append(sci_files, t_flats)
+            dark_files = np.append(dark_files, [f_dark] * len(t_comps))
 
             idl_input_file = rawdir + 'IDL_input.lis'
             if silent == False: log.info('### Writing : '+idl_input_file)
