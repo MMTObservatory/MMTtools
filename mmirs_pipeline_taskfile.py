@@ -807,6 +807,7 @@ def create(rawdir, w_dir='', dither=None, bright=False, silent=False,
     Modified by Chun Ly, 12 February 2018
      - Generate ASCII input file for IDL pre-processing
      - Include comps, flats and associated darks for ASCII IDL pre-processing file
+     - Include telluric data and associated darks for ASCII IDL pre-processing file
     '''
 
     if silent == False: log.info('### Begin create : '+systime())
@@ -907,6 +908,13 @@ def create(rawdir, w_dir='', dither=None, bright=False, silent=False,
             f_dark  = c_dict0['flat_dark'].split(',')[0]
             sci_files = np.append(sci_files, t_flats)
             dark_files = np.append(dark_files, [f_dark] * len(t_comps))
+
+            # Get telluric files | + on 12/02/2018
+            for tt in range(len(tell_dict0['name'])):
+                t_tell     = tell_dict0['name'][tt].split(',')
+                t_dark     = tell_dict0['dark'][tt].split(',')[0]
+                sci_files  = np.append(sci_files, t_tell)
+                dark_files = np.append(dark_files, [t_dark] * len(t_tell))
 
             idl_input_file = rawdir + 'IDL_input.lis'
             if silent == False: log.info('### Writing : '+idl_input_file)
