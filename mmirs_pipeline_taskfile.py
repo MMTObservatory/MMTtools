@@ -5,8 +5,63 @@ mmirs_pipeline_taskfile
 Python code to create task files for MMIRS IDL pipeline:
 http://tdc-www.harvard.edu/software/mmirs_pipeline.html
 
-Operates in a given path containing raw files, find common files and create
+Operates in a given path containing raw files, find common files, and create
 task files to execute with mmirs_pipeline
+
+This code will create several files:
+(1) 'obs_summary.tbl'
+     - A summary of observations in a specified 'rawdir' with FITS header
+       information
+
+(2) MMIRS input taskfiles
+     - FITS header compliant ASCII files that are provided to the
+       MMIRS IDL pipeline
+
+(3) 'IDL_input.lis'
+     - A list of files to run the MMIRS IDL pre-processing (i.e., non-linearity
+      correction)
+
+
+TO EXECUTE:
+1. import this code:
+     from MMTtools import mmirs_pipeline_taskfile
+
+2. Call code for specified path:
+     rawdir = '/path/to/raw/files'
+     mmirs_pipeline_taskfile.create(rawdir, w_dir='', dither='ABApBp',
+                                    bright=True)
+   Notes:
+    1. w_dir can be changed. Default is to create a 'reduced' folder in rawdir
+    2. dither: If unspecified, code will determine dither pattern based on
+       FITS header
+    3. Set bright to True of False if there is a bright object in slit or MOS
+
+3. Create an IDL script in rawdir to run mmirs_pipeline_nonlin_script.pro. The
+   script should look like the following:
+     .run mmirs_pipeline_nonlin_script
+
+     mmirs_pipeline_nonlin_script, rawdir, compress='.gz', /verbose
+
+     exit
+
+   All the pre-processed files will be placed in the 'preproc' folder.
+
+4. After creating pre-processed files, you can now run the MMIRS pipeline by
+   creating an IDL script in rawdir to run run_pipeline.pro. The script should
+   look like the following:
+     .run run_pipeline
+
+     run_pipeline, rawdir + 'reduced/[target_folder]/'
+
+     exit
+
+   Here, [target_folder] is a naming convention that contains the name of the
+   target, LS or MOS mode, and grism and filter combinations. It is defined
+   from mmirs_pipeline_taskfile.
+
+   If your rawdir contains multiple targets, mmirs_pipeline_taskfile _should_
+   separate out the targets in a respective manner.  Thus, the above IDL script
+   will need to be created and run for each target combination.
 """
 
 import sys, os
