@@ -1,5 +1,5 @@
 PRO mmirs_pipeline_nonlin_script, rawdir, first=first, linear=linear, $
-                                  keepfirst=keepfirst, verbose=1, $
+                                  keepfirst=keepfirst, verbose=verbose, $
                                   debug=debug, biasframe=biasframe, $
                                   badamp=badamp, crosstalk=crosstalk, $
                                   compress=compress, tmpdir=tmpdir, clean=clean
