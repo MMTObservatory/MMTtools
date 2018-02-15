@@ -867,6 +867,9 @@ def create(rawdir, w_dir='', dither=None, bright=False, silent=False,
      - Generate ASCII input file for IDL pre-processing
      - Include comps, flats and associated darks for ASCII IDL pre-processing file
      - Include telluric data and associated darks for ASCII IDL pre-processing file
+    Modified by Chun Ly, 15 February 2018
+     - Speed improvement: Check size of tab0_outfile first before calling
+       get_header_info()
     '''
 
     if silent == False: log.info('### Begin create : '+systime())
@@ -881,20 +884,30 @@ def create(rawdir, w_dir='', dither=None, bright=False, silent=False,
     if silent == False:
         log.info('### Number of FITS files found : '+str(n_files0))
 
-    # Get header information
-    tab0 = get_header_info(files0)
+    tab0_outfile = rawdir + 'obs_summary.tbl' # Moved up on 15/02/2018
+
+    # Use ASCII catalog if available and size matches | + on 15/02/2018
+    if exists(tab0_outfile):
+        if silent == False: log.info('### Reading : '+tab0_outfile)
+        tab0 = asc.read(tab0_outfile, format='fixed_width_two_line')
+        if n_files0 != len(tab0):
+            # Get header information
+            tab0 = get_header_info(files0)
+
+            # + on 30/11/2017.
+            if silent == False:
+                if exists(tab0_outfile):
+                    log.info('## Overwriting : '+tab0_outfile)
+                else:
+                    log.info('## Writing : '+tab0_outfile)
+
+            tab0.write(tab0_outfile, format='ascii.fixed_width_two_line',
+                       overwrite=True)
+        else:
+            if silent == False: log.info('### Using existing tab0_outfile')
+    #endif
     tab0.pprint(max_lines=-1, max_width=-1)
 
-    # + on 30/11/2017
-    tab0_outfile = rawdir + 'obs_summary.tbl'
-    if silent == False:
-        if exists(tab0_outfile):
-            log.info('## Overwriting : '+tab0_outfile)
-        else:
-            log.info('## Writing : '+tab0_outfile)
-    #endif
-    tab0.write(tab0_outfile, format='ascii.fixed_width_two_line',
-               overwrite=True)
 
     comb0, obj_comb0 = organize_targets(tab0)
 
