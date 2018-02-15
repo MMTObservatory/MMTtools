@@ -593,6 +593,9 @@ def generate_taskfile(hdr0, hdr0_comm, rawdir, w_dir, name, c_dict0,
      - Change w_dir for each science exposure
      - Change output file for zero padding
      - Change outfile location from rawdir to w_dir to place taskfiles
+
+    Modified by Chun Ly, 15 February 2018
+     - Add preproc in rawdir path
     '''
 
     col1 = ['R_DIR', 'W_DIR', 'RAWEXT', 'SLIT', 'GRISM', 'FILTER',
@@ -627,7 +630,8 @@ def generate_taskfile(hdr0, hdr0_comm, rawdir, w_dir, name, c_dict0,
         slit = t_ap.replace('pixel','_pixel').replace('-long','')
     else: slit = 'mos'
 
-    val0 = [rawdir, w_dir, '.gz', slit, t_disp, t_filt,
+    # Mod on 15/02/2018
+    val0 = [rawdir+'preproc/', w_dir, '.gz', slit, t_disp, t_filt,
             c_dict0['dark_str'][0], c_dict0['comp_str'], c_dict0['comp_dark'],
             c_dict0['flat_str'], c_dict0['flat_dark']]
     # Note: need to handle dark_str for different exposure time
