@@ -655,6 +655,7 @@ def generate_taskfile(hdr0, hdr0_comm, rawdir, w_dir, name, c_dict0,
     Modified by Chun Ly, 16 February 2018
      - Define c_hdr0 to avoid always changing hdr0
      - Bug fix: Missing ']' closure
+     - Resolve issue with writing FITS headers to ASCII files
     '''
 
     c_hdr0 = hdr0.copy()
@@ -721,26 +722,13 @@ def generate_taskfile(hdr0, hdr0_comm, rawdir, w_dir, name, c_dict0,
 
         c_hdr0['W_DIR'] = w_dir + format(ii+1, '02') + '/'
 
-        str_hdr = []
-        for tt in range(len(keys1)):
-            right0 = c_hdr0[tt]
-
-            if keys1[tt] == 'COMMENT':
-                str0 = keys1[tt].ljust(8)+right0
-            else:
-                comm1 = ' / '+hdr0_comm[tt] if hdr0_comm[tt] != '' else ''
-                s_right0 = "'%s'" % right0 if type(right0) == str else str(right0)
-                str0 = keys1[tt].ljust(8)+'= '+s_right0+comm1
-            #endelse
-
-            str_hdr.append(str0+'\n')
-        #endfor
-
         outfile = w_dir+name+'_'+format(ii+1, '02')+'.txt' # Mod on 31/01/2018
         log.info('## Writing : '+outfile)
-        f0 = open(outfile, 'w')
-        f0.writelines(str_hdr)
-        f0.close()
+
+        # Mod on 16/02/2018
+        c_hdr0.tofile(outfile, sep='\n', padding=False, overwrite=True)
+        # False padding to avoid IOError: Header size (5725) is not a multiple
+        # of block size (2880)
     #endfor
 
     return c_hdr0
