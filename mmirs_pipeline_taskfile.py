@@ -651,7 +651,12 @@ def generate_taskfile(hdr0, hdr0_comm, rawdir, w_dir, name, c_dict0,
 
     Modified by Chun Ly, 15 February 2018
      - Add preproc in rawdir path
+
+    Modified by Chun Ly, 16 February 2018
+     - Define c_hdr0 to avoid always changing hdr0
     '''
+
+    c_hdr0 = hdr0.copy()
 
     col1 = ['R_DIR', 'W_DIR', 'RAWEXT', 'SLIT', 'GRISM', 'FILTER',
             'DARKSCI', 'ARC', 'DARKARC', 'FLAT', 'DARKFLAT']
@@ -663,13 +668,13 @@ def generate_taskfile(hdr0, hdr0_comm, rawdir, w_dir, name, c_dict0,
         col1 += [t0 + ('%02i' % ss) for t0 in common0]
 
     # + on 30/01/2018
-    hdr_star = [key0 for key0 in hdr0 if 'STAR' in key0]
+    hdr_star = [key0 for key0 in c_hdr0 if 'STAR' in key0]
     if len(hdr_star) > n_tell:
         del_idx = range(n_tell+1,len(hdr_star)+1)
         keys0 = sum([[key1+('%02i' % ii) for key1 in common0] for
                      ii in del_idx], [])
         for key in keys0:
-            del hdr0[key]
+            del c_hdr0[key]
 
     ## + on 01/12/2017
     #t_keyword0 = temp0['keyword']
@@ -698,7 +703,7 @@ def generate_taskfile(hdr0, hdr0_comm, rawdir, w_dir, name, c_dict0,
 
     # + on 11/12/2017
     for vv in range(len(val0)):
-        hdr0[col1[vv]] = val0[vv] # Mod on 18/12/2017
+        c_hdr0[col1[vv] = val0[vv]
 
     col2 = ['SCI', 'SCI2', 'DITHPOS', 'DITHPOS2']
 
@@ -706,18 +711,18 @@ def generate_taskfile(hdr0, hdr0_comm, rawdir, w_dir, name, c_dict0,
     im_dict = get_diff_images(tab0, idx, dither=dither)
 
     # Write ASCII taskfiles | + on 24/01/2018
-    keys1 = hdr0.keys()
+    keys1 = c_hdr0.keys()
 
     for ii in range(len(im_dict['sci'])):
         print log.info('### Writing taskfile for : '+im_dict['sci'][ii])
         for t_key in col2:
-            hdr0[t_key] = im_dict[t_key.lower()][ii]
+            c_hdr0[t_key] = im_dict[t_key.lower()][ii]
 
-        hdr0['W_DIR'] = w_dir + format(ii+1, '02') + '/'
+        c_hdr0['W_DIR'] = w_dir + format(ii+1, '02') + '/'
 
         str_hdr = []
         for tt in range(len(keys1)):
-            right0 = hdr0[tt]
+            right0 = c_hdr0[tt]
 
             if keys1[tt] == 'COMMENT':
                 str0 = keys1[tt].ljust(8)+right0
@@ -737,7 +742,7 @@ def generate_taskfile(hdr0, hdr0_comm, rawdir, w_dir, name, c_dict0,
         f0.close()
     #endfor
 
-    return hdr0
+    return c_hdr0
 #enddef
 
 def organize_targets(tab0):
