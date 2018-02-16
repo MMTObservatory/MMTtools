@@ -13,11 +13,11 @@ SCI     = 'lei1.a1_mos.8456' / science frame (only one)
 SCI2    = 'lei1.a1_mos.8457' / second science frame (only one)
 DITHPOS = 1.8000 / current dithering position in arcsec
 DITHPOS2= -1.4000 / dithering position for the second frame
-DARKSCI = 'dark.8653,dark.8654,dark.8655,dark.8656,dark.8657' / dark frame(s) for science
+DARKSCI = 'dark.8653,dark.8654,dark.8655,dark.8656,dark.8657' / sci darks
 ARC     = 'comp_mos.8468' / arc frames
-DARKARC = 'dark.8638,dark.8639,dark.8640,dark.8641,dark.8642' / dark frame(s) for arc
+DARKARC = 'dark.8638,dark.8639,dark.8640,dark.8641,dark.8642' / arc darks
 FLAT    = 'flat_mos.8470'
-DARKFLAT= 'dark.8628,dark.8629,dark.8630,dark.8631,dark.8632' / dark frame(s) for flat
+DARKFLAT= 'dark.8628,dark.8629,dark.8630,dark.8631,dark.8632' / flat darks
 STAR01  = 'HIP-16904_mos.8491,HIP-16904_mos.8492,HIP-16904_mos.8494,&'
 CONTINUE  'HIP-16904_mos.8514,HIP-16904_mos.8516,HIP-16904_mos.8518,&'
 CONTINUE  'HIP-16904_mos.8519,HIP-16904_mos.8521'
