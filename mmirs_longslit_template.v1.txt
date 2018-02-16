@@ -1,0 +1,71 @@
+SIMPLE  =                                 T / FITS-like header
+LONGSTRN= 'OGIP 1.0'           / The OGIP long string convention may be used.
+RAW_DIR = '/data/mmirs/Archive/rawdata/data/MMIRS/2013/2013.0622/'
+R_DIR   = '/d1/data1/mmirs/preproc/2013/2013.0622/'
+W_DIR   = '/d1/data1/mmirs/reduced/2013/2013.0622/2pixel_O1.0315_HK_HK/01/'
+RAWEXT  = '.gz'
+INSTRUME= 'MMIRS' / spectrograph name
+SLIT    = '2_pixel' / slit name or MOS
+GRISM   = 'HK' / grism
+FILTER  = 'HK' / filter
+BRIGHT  = 0 / bright source 1=Yes 0=No
+SCI     = 'O1.0315_longslit.4161' / science frame (only one)
+SCI2    = 'O1.0315_longslit.4162' / second science frame (only one)
+DITHPOS = 0.0000 / current dithering position in arcsec
+DITHPOS2= 7.0000 / dithering position for the second frame
+DARKSCI = 'dark.4513,dark.4514,dark.4515,dark.4516,dark.4517' / dark frame(s) for science
+ARC     = 'comp.4179' / arc frames
+DARKARC = 'dark.4488,dark.4489,dark.4490,dark.4491,dark.4492' / dark frame(s) for arc
+FLAT    = 'flat.4182'
+DARKFLAT= 'dark.4478,dark.4479,dark.4480,dark.4481,dark.4482' / dark frame(s) for flat
+STAR01  = 'HD148749_longslit.4133,HD148749_longslit.4134'
+DARKST01= 'dark.4508,dark.4509,dark.4510,dark.4511,dark.4512'
+STTYPE01= 'a0v'
+STAR02  = 'HD148749_longslit.4177,HD148749_longslit.4178'
+DARKST02= 'dark.4503,dark.4504,dark.4505,dark.4506,dark.4507'
+STTYPE02= 'a0v'
+STAR03  = 'HD148749_longslit.4288,HD148749_longslit.4289'
+DARKST03= 'dark.4508,dark.4509,dark.4510,dark.4511,dark.4512'
+STTYPE03= 'a0v'
+STAR04  = 'HD148749_longslit.4369,HD148749_longslit.4370'
+DARKST04= 'dark.4508,dark.4509,dark.4510,dark.4511,dark.4512'
+STTYPE04= 'a0v'
+STAR05  = 'HD148749_longslit.4398,HD148749_longslit.4399'
+DARKST05= 'dark.4508,dark.4509,dark.4510,dark.4511,dark.4512'
+STTYPE05= 'a0v'
+COMMENT   flat fielding settings
+FFSCFLAT= 0  / subtract scattered light from flat field?
+FFSCSCI = 0  / subtract scattered light from science frames?
+FFNSLIT = -1 / normalize to slit #N, -1 for per-slit normalization
+COMMENT   wavelength calibration settings
+WLNDEG  = 3 / polynomial degree along dispersion
+WLYNDEG = 3 / polynomial degree across dispersion
+WLDEBUG = 0 / debug setting
+WLPLOT  = 0 / plot the arc line identification spectrum on the screen
+WLADJ   = 1 / adjust wavelength solution using all slits
+WLOH    = 1 / use OH lines to build the wavelength solution
+SKIPLINE= ' ' / arc lines NOT to use
+COMMENT   sky subtraction settings
+SSADJWL = 1 / use the adjusted wavelength solution?
+SSDIM   = 3 / 3-dimension or 2-dimension sky model?
+SSDEBUG = 0 / debug for sky subtraction
+COMMENT   linearisation settings
+LINADJWL= 1 / use the adjusted wavelength solution?
+LINSSBOX= 1 / sky subtraction in linearized spectra in all "BOX" slits
+LINSSTRG= 1 / sky subtraction in linearized spectra in all "TARGET" slits
+COMMENT   extraction settings
+EXTMETH = 1 / 1 - box extraction, 2 - optimal extraction
+EXTAPW  = 5 / extraction aperture in pixels, window with or gaussian FWHM
+EXTDFBOX= 0 / use alignbox star positions to get empirical dithering offset?
+EXTBOXEX= 'obj-sky' / image type to use alignbox positions from
+COMMENT   process the following reduction steps (yes=1/no=0)
+S01PROC = 1 / up-the-ramp fitting (if needed) and dark subtraction
+S02PROC = 1 / distortion map creation
+S03PROC = 1 / flat-fielding and 2D slit extraction
+S04PROC = 1 / wavelength calibration
+S05PROC = 1 / sky subtraction
+S06PROC = 1 / linearisation
+S07PROC = 1 / extraction
+S08PROC = 1 / telluric star processing
+S09PROC = 0 / telluric correction
+END
