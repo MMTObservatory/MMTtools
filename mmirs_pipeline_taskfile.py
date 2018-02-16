@@ -654,6 +654,7 @@ def generate_taskfile(hdr0, hdr0_comm, rawdir, w_dir, name, c_dict0,
 
     Modified by Chun Ly, 16 February 2018
      - Define c_hdr0 to avoid always changing hdr0
+     - Bug fix: Missing ']' closure
     '''
 
     c_hdr0 = hdr0.copy()
@@ -703,7 +704,7 @@ def generate_taskfile(hdr0, hdr0_comm, rawdir, w_dir, name, c_dict0,
 
     # + on 11/12/2017
     for vv in range(len(val0)):
-        c_hdr0[col1[vv] = val0[vv]
+        c_hdr0[col1[vv]] = val0[vv]
 
     col2 = ['SCI', 'SCI2', 'DITHPOS', 'DITHPOS2']
 
