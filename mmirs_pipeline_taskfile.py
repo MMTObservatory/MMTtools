@@ -870,6 +870,8 @@ def create(rawdir, w_dir='', dither=None, bright=False, silent=False,
     Modified by Chun Ly, 15 February 2018
      - Speed improvement: Check size of tab0_outfile first before calling
        get_header_info()
+    Modified by Chun Ly, 16 February 2018
+     - Bug fix: Call get_header_info if tab0_outfile does not exists
     '''
 
     if silent == False: log.info('### Begin create : '+systime())
@@ -905,7 +907,9 @@ def create(rawdir, w_dir='', dither=None, bright=False, silent=False,
                        overwrite=True)
         else:
             if silent == False: log.info('### Using existing tab0_outfile')
-    #endif
+    else: # + on 16/02/2018
+        tab0 = get_header_info(files0)
+
     tab0.pprint(max_lines=-1, max_width=-1)
 
 
