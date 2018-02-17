@@ -31,26 +31,34 @@ PRO mmirs_pipeline_nonlin_script, rawdir, first=first, linear=linear, $
 ; REVISON HISTORY:
 ;       Created by Chun Ly, 14 February 2018
 ;
+;       Modified by Chun Ly, 17 February 2018
+;        - Get all IDL_input.lis files and run mmfixend_nonlin for
+;          each set
 ;-
+
+  ; Moved up on 17/02/2018
+  outdir = rawdir+'preproc/'
+  if not file_test(outdir) then $
+     spawn, 'mkdir '+outdir
 
   suffix='.fix.fits'
 
-  IDL_infile = rawdir + 'IDL_input.lis'
-  print, '### Reading : '+IDL_infile + ' | '+systime()
-  READCOL, IDL_infile, files0, format='A,X'
+  ; Get all IDL_input*lis files
+  spawn, 'ls '+rawdir+'IDL_input*.lis', IDL_files
+  n_IDL_files= n_elements(IDL_files)
 
-  outdir = rawdir+'preproc/'
-  if not file_test(outdir) then begin
-     spawn, 'mkdir '+outdir
-  endif
+  for ff=0,n_IDL_files-1 do begin
+     print, '### Reading : '+IDL_infiles[ff] + ' | '+systime()
+     READCOL, IDL_infiles[ff], files0, format='A,X'
 
-  for ii=0L,N_elements(files0)-1 do begin
-     outfile = outdir + files0[ii] + suffix
-     mmfixen_nonlin, rawdir+files0[ii]+'.fits', outfile, first=first, $
-                     linear=linear, keepfirst=keepfirst, verbose=verbose, $
-                     debug=debug, biasframe=biasframe, badamp=badamp, $
-                     crosstalk=crosstalk, compress=compress, tmpdir=tmpdir, $
-                     clean=clean  
+     for ii=0L,N_elements(files0)-1 do begin
+        outfile = outdir + files0[ii] + suffix
+        mmfixen_nonlin, rawdir+files0[ii]+'.fits', outfile, first=first, $
+                        linear=linear, keepfirst=keepfirst, verbose=verbose, $
+                        debug=debug, biasframe=biasframe, badamp=badamp, $
+                        crosstalk=crosstalk, compress=compress, tmpdir=tmpdir, $
+                        clean=clean
+     endfor
   endfor
 
 END
