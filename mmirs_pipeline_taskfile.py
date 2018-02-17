@@ -28,13 +28,13 @@ TO EXECUTE:
 
 
 2. Call code for specified path:
-     rawdir = '/path/to/raw/files'
+     rawdir = '/path/to/raw/files/' <- Should end with forward slash
      mmirs_pipeline_taskfile.create(rawdir, w_dir='', dither='ABApBp',
                                     bright=True)
 
    Notes:
     1. w_dir can be changed. Default is to create a 'reduced' folder in rawdir
-    2. dither: If unspecified, code will determine dither pattern based on
+    2. dither: If NOT specified, code will determine dither pattern based on
        FITS header
     3. Set bright to True of False if there is a bright object in slit or MOS
 
