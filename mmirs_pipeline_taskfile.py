@@ -870,6 +870,7 @@ def create(rawdir, w_dir='', dither=None, bright=False, silent=False,
        mmirs_pipeline_nonlin_script.pro
      - Remove hdr_comm0 input to generate_taskfile() call
      - Call read_template() appropriately (now only FITS header)
+     - Remove hdr_str0 and hdr0_commm0 definitions
     '''
 
     if silent == False: log.info('### Begin create : '+systime())
@@ -929,12 +930,8 @@ def create(rawdir, w_dir='', dither=None, bright=False, silent=False,
             # Mod on 30/11/2017, 24/01/2018
             if '-long' in name:
                 hdr0      = LS_hdr0.copy()
-                hdr0_str  = list(LS_str0)
-                hdr0_comm = LS_comm0
             if 'mos' in name:
                 hdr0      = mos_hdr0.copy()
-                hdr0_str  = list(mos_str0)
-                hdr0_comm = mos_comm0
 
             datedir = Time(tab0['dateobs'][0]).datetime.strftime('%Y.%m%d')
             orig_dir = '/data/ccd/MMIRS/'+datedir+'/'
