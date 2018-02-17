@@ -26,25 +26,25 @@ TO EXECUTE:
 1. import this code:
      from MMTtools import mmirs_pipeline_taskfile
 
+
 2. Call code for specified path:
      rawdir = '/path/to/raw/files'
      mmirs_pipeline_taskfile.create(rawdir, w_dir='', dither='ABApBp',
                                     bright=True)
+
    Notes:
     1. w_dir can be changed. Default is to create a 'reduced' folder in rawdir
     2. dither: If unspecified, code will determine dither pattern based on
        FITS header
     3. Set bright to True of False if there is a bright object in slit or MOS
 
-3. Create an IDL script in rawdir to run mmirs_pipeline_nonlin_script.pro. The
-   script should look like the following:
-     .run mmirs_pipeline_nonlin_script
 
-     mmirs_pipeline_nonlin_script, rawdir, compress='.gz', /verbose
+3. Run the IDL script run_mmirs_pipeline_nonlin_script.idl that is automatically
+   generated from step 2 in the rawdir path
+     idl run_mmirs_pipeline_nonlin_script.idl
 
-     exit
+   Note: All the pre-processed files will be placed in the 'preproc' folder.
 
-   All the pre-processed files will be placed in the 'preproc' folder.
 
 4. After creating pre-processed files, you can now run the MMIRS pipeline by
    creating an IDL script in rawdir to run run_pipeline.pro. The script should
