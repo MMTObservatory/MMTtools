@@ -871,6 +871,7 @@ def create(rawdir, w_dir='', dither=None, bright=False, silent=False,
     Modified by Chun Ly, 17 February 2018
      - Write IDL script for non-linear pre-processing with
        mmirs_pipeline_nonlin_script.pro
+     - Remove hdr_comm0 input to generate_taskfile() call
     '''
 
     if silent == False: log.info('### Begin create : '+systime())
@@ -997,9 +998,8 @@ def create(rawdir, w_dir='', dither=None, bright=False, silent=False,
                       overwrite=True)
 
             # + on 11/12/2017, Mod on 28/01/2018
-            temp1 = generate_taskfile(hdr0, hdr0_comm, rawdir, w_dir, name,
-                                      c_dict0, tell_dict0, tab0, idx,
-                                      dither=dither)
+            temp1 = generate_taskfile(hdr0, rawdir, w_dir, name, c_dict0,
+                                      tell_dict0, tab0, idx, dither=dither)
         #endif
     #endfor
 
