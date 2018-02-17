@@ -17,10 +17,13 @@ This code will create several files:
      - FITS header compliant ASCII files that are provided to the
        MMIRS IDL pipeline
 
-(3) 'IDL_input.lis'
+(3) 'IDL_input_[name].lis'
      - A list of files to run the MMIRS IDL pre-processing (i.e., non-linearity
       correction)
 
+   Here, [name] is a naming convention that contains the name of the
+   target, LS or MOS mode, and grism and filter combinations. It is defined
+   from mmirs_pipeline_taskfile.
 
 TO EXECUTE:
 1. import this code:
@@ -872,6 +875,7 @@ def create(rawdir, w_dir='', dither=None, bright=False, silent=False,
      - Call read_template() appropriately (now only FITS header)
      - Remove hdr_str0 and hdr0_commm0 definitions
      - Remove column containing single-frame darks for IDL_input.lis
+     - Change IDL_input.lis to generate for each target
     '''
 
     if silent == False: log.info('### Begin create : '+systime())
@@ -975,7 +979,7 @@ def create(rawdir, w_dir='', dither=None, bright=False, silent=False,
                 t_tell    = tell_dict0['name'][tt].split(',')
                 sci_files = np.append(sci_files, t_tell)
 
-            idl_input_file = rawdir + 'IDL_input.lis'
+            idl_input_file = rawdir + 'IDL_input_'+name+'.lis'
             if silent == False: log.info('### Writing : '+idl_input_file)
             asc.write([sci_files], idl_input_file, format='no_header',
                       overwrite=True)
