@@ -64,6 +64,8 @@ TO EXECUTE:
    will need to be created and run for each target combination.
 """
 
+__version__ = '0.1' # Set on 16/02/2018
+
 import sys, os
 
 from chun_codes import systime
