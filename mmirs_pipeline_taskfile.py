@@ -560,8 +560,8 @@ def get_diff_images(tab0, idx, dither=None):
     return im_dict
 #enddef
 
-def generate_taskfile(hdr0, hdr0_comm, rawdir, w_dir, name, c_dict0,
-                      tell_dict0, tab0, idx, dither=None):
+def generate_taskfile(hdr0, rawdir, w_dir, name, c_dict0, tell_dict0, tab0,
+                      idx, dither=None):
     '''
     Modify the default task file template for each science exposure
 
@@ -569,9 +569,6 @@ def generate_taskfile(hdr0, hdr0_comm, rawdir, w_dir, name, c_dict0,
     ----------
     hdr0 : astropy.io.fits.header.Header
       Astropy FITS-formatted header class containing task file info
-
-    hdr0_comm : list
-      List of strings containing FITS keyword comments
 
     rawdir : str
       Full path for where raw files are
@@ -658,6 +655,9 @@ def generate_taskfile(hdr0, hdr0_comm, rawdir, w_dir, name, c_dict0,
      - Define c_hdr0 to avoid always changing hdr0
      - Bug fix: Missing ']' closure
      - Resolve issue with writing FITS headers to ASCII files
+
+    Modified by Chun Ly, 17 February 2018
+     - Remove hdr_comm0 input
     '''
 
     c_hdr0 = hdr0.copy()
