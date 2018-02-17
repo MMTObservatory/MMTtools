@@ -869,6 +869,7 @@ def create(rawdir, w_dir='', dither=None, bright=False, silent=False,
      - Write IDL script for non-linear pre-processing with
        mmirs_pipeline_nonlin_script.pro
      - Remove hdr_comm0 input to generate_taskfile() call
+     - Call read_template() appropriately (now only FITS header)
     '''
 
     if silent == False: log.info('### Begin create : '+systime())
@@ -912,9 +913,10 @@ def create(rawdir, w_dir='', dither=None, bright=False, silent=False,
 
     comb0, obj_comb0 = organize_targets(tab0)
 
-    # Get default FITS template headers | + on 30/11/2017, Mod on 18/12/2017, 24/01/2018
-    LS_hdr0, LS_str0, LS_comm0    = read_template(longslit=True)
-    mos_hdr0, mos_str0, mos_comm0 = read_template(mos=True)
+    # Get default FITS template headers
+    # + on 30/11/2017, Mod on 18/12/2017, 24/01/2018, 17/02/2018
+    LS_hdr0  = read_template(longslit=True)
+    mos_hdr0 = read_template(mos=True)
 
     # Create task files | + on 30/11/2017
     for name in obj_comb0:
