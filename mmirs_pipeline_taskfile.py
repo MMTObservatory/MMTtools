@@ -868,6 +868,9 @@ def create(rawdir, w_dir='', dither=None, bright=False, silent=False,
        get_header_info()
     Modified by Chun Ly, 16 February 2018
      - Bug fix: Call get_header_info if tab0_outfile does not exists
+    Modified by Chun Ly, 17 February 2018
+     - Write IDL script for non-linear pre-processing with
+       mmirs_pipeline_nonlin_script.pro
     '''
 
     if silent == False: log.info('### Begin create : '+systime())
@@ -997,6 +1000,23 @@ def create(rawdir, w_dir='', dither=None, bright=False, silent=False,
             temp1 = generate_taskfile(hdr0, hdr0_comm, rawdir, w_dir, name,
                                       c_dict0, tell_dict0, tab0, idx,
                                       dither=dither)
+        #endif
+    #endfor
+
+    # Write IDL script for non-linear pre-processing with
+    # mmirs_pipeline_nonlin_script.pro | + on 17/02/2018
+    script_outfile = rawdir + 'run_mmirs_pipeline_nonlin_script.idl'
+    if not exists(script_outfile):
+        if silent == False: log.info('### Writing : '+script_outfile)
+
+        f0 = open(script_outfile, 'w')
+        str0 = [".run mmirs_pipeline_nonlin_script\n\n",
+                "mmirs_pipeline_nonlin_script, '%s', compress='.gz', /verbose\n\n" % rawdir,
+                "exit\n"]
+        f0.writelines(str0)
+        f0.close()
+    else:
+        log.warn('### File exists! Will not overwrite : '+script_outfile)
 
     if silent == False: log.info('### End create : '+systime())
 #enddef
