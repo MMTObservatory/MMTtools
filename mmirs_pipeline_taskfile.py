@@ -871,6 +871,7 @@ def create(rawdir, w_dir='', dither=None, bright=False, silent=False,
      - Remove hdr_comm0 input to generate_taskfile() call
      - Call read_template() appropriately (now only FITS header)
      - Remove hdr_str0 and hdr0_commm0 definitions
+     - Remove column containing single-frame darks for IDL_input.lis
     '''
 
     if silent == False: log.info('### Begin create : '+systime())
@@ -961,36 +962,22 @@ def create(rawdir, w_dir='', dither=None, bright=False, silent=False,
             # MMIRS IDL preprocessing
             # + on 12/02/2018
             sci_files  = tab0['filename'][idx].data
-            dark_files = np.array(['dark.XXXX.fits'] * len(idx))
-            for e_set, files in zip(c_dict0['dark_etime'],c_dict0['dark_str']):
-                tmp = np.array(idx)[np.array([xx for xx in range(len(idx)) if
-                                              tab0['exptime'][idx[xx]] == e_set])]
-                if len(tmp) > 0:
-                    print files.split(',')[0]
-                    dark_files[tmp] = files.split(',')[0]
-            #endfor
 
             # + on 12/02/2018
-            t_comps = c_dict0['comp_str'].split(',')
-            c_dark  = c_dict0['comp_dark'].split(',')[0]
-            sci_files  = np.append(sci_files, t_comps)
-            dark_files = np.append(dark_files, [c_dark] * len(t_comps))
+            t_comps   = c_dict0['comp_str'].split(',')
+            sci_files = np.append(sci_files, t_comps)
 
-            t_flats = c_dict0['flat_str'].split(',')
-            f_dark  = c_dict0['flat_dark'].split(',')[0]
+            t_flats   = c_dict0['flat_str'].split(',')
             sci_files = np.append(sci_files, t_flats)
-            dark_files = np.append(dark_files, [f_dark] * len(t_comps))
 
             # Get telluric files | + on 12/02/2018
             for tt in range(len(tell_dict0['name'])):
-                t_tell     = tell_dict0['name'][tt].split(',')
-                t_dark     = tell_dict0['dark'][tt].split(',')[0]
-                sci_files  = np.append(sci_files, t_tell)
-                dark_files = np.append(dark_files, [t_dark] * len(t_tell))
+                t_tell    = tell_dict0['name'][tt].split(',')
+                sci_files = np.append(sci_files, t_tell)
 
             idl_input_file = rawdir + 'IDL_input.lis'
             if silent == False: log.info('### Writing : '+idl_input_file)
-            asc.write([sci_files, dark_files], idl_input_file, format='no_header',
+            asc.write([sci_files], idl_input_file, format='no_header',
                       overwrite=True)
 
             # + on 11/12/2017, Mod on 28/01/2018
