@@ -49,22 +49,13 @@ TO EXECUTE:
    Note: All the pre-processed files will be placed in the 'preproc' folder.
 
 
-4. After creating pre-processed files, you can now run the MMIRS pipeline by
-   creating an IDL script in rawdir to run run_pipeline.pro. The script should
-   look like the following:
-     .run run_pipeline
-
-     run_pipeline, rawdir + 'reduced/[target_folder]/'
-
-     exit
-
-   Here, [target_folder] is a naming convention that contains the name of the
-   target, LS or MOS mode, and grism and filter combinations. It is defined
-   from mmirs_pipeline_taskfile.
+4. After creating pre-processed files, you can now run the MMIRS pipeline via
+   the IDL scripts (run_mmirs_pipeline_[name].idl) that are automatically
+   generated from step 2 in the rawdir path
 
    If your rawdir contains multiple targets, mmirs_pipeline_taskfile _should_
-   separate out the targets in a respective manner.  Thus, the above IDL script
-   will need to be created and run for each target combination.
+   separate out the targets in a respective manner.  Thus, there should be
+   multiple run_mmirs_pipeline.idl scripts
 """
 
 __version__ = '0.1' # Set on 16/02/2018
