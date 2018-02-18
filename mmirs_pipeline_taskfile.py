@@ -744,13 +744,18 @@ def organize_targets(tab0):
     -----
     Created by Chun Ly, 28 November 2017
      - Get unique lists of combinations
+    Modified by Chun Ly, 17 February 2018
+     - Ignore imaging data
     '''
 
     len0 = len(tab0)
 
-    itype = tab0['imagetype']
-    nondark = [ii for ii in range(len0) if itype[ii] == 'dark']
-    obj     = [ii for ii in range(len0) if itype[ii] == 'object']
+    itype  = tab0['imagetype']
+    aptype = tab0['aptype'] # + on 17/02/2018
+
+    # Mod on 17/02/2018
+    obj     = [ii for ii in range(len0) if
+               (itype[ii] == 'object' and itype[tt] != 'open')]
     comp    = [ii for ii in range(len0) if itype[ii] == 'comp']
     flat    = [ii for ii in range(len0) if itype[ii] == 'flat']
 
