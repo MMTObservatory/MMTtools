@@ -119,6 +119,9 @@ def get_header_info(files0):
      - Add PI and PropID info
     Modified by Chun Ly, 11 December 2017
      - Add instrument elevation offset (dithers along slit)
+    Modified by Chun Ly, 17 February 2018
+     - Bug fix: Handle FITS files that are not multi-extension FITS
+       (i.e., only one read)
     '''
 
     n_files0 = len(files0)
@@ -138,7 +141,13 @@ def get_header_info(files0):
     instel   = np.zeros(n_files0) # + on 11/12/2017
 
     for ii in range(n_files0):
-        hdr = fits.getheader(files0[ii], ext=1)
+        zhdr = fits.getheader(files0[ii], ext=0)
+
+        extend = 'EXTEND' in zhdr.keys()
+        if not extend:
+            hdr = zhdr.copy()
+        else:
+            hdr = fits.getheader(files0[ii], ext=1)
 
         exptime[ii] = hdr['EXPTIME']
         airmass[ii] = hdr['AIRMASS']
