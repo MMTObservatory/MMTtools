@@ -894,6 +894,9 @@ def create(rawdir, w_dir='', dither=None, bright=False, silent=False,
      - Write tab0 when no ASCII file is present
      - Bug fix: With using LS or MOS template
      - Bug fix: With using LS or MOS template (cont'd)
+    Modified by Chun Ly, 18 February 2018
+     - Bug fix: taskfiles were placed in incorrect directory when dealing with
+                multiple targets. Fixed w_dir definition
     '''
 
     if silent == False: log.info('### Begin create : '+systime())
@@ -978,11 +981,12 @@ def create(rawdir, w_dir='', dither=None, bright=False, silent=False,
 
             tell_dict0 = get_tellurics(tab0, idx, comb0) # Mod on 28/01/2018
 
-            # Mod on 31/01/2018
-            if w_dir == '': w_dir = rawdir + 'reduced/'+name+'/'
+            # Mod on 31/01/2018, 18/02/2018
+            if w_dir == '':
+                w_dir_tmp = rawdir + 'reduced/'+name+'/'
 
-            if not exists(w_dir):
-                commands.getoutput('mkdir -p '+w_dir)
+            if not exists(w_dir_tmp): # Mod on 18/02/2018
+                commands.getoutput('mkdir -p '+w_dir_tmp)
 
             # Generate file containing science frames and darks to run
             # MMIRS IDL preprocessing
@@ -1006,8 +1010,8 @@ def create(rawdir, w_dir='', dither=None, bright=False, silent=False,
             asc.write([sci_files], idl_input_file, format='no_header',
                       overwrite=True)
 
-            # + on 11/12/2017, Mod on 28/01/2018
-            temp1 = generate_taskfile(hdr0, rawdir, w_dir, name, c_dict0,
+            # + on 11/12/2017, Mod on 28/01/2018, 18/02/2018
+            temp1 = generate_taskfile(hdr0, rawdir, w_dir_tmp, name, c_dict0,
                                       tell_dict0, tab0, idx, dither=dither)
 
             # Write IDL script for main mmirs_pipeline | + on 17/02/2018
