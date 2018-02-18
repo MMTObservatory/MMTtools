@@ -448,6 +448,7 @@ def get_tellurics(tab0, idx, comb0, object0):
        in tell_dict0
     Modified by Chun Ly, 18 February 2018
      - Handle mos case for tellurics with object0 input
+     - Bug fix : obj -> object0
     '''
 
     etime = tab0['exptime'] # + on 28/01/2018
@@ -478,7 +479,7 @@ def get_tellurics(tab0, idx, comb0, object0):
 
     if n_tell == 1:
         log.info('### Only one telluric star is found!!!')
-        log.info('### '+obj[i_tell[0]]+' '+str(etime[i_tell[0]]))
+        log.info('### '+object0[i_tell[0]]+' '+str(etime[i_tell[0]]))
 
     if n_tell >= 1:
         for tt in range(n_tell):
