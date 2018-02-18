@@ -883,6 +883,7 @@ def create(rawdir, w_dir='', dither=None, bright=False, silent=False,
      - Remove column containing single-frame darks for IDL_input.lis
      - Change IDL_input.lis to generate for each target
      - Write IDL scripts for each target for main mmirs_pipeline
+     - Write tab0 when no ASCII file is present
     '''
 
     if silent == False: log.info('### Begin create : '+systime())
@@ -920,6 +921,9 @@ def create(rawdir, w_dir='', dither=None, bright=False, silent=False,
             if silent == False: log.info('### Using existing tab0_outfile')
     else: # + on 16/02/2018
         tab0 = get_header_info(files0)
+
+        tab0.write(tab0_outfile, format='ascii.fixed_width_two_line',
+                   overwrite=True)
 
     tab0.pprint(max_lines=-1, max_width=-1)
 
