@@ -753,6 +753,14 @@ def organize_targets(tab0):
 
     Returns
     -------
+    comb0 : list
+      List of strings that combines name, aperture, filter, and disperse
+
+    obj_comb0 : list
+      A unique list of strings that combines name, aperture, filter, and disperse
+
+    object0 : list
+      List of strings of the source name (handle MOS case)
 
     Notes
     -----
@@ -762,6 +770,8 @@ def organize_targets(tab0):
      - Ignore imaging data
      - Bug fix: Typo with obj list comprehension
      - Handle mos data and telluric data for mos
+    Modified by Chun Ly, 18 February 2018
+     - Return object name as object0 list
     '''
 
     len0 = len(tab0)
@@ -775,7 +785,8 @@ def organize_targets(tab0):
     comp    = [ii for ii in range(len0) if itype[ii] == 'comp']
     flat    = [ii for ii in range(len0) if itype[ii] == 'flat']
 
-    comb0 = ['N/A'] * len0
+    comb0   = ['N/A'] * len0
+    object0 = ['N/A'] * len0 # + on 18/02/2018
 
     for kk in [obj, comp, flat]:
         for ii in kk:
@@ -787,6 +798,7 @@ def organize_targets(tab0):
             else:
                 t_name = tab0_o['object']
 
+            object0[ii] = t_name # + on 18/02/2018
             comb0[ii] = t_name + '_' + tab0_o['aperture'] + '_' + \
                         tab0_o['filter'] + '_' + tab0_o['disperse']
 
@@ -797,7 +809,7 @@ def organize_targets(tab0):
     for oo in range(n_obj_comb0):
         print '## '+obj_comb0[oo]
 
-    return comb0, obj_comb0
+    return comb0, obj_comb0, object0 # Mod on 18/02/2018
 #enddef
 
 def create(rawdir, w_dir='', dither=None, bright=False, silent=False,
