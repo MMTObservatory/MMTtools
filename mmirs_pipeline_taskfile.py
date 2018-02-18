@@ -876,6 +876,7 @@ def create(rawdir, w_dir='', dither=None, bright=False, silent=False,
      - Remove hdr_str0 and hdr0_commm0 definitions
      - Remove column containing single-frame darks for IDL_input.lis
      - Change IDL_input.lis to generate for each target
+     - Write IDL scripts for each target for main mmirs_pipeline
     '''
 
     if silent == False: log.info('### Begin create : '+systime())
@@ -987,6 +988,19 @@ def create(rawdir, w_dir='', dither=None, bright=False, silent=False,
             # + on 11/12/2017, Mod on 28/01/2018
             temp1 = generate_taskfile(hdr0, rawdir, w_dir, name, c_dict0,
                                       tell_dict0, tab0, idx, dither=dither)
+
+            # Write IDL script for main mmirs_pipeline | + on 17/02/2018
+            main_script_outfile = rawdir + 'run_mmirs_pipeline_'+name+'.idl'
+            if not exists(main_script_outfile):
+                if silent == False: log.info('### Writing : '+main_script_outfile)
+
+                f1 = open(main_script_outfile, 'w')
+                str0 = [".run run_pipeline\n\n",
+                        "run_pipeline, 'reduced/%s\n\n" % name, "exit\n"]
+                f1.writelines(str0)
+                f1.close()
+            else:
+                log.warn('### File exists! Will not overwrite : '+main_script_outfile)
         #endif
     #endfor
 
