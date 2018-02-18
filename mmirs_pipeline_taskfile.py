@@ -755,6 +755,7 @@ def organize_targets(tab0):
      - Get unique lists of combinations
     Modified by Chun Ly, 17 February 2018
      - Ignore imaging data
+     - Bug fix: Typo with obj list comprehension
     '''
 
     len0 = len(tab0)
@@ -764,7 +765,7 @@ def organize_targets(tab0):
 
     # Mod on 17/02/2018
     obj     = [ii for ii in range(len0) if
-               (itype[ii] == 'object' and itype[tt] != 'open')]
+               (itype[ii] == 'object' and aptype[ii] != 'open')]
     comp    = [ii for ii in range(len0) if itype[ii] == 'comp']
     flat    = [ii for ii in range(len0) if itype[ii] == 'flat']
 
