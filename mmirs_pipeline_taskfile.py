@@ -915,6 +915,7 @@ def create(rawdir, w_dir='', dither=None, bright=False, silent=False,
      - Bug fix: taskfiles were placed in incorrect directory when dealing with
                 multiple targets. Fixed w_dir definition
      - Handle path when w_dir keyword input is given
+     - Get proper source name to handle mask observations, object0
     '''
 
     if silent == False: log.info('### Begin create : '+systime())
@@ -959,7 +960,7 @@ def create(rawdir, w_dir='', dither=None, bright=False, silent=False,
     tab0.pprint(max_lines=-1, max_width=-1)
 
 
-    comb0, obj_comb0 = organize_targets(tab0)
+    comb0, obj_comb0, object0 = organize_targets(tab0) # Mod on 18/02/2018
 
     # Get default FITS template headers
     # + on 30/11/2017, Mod on 18/12/2017, 24/01/2018, 17/02/2018
@@ -997,7 +998,8 @@ def create(rawdir, w_dir='', dither=None, bright=False, silent=False,
             # on 08/12/2017
             c_dict0 = get_calib_files(name, tab0)
 
-            tell_dict0 = get_tellurics(tab0, idx, comb0) # Mod on 28/01/2018
+            # Mod on 28/01/2018, 18/02/2018
+            tell_dict0 = get_tellurics(tab0, idx, comb0, object0)
 
             # Mod on 31/01/2018, 18/02/2018
             if w_dir == '':
