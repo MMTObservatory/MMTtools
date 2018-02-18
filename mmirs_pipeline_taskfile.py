@@ -756,6 +756,7 @@ def organize_targets(tab0):
     Modified by Chun Ly, 17 February 2018
      - Ignore imaging data
      - Bug fix: Typo with obj list comprehension
+     - Handle mos data and telluric data for mos
     '''
 
     len0 = len(tab0)
@@ -774,7 +775,14 @@ def organize_targets(tab0):
     for kk in [obj, comp, flat]:
         for ii in kk:
             tab0_o = tab0[ii]
-            comb0[ii] = tab0_o['object'] + '_' + tab0_o['aperture'] + '_' + \
+
+            # Mod on 17/02/2018
+            if tab0_o['aptype'] == 'mos':
+                t_name = tab0_o['filename'].split('_')[0]
+            else:
+                t_name = tab0_o['object']
+
+            comb0[ii] = t_name + '_' + tab0_o['aperture'] + '_' + \
                         tab0_o['filter'] + '_' + tab0_o['disperse']
 
     obj_comb0 = list(set(np.array(comb0)[obj]))
