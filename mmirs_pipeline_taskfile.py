@@ -407,7 +407,7 @@ def get_calib_files(name, tab0):
     return calib_dict0
 #enddef
 
-def get_tellurics(tab0, idx, comb0):
+def get_tellurics(tab0, idx, comb0, object0):
     '''
     Determining tellurics to use
 
@@ -421,6 +421,10 @@ def get_tellurics(tab0, idx, comb0):
 
     comb0 : list
       List of strings that combines name, aperture, filter, and disperse
+
+    object0 : list
+      List of strings that contains name of source. This is from
+      organize_targets() and handles mask observations
 
     Returns
     -------
@@ -442,22 +446,23 @@ def get_tellurics(tab0, idx, comb0):
      - Bug fixes: len(n_tell) -> n_tell, str(etime), specify size when calling range
      - Import astroquery.simbad to get spectral type for telluric star; export
        in tell_dict0
+    Modified by Chun Ly, 18 February 2018
+     - Handle mos case for tellurics with object0 input
     '''
 
-    obj   = tab0['object']
     etime = tab0['exptime'] # + on 28/01/2018
 
-    mmirs_setup = [b.replace(a+'_','') for a,b in zip(obj, comb0)]
+    mmirs_setup = [b.replace(a+'_','') for a,b in zip(object0, comb0)]
 
     target_setup = mmirs_setup[idx[0]]
 
-    i_tell = [xx for xx in range(len(obj)) if
-              (('HD' in obj[xx] or 'HIP' in obj[xx]) and
+    i_tell = [xx for xx in range(len(object0)) if
+              (('HD' in object0[xx] or 'HIP' in object0[xx]) and
                (mmirs_setup[xx] == target_setup))]
 
     # Include exptime should data with multiple exptime for same target is taken
     # Mod on 28/01/2018
-    obj_etime  = [a+'_'+str(b) for a,b in zip(obj, etime)]
+    obj_etime  = [a+'_'+str(b) for a,b in zip(object0, etime)]
     tell_comb0 = list(set(np.array(obj_etime)[i_tell]))
 
     n_tell = len(tell_comb0)
@@ -477,7 +482,7 @@ def get_tellurics(tab0, idx, comb0):
 
     if n_tell >= 1:
         for tt in range(n_tell):
-            tmp = [xx for xx in range(len(obj)) if
+            tmp = [xx for xx in range(len(object0)) if
                    obj_etime[xx] == tell_comb0[tt]]
 
             # tell_time[tt] = tab0['dateobs'][tmp[0]]
@@ -485,13 +490,13 @@ def get_tellurics(tab0, idx, comb0):
             tell_etime[tt] = etime[tmp[0]] # + on 28/01/2018
 
             # + on 28/01/2018
-            i_dark = [xx for xx in range(len(obj)) if
+            i_dark = [xx for xx in range(len(object0)) if
                       (tab0['imagetype'][xx] == 'dark' and
                        etime[xx] == tell_etime[tt])]
             str_dark[tt] = ",".join(tab0['filename'][i_dark])
 
             # + on 29/01/2018
-            t_simbad = Simbad.query_object(tab0['object'][tmp[0]])
+            t_simbad = Simbad.query_object(object0[tmp[0]])
             tell_stype[tt] = t_simbad['SP_TYPE'][0].lower()
         #endfor
 
