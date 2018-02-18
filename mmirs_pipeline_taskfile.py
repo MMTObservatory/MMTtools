@@ -897,6 +897,7 @@ def create(rawdir, w_dir='', dither=None, bright=False, silent=False,
     Modified by Chun Ly, 18 February 2018
      - Bug fix: taskfiles were placed in incorrect directory when dealing with
                 multiple targets. Fixed w_dir definition
+     - Handle path when w_dir keyword input is given
     '''
 
     if silent == False: log.info('### Begin create : '+systime())
@@ -984,6 +985,9 @@ def create(rawdir, w_dir='', dither=None, bright=False, silent=False,
             # Mod on 31/01/2018, 18/02/2018
             if w_dir == '':
                 w_dir_tmp = rawdir + 'reduced/'+name+'/'
+            else:
+                if w_dir[-1] != '/': w_dir = w_dir + '/'
+                w_dir_tmp = w_dir + name + '/'
 
             if not exists(w_dir_tmp): # Mod on 18/02/2018
                 commands.getoutput('mkdir -p '+w_dir_tmp)
