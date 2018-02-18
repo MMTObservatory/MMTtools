@@ -884,6 +884,7 @@ def create(rawdir, w_dir='', dither=None, bright=False, silent=False,
      - Change IDL_input.lis to generate for each target
      - Write IDL scripts for each target for main mmirs_pipeline
      - Write tab0 when no ASCII file is present
+     - Bug fix: With using LS or MOS template
     '''
 
     if silent == False: log.info('### Begin create : '+systime())
@@ -943,11 +944,12 @@ def create(rawdir, w_dir='', dither=None, bright=False, silent=False,
             idx   = [ii for ii in range(len(comb0)) if comb0[ii] == name]
             n_idx = len(idx)
 
-            # Mod on 30/11/2017, 24/01/2018
-            if '-long' in name:
-                hdr0      = LS_hdr0.copy()
-            if 'mos' in name:
-                hdr0      = mos_hdr0.copy()
+            # Mod on 30/11/2017, 24/01/2018, 17/02/2018
+            itype = tab0['imagetype'][idx[0]]
+            if 'longslit' in itype:
+                hdr0  = LS_hdr0.copy()
+            if 'mos' in itype:
+                hdr0  = mos_hdr0.copy()
 
             datedir = Time(tab0['dateobs'][0]).datetime.strftime('%Y.%m%d')
             orig_dir = '/data/ccd/MMIRS/'+datedir+'/'
