@@ -816,7 +816,7 @@ def generate_taskfile(hdr0, rawdir, w_dir, name, c_dict0, tell_dict0, tab0,
     return c_hdr0
 #enddef
 
-def organize_targets(tab0):
+def organize_targets(tab0, mylog=None):
     '''
     Use FITS header information to organize targets based on name, aperture,
     filter, and disperse
@@ -847,7 +847,11 @@ def organize_targets(tab0):
      - Handle mos data and telluric data for mos
     Modified by Chun Ly, 18 February 2018
      - Return object name as object0 list
+    Modified by Chun Ly, 20 February 2018
+     - Add mylog keyword input; Implement stdout and ASCII logging with mlog()
     '''
+
+    if type(mylog) == type(None): mylog = log # + on 20/02/2018
 
     len0 = len(tab0)
 
@@ -880,7 +884,7 @@ def organize_targets(tab0):
     obj_comb0 = list(set(np.array(comb0)[obj]))
 
     n_obj_comb0 = len(obj_comb0)
-    log.info('## Total number of combinations found : '+str(n_obj_comb0))
+    mylog.info('Total number of combinations found : '+str(n_obj_comb0))
     for oo in range(n_obj_comb0):
         print '## '+obj_comb0[oo]
 
