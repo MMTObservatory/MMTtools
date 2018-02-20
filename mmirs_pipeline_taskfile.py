@@ -1002,6 +1002,7 @@ def create(rawdir, w_dir='', dither=None, bright=False, silent=False,
      - Pass mylog into organize_targets, read_template, get_calib_files, get_tellurics
      - Rename sci_files np.array to idl_files for simplicity
      - Add all necessary darks to idl_files for IDL_input.lis
+     - Bug fix with c_dict0 use
     '''
 
     mylog = mlog(rawdir)._get_logger() # + on 19/02/2018
@@ -1112,9 +1113,9 @@ def create(rawdir, w_dir='', dither=None, bright=False, silent=False,
             idl_files = np.append(idl_files, t_flats)
 
             # Add darks | + on 20/02/2018
-            idl_files = np.append(idl_files, c_dict0['dark_str'].split(','))
-            idl_files = np.append(idl_files, c_dict0['comp_str'].split(','))
-            idl_files = np.append(idl_files, c_dict0['flat_str'].split(','))
+            idl_files = np.append(idl_files, c_dict0['dark_str'][0].split(','))
+            idl_files = np.append(idl_files, c_dict0['comp_dark'].split(','))
+            idl_files = np.append(idl_files, c_dict0['flat_dark'].split(','))
 
             # Get telluric files | + on 12/02/2018
             for tt in range(len(tell_dict0['name'])):
