@@ -636,7 +636,7 @@ def get_diff_images(tab0, idx, dither=None, mylog=None):
 #enddef
 
 def generate_taskfile(hdr0, rawdir, w_dir, name, c_dict0, tell_dict0, tab0,
-                      idx, dither=None):
+                      idx, dither=None, mylog=None):
     '''
     Modify the default task file template for each science exposure
 
@@ -733,7 +733,12 @@ def generate_taskfile(hdr0, rawdir, w_dir, name, c_dict0, tell_dict0, tab0,
 
     Modified by Chun Ly, 17 February 2018
      - Remove hdr_comm0 input
+
+    Modified by Chun Ly, 20 February 2018
+     - Add mylog keyword input; Implement stdout and ASCII logging with mlog()
     '''
+
+    if type(mylog) == type(None): mylog = log # + on 20/02/2018
 
     c_hdr0 = hdr0.copy()
 
@@ -793,14 +798,14 @@ def generate_taskfile(hdr0, rawdir, w_dir, name, c_dict0, tell_dict0, tab0,
     keys1 = c_hdr0.keys()
 
     for ii in range(len(im_dict['sci'])):
-        print log.info('### Writing taskfile for : '+im_dict['sci'][ii])
+        mylog.info('Writing taskfile for : '+im_dict['sci'][ii]) # Mod on 20/02/2018
         for t_key in col2:
             c_hdr0[t_key] = im_dict[t_key.lower()][ii]
 
         c_hdr0['W_DIR'] = w_dir + format(ii+1, '02') + '/'
 
         outfile = w_dir+name+'_'+format(ii+1, '02')+'.txt' # Mod on 31/01/2018
-        log.info('## Writing : '+outfile)
+        mylog.info('Writing : '+outfile) # Mod on 20/02/2018
 
         # Mod on 16/02/2018
         c_hdr0.tofile(outfile, sep='\n', padding=False, overwrite=True)
