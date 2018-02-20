@@ -37,6 +37,7 @@ PRO mmirs_pipeline_nonlin_script, rawdir, first=first, linear=linear, $
 ;
 ;       Modified by Chun Ly, 20 February 2018
 ;        - Bug fix: 'IDL_infiles' to 'IDL_files'
+;        - Bug fix: READCOL format change (one column)
 ;-
 
   ; Moved up on 17/02/2018
@@ -52,7 +53,7 @@ PRO mmirs_pipeline_nonlin_script, rawdir, first=first, linear=linear, $
 
   for ff=0,n_IDL_files-1 do begin
      print, '### Reading : '+IDL_files[ff] + ' | '+systime()
-     READCOL, IDL_files[ff], files0, format='A,X'
+     READCOL, IDL_files[ff], files0, format='A'
 
      for ii=0L,N_elements(files0)-1 do begin
         outfile = outdir + files0[ii] + suffix
