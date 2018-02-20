@@ -967,9 +967,13 @@ def create(rawdir, w_dir='', dither=None, bright=False, silent=False,
                 multiple targets. Fixed w_dir definition
      - Handle path when w_dir keyword input is given
      - Get proper source name to handle mask observations, object0
+    Modified by Chun Ly, 19 February 2018
+     - Implement stdout and ASCII logging with mlog()
     '''
 
-    if silent == False: log.info('### Begin create : '+systime())
+    mylog = mlog(rawdir)._get_logger() # + on 19/02/2018
+
+    mylog.info('Begin create : '+systime()) # Mod on 19/02/2018
 
     if rawdir[-1] != '/': rawdir = rawdir + '/'
 
@@ -978,30 +982,30 @@ def create(rawdir, w_dir='', dither=None, bright=False, silent=False,
     files0 = [t_file for t_file in files0 if '_stack' not in t_file]
 
     n_files0 = len(files0)
-    if silent == False:
-        log.info('### Number of FITS files found : '+str(n_files0))
+
+    # Mod on 19/02/2018
+    mylog.info('Number of FITS files found : '+str(n_files0))
 
     tab0_outfile = rawdir + 'obs_summary.tbl' # Moved up on 15/02/2018
 
     # Use ASCII catalog if available and size matches | + on 15/02/2018
     if exists(tab0_outfile):
-        if silent == False: log.info('### Reading : '+tab0_outfile)
+        mylog.info('Reading : '+tab0_outfile) # Mod on 19/02/2018
         tab0 = asc.read(tab0_outfile, format='fixed_width_two_line')
         if n_files0 != len(tab0):
             # Get header information
             tab0 = get_header_info(files0)
 
-            # + on 30/11/2017.
-            if silent == False:
-                if exists(tab0_outfile):
-                    log.info('## Overwriting : '+tab0_outfile)
-                else:
-                    log.info('## Writing : '+tab0_outfile)
+            # + on 30/11/2017. Mod on 19/02/2018
+            if exists(tab0_outfile):
+                mylog.info('Overwriting : '+tab0_outfile)
+            else:
+                mylog.info('Writing : '+tab0_outfile)
 
             tab0.write(tab0_outfile, format='ascii.fixed_width_two_line',
                        overwrite=True)
         else:
-            if silent == False: log.info('### Using existing tab0_outfile')
+            mylog.info('Using existing tab0_outfile') # Mod on 19/02/2018
     else: # + on 16/02/2018
         tab0 = get_header_info(files0)
 
@@ -1009,7 +1013,6 @@ def create(rawdir, w_dir='', dither=None, bright=False, silent=False,
                    overwrite=True)
 
     tab0.pprint(max_lines=-1, max_width=-1)
-
 
     comb0, obj_comb0, object0 = organize_targets(tab0) # Mod on 18/02/2018
 
@@ -1021,7 +1024,7 @@ def create(rawdir, w_dir='', dither=None, bright=False, silent=False,
     # Create task files | + on 30/11/2017
     for name in obj_comb0:
         if 'HD' not in name and 'HIP' not in name and 'BD' not in name:
-            if verbose == True: log.info('## Working on : '+name)
+            mylog.info('Working on : '+name) # Mod on 19/02/2018
 
             idx   = [ii for ii in range(len(comb0)) if comb0[ii] == name]
             n_idx = len(idx)
@@ -1038,12 +1041,12 @@ def create(rawdir, w_dir='', dither=None, bright=False, silent=False,
             print orig_dir
             hdr0['RAW_DIR'] = orig_dir
 
-            # + on 25/01/2018
+            # + on 25/01/2018. Mod on 19/02/2018
             if bright:
-                log.info('## Bright source flag set!')
+                mylog.info('Bright source flag set!')
                 hdr0['BRIGHT'] = 1
             else:
-                log.info('## No bright source indicated!')
+                mylog.info('No bright source indicated!')
                 hdr0['BRIGHT'] = 0
 
             # on 08/12/2017
@@ -1080,7 +1083,7 @@ def create(rawdir, w_dir='', dither=None, bright=False, silent=False,
                 sci_files = np.append(sci_files, t_tell)
 
             idl_input_file = rawdir + 'IDL_input_'+name+'.lis'
-            if silent == False: log.info('### Writing : '+idl_input_file)
+            mylog.info('Writing : '+idl_input_file) # Mod on 19/02/2018
             asc.write([sci_files], idl_input_file, format='no_header',
                       overwrite=True)
 
@@ -1091,7 +1094,7 @@ def create(rawdir, w_dir='', dither=None, bright=False, silent=False,
             # Write IDL script for main mmirs_pipeline | + on 17/02/2018
             main_script_outfile = rawdir + 'run_mmirs_pipeline_'+name+'.idl'
             if not exists(main_script_outfile):
-                if silent == False: log.info('### Writing : '+main_script_outfile)
+                mylog.info('Writing : '+main_script_outfile)
 
                 f1 = open(main_script_outfile, 'w')
                 str0 = [".run run_pipeline\n\n",
@@ -1099,7 +1102,7 @@ def create(rawdir, w_dir='', dither=None, bright=False, silent=False,
                 f1.writelines(str0)
                 f1.close()
             else:
-                log.warn('### File exists! Will not overwrite : '+main_script_outfile)
+                mylog.warn('File exists! Will not overwrite : '+main_script_outfile)
         #endif
     #endfor
 
@@ -1107,7 +1110,7 @@ def create(rawdir, w_dir='', dither=None, bright=False, silent=False,
     # mmirs_pipeline_nonlin_script.pro | + on 17/02/2018
     script_outfile = rawdir + 'run_mmirs_pipeline_nonlin_script.idl'
     if not exists(script_outfile):
-        if silent == False: log.info('### Writing : '+script_outfile)
+        mylog.info('Writing : '+script_outfile) # Mod on 19/02/2018
 
         f0 = open(script_outfile, 'w')
         str0 = [".run mmirs_pipeline_nonlin_script\n\n",
@@ -1116,8 +1119,8 @@ def create(rawdir, w_dir='', dither=None, bright=False, silent=False,
         f0.writelines(str0)
         f0.close()
     else:
-        log.warn('### File exists! Will not overwrite : '+script_outfile)
+        mylog.warn('File exists! Will not overwrite : '+script_outfile)
 
-    if silent == False: log.info('### End create : '+systime())
+    mylog.info('End create : '+systime()) # Mod on 19/02/2018
 #enddef
 
