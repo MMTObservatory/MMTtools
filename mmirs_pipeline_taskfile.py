@@ -997,6 +997,8 @@ def create(rawdir, w_dir='', dither=None, bright=False, silent=False,
      - Get proper source name to handle mask observations, object0
     Modified by Chun Ly, 19 February 2018
      - Implement stdout and ASCII logging with mlog()
+    Modified by Chun Ly, 20 February 2018
+     - Pass mylog into organize_targets, read_template, get_calib_files, get_tellurics
     '''
 
     mylog = mlog(rawdir)._get_logger() # + on 19/02/2018
@@ -1042,12 +1044,13 @@ def create(rawdir, w_dir='', dither=None, bright=False, silent=False,
 
     tab0.pprint(max_lines=-1, max_width=-1)
 
-    comb0, obj_comb0, object0 = organize_targets(tab0) # Mod on 18/02/2018
+    # Mod on 18/02/2018, 20/02/2018
+    comb0, obj_comb0, object0 = organize_targets(tab0, mylog=mylog)
 
     # Get default FITS template headers
     # + on 30/11/2017, Mod on 18/12/2017, 24/01/2018, 17/02/2018
-    LS_hdr0  = read_template(longslit=True)
-    mos_hdr0 = read_template(mos=True)
+    LS_hdr0  = read_template(longslit=True, mylog=mylog)
+    mos_hdr0 = read_template(mos=True, mylog=mylog)
 
     # Create task files | + on 30/11/2017
     for name in obj_comb0:
@@ -1078,10 +1081,10 @@ def create(rawdir, w_dir='', dither=None, bright=False, silent=False,
                 hdr0['BRIGHT'] = 0
 
             # on 08/12/2017
-            c_dict0 = get_calib_files(name, tab0)
+            c_dict0 = get_calib_files(name, tab0, mylog=mylog)
 
-            # Mod on 28/01/2018, 18/02/2018
-            tell_dict0 = get_tellurics(tab0, idx, comb0, object0)
+            # Mod on 28/01/2018, 18/02/2018, 20/02/2018
+            tell_dict0 = get_tellurics(tab0, idx, comb0, object0, mylog=mylog)
 
             # Mod on 31/01/2018, 18/02/2018
             if w_dir == '':
@@ -1117,7 +1120,8 @@ def create(rawdir, w_dir='', dither=None, bright=False, silent=False,
 
             # + on 11/12/2017, Mod on 28/01/2018, 18/02/2018
             temp1 = generate_taskfile(hdr0, rawdir, w_dir_tmp, name, c_dict0,
-                                      tell_dict0, tab0, idx, dither=dither)
+                                      tell_dict0, tab0, idx, dither=dither,
+                                      mylog=mylog)
 
             # Write IDL script for main mmirs_pipeline | + on 17/02/2018
             main_script_outfile = rawdir + 'run_mmirs_pipeline_'+name+'.idl'
