@@ -345,7 +345,7 @@ def read_template(longslit=False, mos=False, mylog=None):
     #return temp_dict0 #{'keyword': keyword, 'text': text0}
 #enddef
 
-def get_calib_files(name, tab0):
+def get_calib_files(name, tab0, mylog=None):
     '''
     Get appropriate calibration files for each dataset
 
@@ -374,7 +374,12 @@ def get_calib_files(name, tab0):
      - Include darks for comps, flats
     Modified by Chun Ly, 26 January 2018
      - Minor code documentation
+    Modified by Chun Ly, 20 February 2018
+     - Add mylog keyword input; Implement stdout and ASCII logging with mlog()
     '''
+
+    if type(mylogger) == type(None): mylog = log # + on 20/02/2018
+
     len0 = len(tab0)
 
     itype0 = tab0['imagetype']
@@ -408,7 +413,7 @@ def get_calib_files(name, tab0):
         print i_dark
         t_txt = ",".join(tab0['filename'][i_dark])
         dark_str0.append(t_txt)
-        log.info("## List of science dark files for %.3fs : %s" % (etime, t_txt))
+        mylog.info("List of science dark files for %.3fs : %s" % (etime, t_txt))
 
     ## COMPS
     # Mod on 11/12/2017
@@ -417,7 +422,7 @@ def get_calib_files(name, tab0):
                filt0[ii] == t_filt and disp0[ii] == t_disp and \
                pi[ii] == t_pi and propid[ii] == t_propid)]
     if len(i_comp) > 2:
-        log.warn('### Too many comps!!!')
+        mylog.warn('Too many comps!!!') # Mod on 20/02/2018
 
     comp_str0  = ",".join(tab0['filename'][i_comp])
     comp_itime = tab0['exptime'][i_comp[0]]
@@ -427,7 +432,6 @@ def get_calib_files(name, tab0):
                (itype0[ii] == 'dark' and tab0['exptime'][ii] == comp_itime)]
     comp_dark = ",".join(tab0['filename'][id_comp])
 
-
     ## FLATS
     # Mod on 11/12/2017
     i_flat = [ii for ii in range(len0) if
@@ -435,7 +439,7 @@ def get_calib_files(name, tab0):
                filt0[ii] == t_filt and disp0[ii] == t_disp and \
                pi[ii] == t_pi and propid[ii] == t_propid)]
     if len(i_flat) > 2:
-        log.warn('### Too many flats!!!')
+        mylog.warn('Too many flats!!!') # Mod on 20/02/2018
 
     flat_str0 = ",".join(tab0['filename'][i_flat])
     flat_itime = tab0['exptime'][i_flat[0]]
@@ -445,11 +449,13 @@ def get_calib_files(name, tab0):
                (itype0[ii] == 'dark' and tab0['exptime'][ii] == flat_itime)]
     flat_dark = ",".join(tab0['filename'][id_flat])
 
-    log.info("## List of comp files : "+comp_str0)
-    log.info("## List of comp dark files : "+comp_dark)
+    # Mod on 20/02/2018
+    mylog.info("List of comp files : "+comp_str0)
+    mylog.info("List of comp dark files : "+comp_dark)
 
-    log.info("## List of flat files : "+flat_str0)
-    log.info("## List of flat dark files : "+flat_dark)
+    # Mod on 20/02/2018
+    mylog.info("List of flat files : "+flat_str0)
+    mylog.info("List of flat dark files : "+flat_dark)
 
     calib_dict0 = collections.OrderedDict()
     calib_dict0['comp_str']   = comp_str0
