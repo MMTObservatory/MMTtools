@@ -305,7 +305,7 @@ def read_template(longslit=False, mos=False, mylog=None):
      - Add mylog keyword input; Implement stdout and ASCII logging with mlog()
     '''
 
-    if type(mylogger) == type(None): mylog = log
+    if type(mylog) == type(None): mylog = log
 
     if longslit == False and mos == False:
         mylog.warn('Must specify longslit or mos keyword!!!')
@@ -378,7 +378,7 @@ def get_calib_files(name, tab0, mylog=None):
      - Add mylog keyword input; Implement stdout and ASCII logging with mlog()
     '''
 
-    if type(mylogger) == type(None): mylog = log # + on 20/02/2018
+    if type(mylog) == type(None): mylog = log # + on 20/02/2018
 
     len0 = len(tab0)
 
@@ -514,7 +514,7 @@ def get_tellurics(tab0, idx, comb0, object0, mylog=None):
      - Add mylog keyword input; Implement stdout and ASCII logging with mlog()
     '''
 
-    if type(mylogger) == type(None): mylog = log # + on 20/02/2018
+    if type(mylog) == type(None): mylog = log # + on 20/02/2018
 
     etime = tab0['exptime'] # + on 28/01/2018
 
@@ -602,7 +602,7 @@ def get_diff_images(tab0, idx, dither=None, mylog=None):
      - Add mylog keyword input; Implement stdout and ASCII logging with mlog()
     '''
 
-    if type(mylogger) == type(None): mylog = log # + on 20/02/2018
+    if type(mylog) == type(None): mylog = log # + on 20/02/2018
 
     tab0 = tab0[idx]
     n_files = len(tab0)
