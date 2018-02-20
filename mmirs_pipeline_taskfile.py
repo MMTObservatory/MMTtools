@@ -85,9 +85,59 @@ if not any('sptype' in sfield for sfield in Simbad.get_votable_fields()):
 
 import collections
 
+import logging
+formatter = logging.Formatter('%(asctime)s - %(module)12s.%(funcName)20s - %(levelname)s: %(message)s')
+sh = logging.StreamHandler(sys.stdout)
+sh.setLevel(logging.INFO)
+sh.setFormatter(formatter)
+
 # + on 30/11/2017
 co_filename = __file__
 co_path     = os.path.dirname(co_filename) + '/'
+
+class mlog:
+    '''
+    Main class to log information to stdout and ASCII file
+
+    To execute:
+    mylog = mlog(rawdir)._get_logger()
+
+    Parameters
+    ----------
+    rawdir : str
+      Full path for where raw files are
+
+    Returns
+    -------
+
+    Notes
+    -----
+    Created by Chun Ly, 19 February 2018
+    '''
+
+    def __init__(self,rawdir):
+        self.LOG_FILENAME = rawdir + 'mmirs_pipeline_taskfile.log'
+        self._log = self._get_logger()
+
+    def _get_logger(self):
+        loglevel = logging.INFO
+        log = logging.getLogger(self.LOG_FILENAME) # + Mod on 14/12/2017
+        if not getattr(log, 'handler_set', None):
+            log.setLevel(logging.INFO)
+            sh = logging.StreamHandler()
+            sh.setFormatter(formatter)
+            log.addHandler(sh)
+
+            fh = logging.FileHandler(self.LOG_FILENAME)
+            fh.setLevel(logging.INFO)
+            fh.setFormatter(formatter)
+            log.addHandler(fh)
+
+            log.setLevel(loglevel)
+            log.handler_set = True
+        return log
+#enddef
+
 
 def get_header_info(files0):
     '''
