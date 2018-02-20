@@ -468,7 +468,7 @@ def get_calib_files(name, tab0, mylog=None):
     return calib_dict0
 #enddef
 
-def get_tellurics(tab0, idx, comb0, object0):
+def get_tellurics(tab0, idx, comb0, object0, mylog=None):
     '''
     Determining tellurics to use
 
@@ -510,7 +510,11 @@ def get_tellurics(tab0, idx, comb0, object0):
     Modified by Chun Ly, 18 February 2018
      - Handle mos case for tellurics with object0 input
      - Bug fix : obj -> object0
+    Modified by Chun Ly, 20 February 2018
+     - Add mylog keyword input; Implement stdout and ASCII logging with mlog()
     '''
+
+    if type(mylogger) == type(None): mylog = log # + on 20/02/2018
 
     etime = tab0['exptime'] # + on 28/01/2018
 
@@ -530,7 +534,7 @@ def get_tellurics(tab0, idx, comb0, object0):
     n_tell = len(tell_comb0)
 
     if n_tell == 0:
-        log.warn('### No telluric data found!!!')
+        mylog.warn('No telluric data found!!!') # Mod on 20/02/2018
         str_tell = []
 
     str_tell   = ['']  * n_tell
@@ -539,8 +543,8 @@ def get_tellurics(tab0, idx, comb0, object0):
     tell_stype = ['']  * n_tell # + on 29/01/2018
 
     if n_tell == 1:
-        log.info('### Only one telluric star is found!!!')
-        log.info('### '+object0[i_tell[0]]+' '+str(etime[i_tell[0]]))
+        mylog.info('Only one telluric star is found!!!') # Mod on 20/02/2018
+        mylog.info(object0[i_tell[0]]+' '+str(etime[i_tell[0]]))
 
     if n_tell >= 1:
         for tt in range(n_tell):
