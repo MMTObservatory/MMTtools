@@ -736,6 +736,7 @@ def generate_taskfile(hdr0, rawdir, w_dir, name, c_dict0, tell_dict0, tab0,
 
     Modified by Chun Ly, 20 February 2018
      - Add mylog keyword input; Implement stdout and ASCII logging with mlog()
+     - Pass mylog into get_diff_images()
     '''
 
     if type(mylog) == type(None): mylog = log # + on 20/02/2018
@@ -792,7 +793,7 @@ def generate_taskfile(hdr0, rawdir, w_dir, name, c_dict0, tell_dict0, tab0,
     col2 = ['SCI', 'SCI2', 'DITHPOS', 'DITHPOS2']
 
     # + on 24/01/2018
-    im_dict = get_diff_images(tab0, idx, dither=dither)
+    im_dict = get_diff_images(tab0, idx, dither=dither, mylog=mylog)
 
     # Write ASCII taskfiles | + on 24/01/2018
     keys1 = c_hdr0.keys()
