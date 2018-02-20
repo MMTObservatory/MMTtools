@@ -572,7 +572,7 @@ def get_tellurics(tab0, idx, comb0, object0, mylog=None):
     return tell_dict0
 #enddef
 
-def get_diff_images(tab0, idx, dither=None):
+def get_diff_images(tab0, idx, dither=None, mylog=None):
     '''
     Determining dither pattern and identify sky frame for image differencing
 
@@ -598,7 +598,11 @@ def get_diff_images(tab0, idx, dither=None):
     Created by Chun Ly, 24 January 2018
     Modified by Chun Ly, 26 January 2018
      - Bug fix: Incorrectly used offset_val over instel
+    Modified by Chun Ly, 20 February 2018
+     - Add mylog keyword input; Implement stdout and ASCII logging with mlog()
     '''
+
+    if type(mylogger) == type(None): mylog = log # + on 20/02/2018
 
     tab0 = tab0[idx]
     n_files = len(tab0)
@@ -607,7 +611,7 @@ def get_diff_images(tab0, idx, dither=None):
     offset_val = list(set(instel))
 
     if dither == None:
-        log.info('### Determining dither sequence...')
+        mylog.info('Determining dither sequence...') # Mod on 20/02/2018
 
         if len(offset_val) == 4: dither="ABApBp"
         if len(offset_val) == 2:
@@ -615,7 +619,7 @@ def get_diff_images(tab0, idx, dither=None):
             if instel[1] == instel[2]: dither="ABBA"
             if instel[1] != instel[2]: dither="ABAB"
 
-        log.info('## Dither sequence is : '+dither)
+        mylog.info('Dither sequence is : '+dither) # Mod on 20/02/2018
 
     i_off = [1, -1] * (n_files/2)
     if dither != 'ABBA':
