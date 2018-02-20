@@ -257,7 +257,7 @@ def get_header_comments(f0):
     return comm0
 #enddef
 
-def read_template(longslit=False, mos=False):
+def read_template(longslit=False, mos=False, mylog=None):
     '''
     Read in MMIRS templates to populate with information
 
@@ -300,11 +300,16 @@ def read_template(longslit=False, mos=False):
 
     Modified by Chun Ly, 17 February 2018
      - Remove return of f0 and hdr0_comm (obsolete)
+
+    Modified by Chun Ly, 19 February 2018
+     - Add mylog keyword input; Implement stdout and ASCII logging with mlog()
     '''
 
+    if type(mylogger) == type(None): mylog = log
+
     if longslit == False and mos == False:
-        log.warn('## Must specify longslit or mos keyword!!!')
-        log.warn('## Exiting!')
+        mylog.warn('Must specify longslit or mos keyword!!!')
+        mylog.warn('Exiting!')
         return
 
     if longslit == True:
