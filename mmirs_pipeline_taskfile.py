@@ -1000,6 +1000,7 @@ def create(rawdir, w_dir='', dither=None, bright=False, silent=False,
      - Implement stdout and ASCII logging with mlog()
     Modified by Chun Ly, 20 February 2018
      - Pass mylog into organize_targets, read_template, get_calib_files, get_tellurics
+     - Rename sci_files np.array to idl_files for simplicity
     '''
 
     mylog = mlog(rawdir)._get_logger() # + on 19/02/2018
@@ -1100,23 +1101,23 @@ def create(rawdir, w_dir='', dither=None, bright=False, silent=False,
             # Generate file containing science frames and darks to run
             # MMIRS IDL preprocessing
             # + on 12/02/2018
-            sci_files  = tab0['filename'][idx].data
+            idl_files  = tab0['filename'][idx].data
 
             # + on 12/02/2018
             t_comps   = c_dict0['comp_str'].split(',')
-            sci_files = np.append(sci_files, t_comps)
+            idl_files = np.append(idl_files, t_comps)
 
             t_flats   = c_dict0['flat_str'].split(',')
-            sci_files = np.append(sci_files, t_flats)
+            idl_files = np.append(idl_files, t_flats)
 
             # Get telluric files | + on 12/02/2018
             for tt in range(len(tell_dict0['name'])):
                 t_tell    = tell_dict0['name'][tt].split(',')
-                sci_files = np.append(sci_files, t_tell)
+                idl_files = np.append(idl_files, t_tell)
 
             idl_input_file = rawdir + 'IDL_input_'+name+'.lis'
             mylog.info('Writing : '+idl_input_file) # Mod on 19/02/2018
-            asc.write([sci_files], idl_input_file, format='no_header',
+            asc.write([idl_files], idl_input_file, format='no_header',
                       overwrite=True)
 
             # + on 11/12/2017, Mod on 28/01/2018, 18/02/2018
