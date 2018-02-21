@@ -789,6 +789,7 @@ def generate_taskfile(hdr0, rawdir, w_dir, name, c_dict0, tell_dict0, tab0,
 
     Modified by Chun Ly, 21 February 2018
      - Call remove_padding() to fix extraneous padding for FITS keyword value string
+     - Simplify logging to exclude full outfile path
     '''
 
     if type(mylog) == type(None): mylog = log # + on 20/02/2018
@@ -858,7 +859,7 @@ def generate_taskfile(hdr0, rawdir, w_dir, name, c_dict0, tell_dict0, tab0,
         c_hdr0['W_DIR'] = w_dir + format(ii+1, '02') + '/'
 
         outfile = w_dir+name+'_'+format(ii+1, '02')+'.txt' # Mod on 31/01/2018
-        mylog.info('Writing : '+outfile) # Mod on 20/02/2018
+        mylog.info('Writing : '+os.path.basename(outfile)) # Mod on 20/02/2018
 
         # Mod on 16/02/2018
         c_hdr0.tofile(outfile, sep='\n', padding=False, overwrite=True)
