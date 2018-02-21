@@ -257,6 +257,52 @@ def get_header_comments(f0):
     return comm0
 #enddef
 
+def remove_padding(c_hdr0, outfile):
+    '''
+    Removes space padding for FITS keyword value string. The padding is done
+    automatically by astropy.io.fits.  This breaks mmirs-pipeline as the
+    IDL code does not remove space paddings
+
+    Parameters
+    ----------
+    c_hdr0 : astropy.io.fits.header.Header
+      FITS header
+
+    outfile : str
+      Full path of filename to write updated FITS header file
+
+    Returns
+    -------
+    None
+
+    Notes
+    -----
+    Created by Chun Ly, 21 February 2018
+    '''
+
+    keys = c_hdr0.keys()
+    comm0 = c_hdr0.comments
+
+    str_hdr = []
+    for tt in range(len(keys)):
+        right0 = c_hdr0[tt]
+        if keys[tt] == 'COMMENT':
+            str0 = keys[tt].ljust(8)+right0
+        else:
+            comm1 = ' / '+comm0[tt] if comm0[tt] != '' else ''
+            s_right0 = "'%s'" % right0 if type(right0) == str else str(right0)
+        str0 = keys[tt].ljust(8)+'= '+s_right0+comm1
+        #endelse
+
+        str_hdr.append(str0+'\n')
+    #endfor
+
+    log.info('### Writing '+outfile)
+    f1 = open(outfile, 'w')
+    f1.writelines(str_hdr)
+    f1.close()
+#enddef
+
 def read_template(longslit=False, mos=False, mylog=None):
     '''
     Read in MMIRS templates to populate with information
@@ -1004,7 +1050,7 @@ def create(rawdir, w_dir='', dither=None, bright=False, silent=False,
      - Add all necessary darks to idl_files for IDL_input.lis
      - Bug fix with c_dict0 use
     Modified by Chun Ly, 21 February 2018
-     - Bug fix: Appers that mmirs_pipeline does use RAW_DIR input
+     - Bug fix: Appears that mmirs_pipeline does use RAW_DIR input
     '''
 
     mylog = mlog(rawdir)._get_logger() # + on 19/02/2018
