@@ -783,6 +783,9 @@ def generate_taskfile(hdr0, rawdir, w_dir, name, c_dict0, tell_dict0, tab0,
     Modified by Chun Ly, 20 February 2018
      - Add mylog keyword input; Implement stdout and ASCII logging with mlog()
      - Pass mylog into get_diff_images()
+
+    Modified by Chun Ly, 21 February 2018
+     - Call remove_padding() to fix extraneous padding for FITS keyword value string
     '''
 
     if type(mylog) == type(None): mylog = log # + on 20/02/2018
@@ -858,6 +861,9 @@ def generate_taskfile(hdr0, rawdir, w_dir, name, c_dict0, tell_dict0, tab0,
         c_hdr0.tofile(outfile, sep='\n', padding=False, overwrite=True)
         # False padding to avoid IOError: Header size (5725) is not a multiple
         # of block size (2880)
+
+        # Fix extraneous padding for FITS keyword value string | + on 21/02/2018
+        remove_padding(c_hdr0, outfile, mylog=mylog)
     #endfor
 
     return c_hdr0
