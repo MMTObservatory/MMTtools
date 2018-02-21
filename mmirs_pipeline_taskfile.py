@@ -279,6 +279,7 @@ def remove_padding(c_hdr0, outfile, mylog=None):
     -----
     Created by Chun Ly, 21 February 2018
      - Add mylog keyword input; Implement stdout and ASCII logging with mlog()
+     - Bug fix: indentation mistake
     '''
 
     if type(mylog) == type(None): mylog = log
@@ -294,7 +295,7 @@ def remove_padding(c_hdr0, outfile, mylog=None):
         else:
             comm1 = ' / '+comm0[tt] if comm0[tt] != '' else ''
             s_right0 = "'%s'" % right0 if type(right0) == str else str(right0)
-        str0 = keys[tt].ljust(8)+'= '+s_right0+comm1
+            str0 = keys[tt].ljust(8)+'= '+s_right0+comm1 # Mod on 21/02/2018
         #endelse
 
         str_hdr.append(str0+'\n')
