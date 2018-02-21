@@ -257,7 +257,7 @@ def get_header_comments(f0):
     return comm0
 #enddef
 
-def remove_padding(c_hdr0, outfile):
+def remove_padding(c_hdr0, outfile, mylog=None):
     '''
     Removes space padding for FITS keyword value string. The padding is done
     automatically by astropy.io.fits.  This breaks mmirs-pipeline as the
@@ -278,7 +278,10 @@ def remove_padding(c_hdr0, outfile):
     Notes
     -----
     Created by Chun Ly, 21 February 2018
+     - Add mylog keyword input; Implement stdout and ASCII logging with mlog()
     '''
+
+    if type(mylog) == type(None): mylog = log
 
     keys = c_hdr0.keys()
     comm0 = c_hdr0.comments
@@ -297,7 +300,7 @@ def remove_padding(c_hdr0, outfile):
         str_hdr.append(str0+'\n')
     #endfor
 
-    log.info('### Writing '+outfile)
+    mylog.info('Updating : '+os.path.basename(outfile))
     f1 = open(outfile, 'w')
     f1.writelines(str_hdr)
     f1.close()
