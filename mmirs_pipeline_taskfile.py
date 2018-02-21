@@ -1003,6 +1003,8 @@ def create(rawdir, w_dir='', dither=None, bright=False, silent=False,
      - Rename sci_files np.array to idl_files for simplicity
      - Add all necessary darks to idl_files for IDL_input.lis
      - Bug fix with c_dict0 use
+    Modified by Chun Ly, 21 February 2018
+     - Bug fix: Appers that mmirs_pipeline does use RAW_DIR input
     '''
 
     mylog = mlog(rawdir)._get_logger() # + on 19/02/2018
@@ -1071,10 +1073,11 @@ def create(rawdir, w_dir='', dither=None, bright=False, silent=False,
             if 'mos' in aptype:
                 hdr0  = mos_hdr0.copy()
 
-            datedir = Time(tab0['dateobs'][0]).datetime.strftime('%Y.%m%d')
-            orig_dir = '/data/ccd/MMIRS/'+datedir+'/'
-            print orig_dir
-            hdr0['RAW_DIR'] = orig_dir
+            # Mod on 21/02/2018
+            #datedir = Time(tab0['dateobs'][0]).datetime.strftime('%Y.%m%d')
+            #orig_dir = '/data/ccd/MMIRS/'+datedir+'/'
+            #print orig_dir
+            hdr0['RAW_DIR'] = rawdir #orig_dir
 
             # + on 25/01/2018. Mod on 19/02/2018
             if bright:
