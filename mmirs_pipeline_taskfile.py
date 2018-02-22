@@ -257,7 +257,7 @@ def get_header_comments(f0):
     return comm0
 #enddef
 
-def remove_padding(c_hdr0, outfile, mylog=None):
+def remove_padding(outfile, mylog=None):
     '''
     Removes space padding for FITS keyword value string. The padding is done
     automatically by astropy.io.fits.  This breaks mmirs-pipeline as the
@@ -280,25 +280,40 @@ def remove_padding(c_hdr0, outfile, mylog=None):
     Created by Chun Ly, 21 February 2018
      - Add mylog keyword input; Implement stdout and ASCII logging with mlog()
      - Bug fix: indentation mistake
+     - Bug fix: CONTINUE cards are lost. Major modification: Need to modify
+                ASCII file directly instead of FITS header object
     '''
 
     if type(mylog) == type(None): mylog = log
 
-    keys = c_hdr0.keys()
-    comm0 = c_hdr0.comments
+    f1 = open(outfile, 'r')
+    str_hdr = f1.readlines()
+    f1.close()
 
-    str_hdr = []
-    for tt in range(len(keys)):
-        right0 = c_hdr0[tt]
-        if keys[tt] == 'COMMENT':
-            str0 = keys[tt].ljust(8)+right0
-        else:
-            comm1 = ' / '+comm0[tt] if comm0[tt] != '' else ''
-            s_right0 = "'%s'" % right0 if type(right0) == str else str(right0)
-            str0 = keys[tt].ljust(8)+'= '+s_right0+comm1 # Mod on 21/02/2018
-        #endelse
+    i_fix = [xx for xx in range(len(str_hdr)) if '=' in str_hdr[xx]]
 
-        str_hdr.append(str0+'\n')
+    for tt in range(len(i_fix)):
+        split0 = str_hdr[i_fix[tt]].split('= ')
+        if len(split0) > 1:
+            right0 = split0[1]
+            if (right0[:3] != "' '") and ('OGIP' not in right0) and \
+               ('SIMPLE' not in split0[0]):
+                lloc = right0.find("'")
+                rloc = right0.rfind("'")
+                if lloc != -1 and rloc != -1:
+                    t_val   = right0[lloc:rloc+1]
+                    r_t_val = t_val.replace(' ','')
+                    right0  = r_t_val.ljust(len(t_val), ' ')
+                    str_hdr[i_fix[tt]] = split0[0].ljust(8)+'= '+right0+'\n'
+                else:
+                    t_split = right0.split('/')
+                    t_val   = t_split[0]
+                    r_t_val = t_val.replace(' ','')
+                    if '/' in right0:
+                        right0  = r_t_val+' /'+t_split[1].replace("\n",'')
+                    else:
+                        right0  = r_t_val
+                    str_hdr[i_fix[tt]] = split0[0].ljust(8)+'= '+right0+'\n'
     #endfor
 
     mylog.info('Updating : '+os.path.basename(outfile))
