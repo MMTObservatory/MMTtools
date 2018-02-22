@@ -806,6 +806,7 @@ def generate_taskfile(hdr0, rawdir, w_dir, name, c_dict0, tell_dict0, tab0,
     Modified by Chun Ly, 21 February 2018
      - Call remove_padding() to fix extraneous padding for FITS keyword value string
      - Simplify logging to exclude full outfile path
+     - Change remove_padding() input (no longer providing FITS header)
     '''
 
     if type(mylog) == type(None): mylog = log # + on 20/02/2018
@@ -883,7 +884,7 @@ def generate_taskfile(hdr0, rawdir, w_dir, name, c_dict0, tell_dict0, tab0,
         # of block size (2880)
 
         # Fix extraneous padding for FITS keyword value string | + on 21/02/2018
-        remove_padding(c_hdr0, outfile, mylog=mylog)
+        remove_padding(outfile, mylog=mylog)
     #endfor
 
     return c_hdr0
