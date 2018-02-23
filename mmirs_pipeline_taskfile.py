@@ -292,8 +292,10 @@ def get_header_info(files0):
 
 def get_header_comments(f0):
     '''
-    Extract FITS header comments. This function is to resolve issue with FITS block size,
-    which prevents fits.Header.tofile() from working
+    Extract FITS header comments. This function is to resolve issue with FITS
+    block size, which prevents fits.Header.tofile() from working
+
+    NOTE: This code is now obsolete
 
     Parameters
     ----------
@@ -310,7 +312,9 @@ def get_header_comments(f0):
     -----
     Created by Chun Ly, 24 January 2018
     Modified by Chun Ly, 25 January 2018
-     Moved up to work with read_template()
+     - Moved up to work with read_template()
+    Modified by Chun Ly, 22 February 2018
+     - Updated documentation
     '''
 
     split0 = [str0.split(' / ')[-1].replace('\n','') for str0 in f0]
