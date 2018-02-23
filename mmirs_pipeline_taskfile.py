@@ -53,7 +53,13 @@ TO EXECUTE:
          environment
 
 
-3. Call code for specified path in ipython (or python):
+3. Remove FITS files from your raw path that you do not want this code to detect.
+   This code does a file search for '*.????.fits*'.  If there are bad FITS
+   files or those that are saturated, relocate them to another folder or
+   delete them.
+
+
+4. Call code for specified path in ipython (or python):
      rawdir = '/path/to/raw/files/' <- Should end with forward slash
      mmirs_pipeline_taskfile.create(rawdir, w_dir='', dither='ABApBp',
                                     bright=True)
@@ -68,7 +74,7 @@ TO EXECUTE:
    separate out the targets in a respective manner.
 
 
-4. Next make sure you have Igor Chilingarian's mmirs-pipeline on your machine:
+5. Next make sure you have Igor Chilingarian's mmirs-pipeline on your machine:
      git clone https://bitbucket.org/chil_sai/mmirs-pipeline
 
    Also make sure that you have the IDL Astrolib installed and it is in your
@@ -81,7 +87,7 @@ TO EXECUTE:
      https://idlastro.gsfc.nasa.gov/ftp/obsolete/legend.pro
 
 
-5. Run the IDL script run_mmirs_pipeline_nonlin_script.idl that is
+6. Run the IDL script run_mmirs_pipeline_nonlin_script.idl that is
    automatically generated from step 3 in the rawdir path
 
    But before you do, note that mmirs-pipeline will look for a 'calib_MMIRS'
@@ -99,7 +105,7 @@ TO EXECUTE:
    with rawdir.
 
 
-6. After creating pre-processed files, you can now run the MMIRS pipeline via
+7. After creating pre-processed files, you can now run the MMIRS pipeline via
    the IDL scripts (run_mmirs_pipeline_[name].idl) that are automatically
    generated from step 3 in the rawdir path
 
