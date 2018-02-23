@@ -25,12 +25,35 @@ This code will create several files:
    target, LS or MOS mode, and grism and filter combinations. It is defined
    from mmirs_pipeline_taskfile.
 
+
+
 TO EXECUTE:
-1. import this code:
+
+0. First, you will need python v2.7 (This code will not work python 3.xx).
+   I recommend installing through anaconda:
+     https://www.anaconda.com/download/
+
+   Next you will need the Astropy package.  This code has been tested to work
+   with v1.3 and v2.0.2 of Astropy. Install via the conda command:
+     conda install astropy
+
+   In addition, you will need astroquery package. Install via pip command:
+     pip install astroquery
+
+
+1. After python, astropy, and astroquery are successfully installed, you
+   need to clone Chun Ly's MMTtools package to your local machine:
+     git clone https://github.com/astrochun/MMTtools.git
+
+
+2. Within ipython (or python) import this code:
      from MMTtools import mmirs_pipeline_taskfile
 
+   Note: If this does not work, MMTtools is not within your PYTHONPATH
+         environment
 
-2. Call code for specified path:
+
+3. Call code for specified path in ipython (or python):
      rawdir = '/path/to/raw/files/' <- Should end with forward slash
      mmirs_pipeline_taskfile.create(rawdir, w_dir='', dither='ABApBp',
                                     bright=True)
@@ -41,21 +64,63 @@ TO EXECUTE:
        FITS header
     3. Set bright to True of False if there is a bright object in slit or MOS
 
+   If your rawdir contains multiple targets, mmirs_pipeline_taskfile _should_
+   separate out the targets in a respective manner.
 
-3. Run the IDL script run_mmirs_pipeline_nonlin_script.idl that is automatically
-   generated from step 2 in the rawdir path
+
+4. Next make sure you have Igor Chilingarian's mmirs-pipeline on your machine:
+     git clone https://bitbucket.org/chil_sai/mmirs-pipeline
+
+   Also make sure that you have the IDL Astrolib installed and it is in your
+   IDL_PATH environment:
+     git clone https://github.com/wlandsman/IDLAstro
+
+   Note: legend.pro has been deprecated (part of IDL as al_legend.pro),
+   which will cause mmirs-pipeline to crash. Either change mmirs-pipeline to
+   use al_legend or include this legend.pro somewhere in your IDL_PATH:
+     https://idlastro.gsfc.nasa.gov/ftp/obsolete/legend.pro
+
+
+5. Run the IDL script run_mmirs_pipeline_nonlin_script.idl that is
+   automatically generated from step 3 in the rawdir path
+
+   But before you do, note that mmirs-pipeline will look for a 'calib_MMIRS'
+   folder.  I suggest doing a symbolic link in the rawdir:
+     ln -s /path/to/mmirs-pipeline/pipeline/calib_MMIRS
+
+   For example, if mmirs-pipeline is installed in /codes/idl, then it would
+   be:
+     ln -s /codes/idl/mmirs-pipeline/pipeline/calib_MMIRS
+
+   You can now execute run_mmirs_pipeline_nonlin_script.idl:
      idl run_mmirs_pipeline_nonlin_script.idl
 
-   Note: All the pre-processed files will be placed in the 'preproc' folder.
+   Note: All the pre-processed files will be placed in the 'preproc' folder
+   with rawdir.
 
 
-4. After creating pre-processed files, you can now run the MMIRS pipeline via
+6. After creating pre-processed files, you can now run the MMIRS pipeline via
    the IDL scripts (run_mmirs_pipeline_[name].idl) that are automatically
-   generated from step 2 in the rawdir path
+   generated from step 3 in the rawdir path
 
    If your rawdir contains multiple targets, mmirs_pipeline_taskfile _should_
    separate out the targets in a respective manner.  Thus, there should be
    multiple run_mmirs_pipeline.idl scripts
+
+
+
+TIPS:
+   This code has a log file that is created in rawdir called
+   'mmirs_pipeline_taskfile.log'. It logs everything that is written to
+   stdout
+
+   If a bug is encountered please submit an issue ticket here:
+     https://github.com/astrochun/MMTtools/issues
+
+   Also, please email the creator, Chun Ly, at chunly [at] mmto.org
+   your mmirs_pipeline_taskfile.log, any error messages on the ipython
+   or python screen, and your 'obs_summary.tbl' file
+
 """
 
 __version__ = '0.1' # Set on 16/02/2018
