@@ -435,6 +435,9 @@ def read_template(longslit=False, mos=False, mylog=None):
 
     Modified by Chun Ly, 19 February 2018
      - Add mylog keyword input; Implement stdout and ASCII logging with mlog()
+
+    Modified by Chun Ly, 22 February 2018
+     - Remove extraneous commented out code
     '''
 
     if type(mylog) == type(None): mylog = log
@@ -460,21 +463,8 @@ def read_template(longslit=False, mos=False, mylog=None):
 
     # hdr0_comm = get_header_comments(f0) # + on 25/01/2018
 
-    return temp_hdr #, f0, hdr0_comm
+    return temp_hdr
 
-
-    #keyword = np.array([str0.split('= ')[0] for str0 in f0])
-    #text0   = np.array([str0.split('= ')[-1] for str0 in f0])
-    #
-    #i_comm0 = [ii for ii in range(len(text0)) if
-    #           ('COMMENT' in text0[ii] or 'END' in text0[ii])]
-    #keyword[i_comm0] = ''
-    #
-    #temp_dict0 = collections.OrderedDict()
-    #temp_dict0['keyword'] = keyword
-    #temp_dict0['text']    = text0
-    #
-    #return temp_dict0 #{'keyword': keyword, 'text': text0}
 #enddef
 
 def get_calib_files(name, tab0, mylog=None):
