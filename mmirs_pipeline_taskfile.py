@@ -1133,6 +1133,8 @@ def create(rawdir, w_dir='', dither=None, bright=False, silent=False,
      - Bug fix: Appears that mmirs_pipeline does use RAW_DIR input
     Modified by Chun Ly, 22 February 2018
      - Remove call to chun_codes.systime()
+    Modified by Chun Ly, 23 February 2018
+     - Bug fix: missing single quote
     '''
 
     mylog = mlog(rawdir)._get_logger() # + on 19/02/2018
@@ -1269,7 +1271,7 @@ def create(rawdir, w_dir='', dither=None, bright=False, silent=False,
 
                 f1 = open(main_script_outfile, 'w')
                 str0 = [".run run_pipeline\n\n",
-                        "run_pipeline, 'reduced/%s\n\n" % name, "exit\n"]
+                        "run_pipeline, 'reduced/%s'\n\n" % name, "exit\n"] # Mod on 23/02/2018
                 f1.writelines(str0)
                 f1.close()
             else:
