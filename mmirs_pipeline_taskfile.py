@@ -519,7 +519,7 @@ def get_calib_files(name, tab0, mylog=None):
     t_filt = t_str[2]
     t_disp = t_str[3]
 
-    i_obj      = [ii for ii in range(len0) if tab0['object'][ii] == t_obj]
+    i_obj = [ii for ii in range(len0) if tab0['object'][ii] == t_obj]
 
     # + on 11/12/2017
     t_pi     = pi[i_obj[0]]
@@ -532,7 +532,6 @@ def get_calib_files(name, tab0, mylog=None):
     for etime in dark_etime:
         i_dark = [ii for ii in range(len0) if
                   (itype0[ii] == 'dark' and exptime[ii] == etime)]
-        print i_dark
         t_txt = ",".join(tab0['filename'][i_dark])
         dark_str0.append(t_txt)
         mylog.info("List of science dark files for %.3fs : %s" % (etime, t_txt))
@@ -888,11 +887,6 @@ def generate_taskfile(hdr0, rawdir, w_dir, name, c_dict0, tell_dict0, tab0,
         for key in keys0:
             del c_hdr0[key]
 
-    ## + on 01/12/2017
-    #t_keyword0 = temp0['keyword']
-    #t_keyword  = [str0.replace(' ','') for str0 in t_keyword0]
-    #t_text    = temp0['text']
-
     # + on 11/12/2017
     t_str = name.split('_')
     t_obj, t_ap, t_filt, t_disp  = t_str[0], t_str[1], t_str[2], t_str[3]
@@ -1206,9 +1200,6 @@ def create(rawdir, w_dir='', dither=None, bright=False, silent=False,
                 hdr0  = mos_hdr0.copy()
 
             # Mod on 21/02/2018
-            #datedir = Time(tab0['dateobs'][0]).datetime.strftime('%Y.%m%d')
-            #orig_dir = '/data/ccd/MMIRS/'+datedir+'/'
-            #print orig_dir
             hdr0['RAW_DIR'] = rawdir #orig_dir
 
             # + on 25/01/2018. Mod on 19/02/2018
