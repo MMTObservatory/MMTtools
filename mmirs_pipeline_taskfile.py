@@ -127,8 +127,6 @@ __version__ = '0.1' # Set on 16/02/2018
 
 import sys, os
 
-from chun_codes import systime
-
 from os.path import exists
 import commands
 from astropy.io import ascii as asc
@@ -1143,11 +1141,13 @@ def create(rawdir, w_dir='', dither=None, bright=False, silent=False,
      - Bug fix with c_dict0 use
     Modified by Chun Ly, 21 February 2018
      - Bug fix: Appears that mmirs_pipeline does use RAW_DIR input
+    Modified by Chun Ly, 22 February 2018
+     - Remove call to chun_codes.systime()
     '''
 
     mylog = mlog(rawdir)._get_logger() # + on 19/02/2018
 
-    mylog.info('Begin create : '+systime()) # Mod on 19/02/2018
+    mylog.info('Begin create ! ') # Mod on 19/02/2018
 
     if rawdir[-1] != '/': rawdir = rawdir + '/'
 
@@ -1305,6 +1305,6 @@ def create(rawdir, w_dir='', dither=None, bright=False, silent=False,
     else:
         mylog.warn('File exists! Will not overwrite : '+script_outfile)
 
-    mylog.info('End create : '+systime()) # Mod on 19/02/2018
+    mylog.info('End create ! ') # Mod on 19/02/2018
 #enddef
 
