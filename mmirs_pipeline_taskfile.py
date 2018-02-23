@@ -974,6 +974,8 @@ def organize_targets(tab0, mylog=None):
      - Return object name as object0 list
     Modified by Chun Ly, 20 February 2018
      - Add mylog keyword input; Implement stdout and ASCII logging with mlog()
+    Modified by Chun Ly, 22 February 2018
+     - Change print statement for combination to mylog call
     '''
 
     if type(mylog) == type(None): mylog = log # + on 20/02/2018
@@ -1011,7 +1013,7 @@ def organize_targets(tab0, mylog=None):
     n_obj_comb0 = len(obj_comb0)
     mylog.info('Total number of combinations found : '+str(n_obj_comb0))
     for oo in range(n_obj_comb0):
-        print '## '+obj_comb0[oo]
+        mylog.info('## '+obj_comb0[oo])
 
     return comb0, obj_comb0, object0 # Mod on 18/02/2018
 #enddef
