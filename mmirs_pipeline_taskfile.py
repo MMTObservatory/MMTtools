@@ -6,7 +6,7 @@ Python code to create task files for MMIRS IDL pipeline:
 http://tdc-www.harvard.edu/software/mmirs_pipeline.html
 
 Operates in a given path containing raw files, find common files, and create
-task files to execute with mmirs_pipeline
+task files to execute with MMIRS IDL data reduction pipeline, mmirs-pipeline
 
 This code will create several files:
 (1) 'obs_summary.tbl'
