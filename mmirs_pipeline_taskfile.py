@@ -1141,6 +1141,7 @@ def create(rawdir, w_dir='', dither=None, bright=False, silent=False,
      - Remove call to chun_codes.systime()
     Modified by Chun Ly, 23 February 2018
      - Bug fix: missing single quote
+     - Add check for calib_MMIRS and symlink command
     '''
 
     mylog = mlog(rawdir)._get_logger() # + on 19/02/2018
@@ -1300,6 +1301,20 @@ def create(rawdir, w_dir='', dither=None, bright=False, silent=False,
     else:
         mylog.warn('File exists! Will not overwrite : '+script_outfile)
 
+    # Check if calib_MMIRS exists
+    dir_calib = rawdir+'calib_MMIRS'
+    if not exists(dir_calib)
+        mylog.warn('calib_MMIRS does NOT exists in rawdir !!!')
+
+        m_path = raw_input('Enter path to main folder of IDL mmirs-pipeline : ')
+        if m_path[-1] != '/': m_path += '/'
+        c_path = m_path + 'pipeline/calib_MMIRS'
+        cmd0   = 'ln -s '+c_path+' '+dir_calib
+        mylog.info('symlink command : '+cmd0)
+        commands.getoutput(cmd0)
+        if not exists(dir_calib):
+            mylog.warn('Path is not correct for calib_MMIRS !!!')
+            mylog.warn('User need to fix manually !!!')
     mylog.info('End create ! ') # Mod on 19/02/2018
 #enddef
 
