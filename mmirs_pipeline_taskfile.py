@@ -65,16 +65,26 @@ TO EXECUTE:
                                     bright=True)
 
    Notes:
-    1. w_dir can be changed. Default is to create a 'reduced' folder in rawdir
+    1. w_dir can be changed. Default is to create a 'reduced' folder in [rawdir]
     2. dither: If NOT specified, code will determine dither pattern based on
        FITS header
     3. Set bright to True of False if there is a bright object in slit or MOS
+    4. Note that mmirs-pipeline will look for a 'calib_MMIRS' folder. This
+       is needed in the pre-processing (e.g., applying non-linearity correction).
+       This Python code will prompt you to provide a path such that a symbolic
+       link is created.
 
-   If your rawdir contains multiple targets, mmirs_pipeline_taskfile _should_
+       For example, if mmirs-pipeline is installed in /codes/idl, then you would
+       type '/codes/idl', and it would create a symbolic link as follow:
+         ln -s /codes/idl/mmirs-pipeline/pipeline/calib_MMIRS [rawdir]/calib_MMIRS
+
+   If your [rawdir] contains multiple targets, mmirs_pipeline_taskfile _should_
    separate out the targets in a respective manner.
 
 
-5. Next make sure you have Igor Chilingarian's mmirs-pipeline on your machine:
+5. Next install IDL and set-up it up to have an appropriate license.
+   Then have Igor Chilingarian's mmirs-pipeline on your computer and included
+   in your IDL_PATH environment:
      git clone https://bitbucket.org/chil_sai/mmirs-pipeline
 
    Also make sure that you have the IDL Astrolib installed and it is in your
@@ -88,28 +98,18 @@ TO EXECUTE:
 
 
 6. Run the IDL script run_mmirs_pipeline_nonlin_script.idl that is
-   automatically generated from step 3 in the rawdir path
-
-   But before you do, note that mmirs-pipeline will look for a 'calib_MMIRS'
-   folder.  I suggest doing a symbolic link in the rawdir:
-     ln -s /path/to/mmirs-pipeline/pipeline/calib_MMIRS
-
-   For example, if mmirs-pipeline is installed in /codes/idl, then it would
-   be:
-     ln -s /codes/idl/mmirs-pipeline/pipeline/calib_MMIRS
-
-   You can now execute run_mmirs_pipeline_nonlin_script.idl:
+   automatically generated from step 3 in the [rawdir] path:
      idl run_mmirs_pipeline_nonlin_script.idl
 
    Note: All the pre-processed files will be placed in the 'preproc' folder
-   with rawdir.
+   within [rawdir].
 
 
 7. After creating pre-processed files, you can now run the MMIRS pipeline via
    the IDL scripts (run_mmirs_pipeline_[name].idl) that are automatically
-   generated from step 3 in the rawdir path
+   generated from step 3 in the [rawdir] path
 
-   If your rawdir contains multiple targets, mmirs_pipeline_taskfile _should_
+   If your [rawdir] contains multiple targets, mmirs_pipeline_taskfile _should_
    separate out the targets in a respective manner.  Thus, there should be
    multiple run_mmirs_pipeline.idl scripts
 
