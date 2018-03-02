@@ -1142,6 +1142,8 @@ def create(rawdir, w_dir='', dither=None, bright=False, silent=False,
     Modified by Chun Ly, 23 February 2018
      - Bug fix: missing single quote
      - Add check for calib_MMIRS and symlink command
+    Modified by Chun Ly, 1 March 2018
+     - Bug fix: typo in if statement
     '''
 
     mylog = mlog(rawdir)._get_logger() # + on 19/02/2018
@@ -1303,7 +1305,7 @@ def create(rawdir, w_dir='', dither=None, bright=False, silent=False,
 
     # Check if calib_MMIRS exists
     dir_calib = rawdir+'calib_MMIRS'
-    if not exists(dir_calib)
+    if not exists(dir_calib):
         mylog.warn('calib_MMIRS does NOT exists in rawdir !!!')
 
         m_path = raw_input('Enter path to main folder of IDL mmirs-pipeline : ')
