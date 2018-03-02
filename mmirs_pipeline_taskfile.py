@@ -163,6 +163,8 @@ sh.setFormatter(formatter)
 # + on 30/11/2017
 co_filename = __file__
 co_path     = os.path.dirname(co_filename) + '/'
+# Fix if code is placed locally | Mod on 02/03/2018
+if co_path == '/': co_path = ''
 
 class mlog:
     '''
