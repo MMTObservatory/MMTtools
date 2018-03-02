@@ -727,6 +727,8 @@ def get_diff_images(tab0, idx, dither=None, mylog=None):
      - Bug fix: Incorrectly used offset_val over instel
     Modified by Chun Ly, 20 February 2018
      - Add mylog keyword input; Implement stdout and ASCII logging with mlog()
+    Modified by Chun Ly, 2 March 2018
+     - Bug fix: Add option for only two exposures
     '''
 
     if type(mylog) == type(None): mylog = log # + on 20/02/2018
@@ -739,6 +741,8 @@ def get_diff_images(tab0, idx, dither=None, mylog=None):
 
     if dither == None:
         mylog.info('Determining dither sequence...') # Mod on 20/02/2018
+
+        if len(instel) == 2: dither="ABAB"
 
         if len(offset_val) == 4: dither="ABApBp"
         if len(offset_val) == 2:
