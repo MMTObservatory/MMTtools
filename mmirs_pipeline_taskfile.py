@@ -637,13 +637,12 @@ def handle_tellurics(tab0, object0, PropID, i_tell, obj_etime, tell_comb0,
      - Simplification improvements
      - Add idx input
      - Add mylog keyword input; Implement stdout and ASCII logging with mlog()
+     - Simplification improvements (cont'd)
     '''
 
     if type(mylog) == type(None): mylog = log # + on 06/03/2018
 
-    etime = tab0['exptime'] # + on 28/01/2018
-
-    obj_etime = np.array([a+'_'+str(b) for a,b in zip(object0, etime)])
+    obj_etime = np.array(obj_etime) # Mod on 06/03/2018
 
     # First distinguish by PropID
     i_prop = [xx for xx in range(len(tab0)) if tab0['PropID'][xx] == PropID]
