@@ -628,17 +628,20 @@ def handle_tellurics(tab0, object0, PropID, i_tell, obj_etime, tell_comb0):
     Notes
     -----
     Created by Chun Ly, 5 March 2018
+
+    Modified by Chun Ly, 6 March 2018
+     - Simplification improvements
     '''
 
     etime = tab0['exptime'] # + on 28/01/2018
 
+    obj_etime = np.array([a+'_'+str(b) for a,b in zip(object0, etime)])
+
     # First distinguish by PropID
     i_prop = [xx for xx in range(len(tab0)) if tab0['PropID'][xx] == PropID]
-    i_tell_p = np.array(list(set(i_prop) & set(i_tell)))
-    if len(i_tell_p) > 0:
-        obj_etime  = [object0[i_tell_p[xx]]+'_'+str(etime[i_tell_p[xx]])
-                      for xx in range(len(i_tell_p))]
-        print obj_etime
+    i_pid = np.array(list(set(i_prop) & set(i_tell)))
+    if len(i_pid) > 0:
+        obj_etime_pid = list(set(obj_etime[i_pid]))
 
 #enddef
 
