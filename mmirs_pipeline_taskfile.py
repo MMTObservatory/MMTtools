@@ -598,7 +598,7 @@ def get_calib_files(name, tab0, mylog=None):
 #enddef
 
 def handle_tellurics(tab0, object0, PropID, i_tell, obj_etime, tell_comb0,
-                     idx):
+                     idx, mylog=None):
     '''
     Handle when multiple telluric datasets are available
 
@@ -636,7 +636,10 @@ def handle_tellurics(tab0, object0, PropID, i_tell, obj_etime, tell_comb0,
     Modified by Chun Ly, 6 March 2018
      - Simplification improvements
      - Add idx input
+     - Add mylog keyword input; Implement stdout and ASCII logging with mlog()
     '''
+
+    if type(mylog) == type(None): mylog = log # + on 06/03/2018
 
     etime = tab0['exptime'] # + on 28/01/2018
 
@@ -644,9 +647,16 @@ def handle_tellurics(tab0, object0, PropID, i_tell, obj_etime, tell_comb0,
 
     # First distinguish by PropID
     i_prop = [xx for xx in range(len(tab0)) if tab0['PropID'][xx] == PropID]
-    i_pid = np.array(list(set(i_prop) & set(i_tell)))
+    i_pid  = np.array(list(set(i_prop) & set(i_tell)))
     if len(i_pid) > 0:
         obj_etime_pid = list(set(obj_etime[i_pid]))
+        if len(obj_etime_pid) == 1:
+            mylog.info('Only one telluric dataset found using PropID !!!')
+        else:
+            mylog.warn('More than one telluric dataset found using PropID : '+\
+                     str(len(obj_etime_pid)))
+    else:
+        mylog.warn('No tellurics found using PropID !!!')
 
 #enddef
 
