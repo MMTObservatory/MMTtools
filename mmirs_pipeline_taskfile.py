@@ -597,7 +597,8 @@ def get_calib_files(name, tab0, mylog=None):
     return calib_dict0
 #enddef
 
-def handle_tellurics(tab0, object0, PropID, i_tell, obj_etime, tell_comb0):
+def handle_tellurics(tab0, object0, PropID, i_tell, obj_etime, tell_comb0,
+                     idx):
     '''
     Handle when multiple telluric datasets are available
 
@@ -621,6 +622,9 @@ def handle_tellurics(tab0, object0, PropID, i_tell, obj_etime, tell_comb0):
     tell_comb0 : list
       List of strings that combines telluric name and exposure time
 
+    idx : list or np.array
+      Index of entries for a given target
+
     Returns
     -------
     TBD
@@ -631,6 +635,7 @@ def handle_tellurics(tab0, object0, PropID, i_tell, obj_etime, tell_comb0):
 
     Modified by Chun Ly, 6 March 2018
      - Simplification improvements
+     - Add idx input
     '''
 
     etime = tab0['exptime'] # + on 28/01/2018
@@ -691,6 +696,8 @@ def get_tellurics(tab0, idx, comb0, object0, mylog=None):
      - Add mylog keyword input; Implement stdout and ASCII logging with mlog()
     Modified by Chun Ly,  5 March 2018
      - Call handle_tellurics() function
+    Modified by Chun Ly,  6 March 2018
+     - Pass idx to handle_tellurics()
     '''
 
     if type(mylog) == type(None): mylog = log # + on 20/02/2018
@@ -728,7 +735,8 @@ def get_tellurics(tab0, idx, comb0, object0, mylog=None):
     # + on 05/03/2018
     if n_tell > 1:
         PropID = tab0['PropID'][idx[0]]
-        handle_tellurics(tab0, object0, PropID, i_tell, obj_etime, tell_comb0)
+        handle_tellurics(tab0, object0, PropID, i_tell, obj_etime,
+                         tell_comb0, idx)
 
     if n_tell >= 1:
         for tt in range(n_tell):
