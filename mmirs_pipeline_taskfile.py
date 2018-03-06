@@ -686,6 +686,8 @@ def get_tellurics(tab0, idx, comb0, object0, mylog=None):
      - Bug fix : obj -> object0
     Modified by Chun Ly, 20 February 2018
      - Add mylog keyword input; Implement stdout and ASCII logging with mlog()
+    Modified by Chun Ly,  5 March 2018
+     - Call handle_tellurics() function
     '''
 
     if type(mylog) == type(None): mylog = log # + on 20/02/2018
@@ -719,6 +721,11 @@ def get_tellurics(tab0, idx, comb0, object0, mylog=None):
     if n_tell == 1:
         mylog.info('Only one telluric star is found!!!') # Mod on 20/02/2018
         mylog.info(object0[i_tell[0]]+' '+str(etime[i_tell[0]]))
+
+    # + on 05/03/2018
+    if n_tell > 1:
+        PropID = tab0['PropID'][idx[0]]
+        handle_tellurics(tab0, object0, PropID, i_tell, obj_etime, tell_comb0)
 
     if n_tell >= 1:
         for tt in range(n_tell):
