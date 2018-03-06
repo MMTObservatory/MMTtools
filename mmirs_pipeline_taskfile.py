@@ -597,6 +597,51 @@ def get_calib_files(name, tab0, mylog=None):
     return calib_dict0
 #enddef
 
+def handle_tellurics(tab0, object0, PropID, i_tell, obj_etime, tell_comb0):
+    '''
+    Handle when multiple telluric datasets are available
+
+    Parameters
+    ----------
+    tab0: astropy.table.table
+      Astropy Table containing FITS header
+
+    object0 : list
+      List of strings of the source name (handle MOS case)
+
+    PropID: str
+      Proposal ID full name (for science exposures)
+
+    i_tell : list or np.array
+      Index of entries that are telluric stars
+
+    obj_etime : list
+      Telluric name and exposure time
+
+    tell_comb0 : list
+      List of strings that combines telluric name and exposure time
+
+    Returns
+    -------
+    TBD
+
+    Notes
+    -----
+    Created by Chun Ly, 5 March 2018
+    '''
+
+    etime = tab0['exptime'] # + on 28/01/2018
+
+    # First distinguish by PropID
+    i_prop = [xx for xx in range(len(tab0)) if tab0['PropID'][xx] == PropID]
+    i_tell_p = np.array(list(set(i_prop) & set(i_tell)))
+    if len(i_tell_p) > 0:
+        obj_etime  = [object0[i_tell_p[xx]]+'_'+str(etime[i_tell_p[xx]])
+                      for xx in range(len(i_tell_p))]
+        print obj_etime
+
+#enddef
+
 def get_tellurics(tab0, idx, comb0, object0, mylog=None):
     '''
     Determining tellurics to use
