@@ -1159,7 +1159,7 @@ def organize_targets(tab0, mylog=None):
 #enddef
 
 def create(rawdir, w_dir='', dither=None, bright=False, silent=False,
-           verbose=True):
+           verbose=True, debug=False):
 
     '''
     Main function to create task files to execute
@@ -1278,6 +1278,8 @@ def create(rawdir, w_dir='', dither=None, bright=False, silent=False,
      - Add check for calib_MMIRS and symlink command
     Modified by Chun Ly, 1 March 2018
      - Bug fix: typo in if statement
+    Modified by Chun Ly, 7 March 2018
+     - Add debug keyword option for code testing without having FITS files
     '''
 
     mylog = mlog(rawdir)._get_logger() # + on 19/02/2018
@@ -1296,6 +1298,12 @@ def create(rawdir, w_dir='', dither=None, bright=False, silent=False,
     mylog.info('Number of FITS files found : '+str(n_files0))
 
     tab0_outfile = rawdir + 'obs_summary.tbl' # Moved up on 15/02/2018
+
+    # + on 07/03/2018
+    if n_files0 == 0 and debug:
+        tmp      = asc.read(tab0_outfile, format='fixed_width_two_line')
+        files0   = [files+'.fits' for files in tmp['filename']]
+        n_files0 = len(files0)
 
     # Use ASCII catalog if available and size matches | + on 15/02/2018
     if exists(tab0_outfile):
