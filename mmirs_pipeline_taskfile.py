@@ -762,6 +762,8 @@ def get_tellurics(tab0, idx, comb0, object0, mylog=None):
     Modified by Chun Ly,  6 March 2018
      - Pass idx to handle_tellurics()
      - Get improved telluric list from handle_tellurics()
+    Modified by Chun Ly,  7 March 2018
+     - Pass mylog to handle_tellurics()
     '''
 
     if type(mylog) == type(None): mylog = log # + on 20/02/2018
@@ -796,11 +798,11 @@ def get_tellurics(tab0, idx, comb0, object0, mylog=None):
         mylog.info('Only one telluric star is found!!!') # Mod on 20/02/2018
         mylog.info(object0[i_tell[0]]+' '+str(etime[i_tell[0]]))
 
-    # + on 05/03/2018, Mod on 06/03/2018
+    # + on 05/03/2018, Mod on 06/03/2018, 07/03/2018
     if n_tell > 1:
         PropID = tab0['PropID'][idx[0]]
         tell_comb0 = handle_tellurics(tab0, object0, PropID, i_tell, obj_etime,
-                                      tell_comb0, idx)
+                                      tell_comb0, idx, mylog=mylog)
         n_tell = len(tell_comb0)
 
     if n_tell >= 1:
