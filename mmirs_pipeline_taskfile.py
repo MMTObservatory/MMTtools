@@ -638,11 +638,15 @@ def handle_tellurics(tab0, object0, PropID, i_tell, obj_etime, tell_comb0,
      - Add idx input
      - Add mylog keyword input; Implement stdout and ASCII logging with mlog()
      - Simplification improvements (cont'd)
+     - Add pass_score to tracking
+     - Check if sci data is bracketed with telluric data
     '''
 
     if type(mylog) == type(None): mylog = log # + on 06/03/2018
 
     obj_etime = np.array(obj_etime) # Mod on 06/03/2018
+
+    pass_score = 0 # + on 06/03/2018
 
     # First distinguish by PropID
     i_prop = [xx for xx in range(len(tab0)) if tab0['PropID'][xx] == PropID]
@@ -651,11 +655,50 @@ def handle_tellurics(tab0, object0, PropID, i_tell, obj_etime, tell_comb0,
         obj_etime_pid = list(set(obj_etime[i_pid]))
         if len(obj_etime_pid) == 1:
             mylog.info('Only one telluric dataset found using PropID !!!')
+            pass_score = 1 # + on 06/03/2018
         else:
             mylog.warn('More than one telluric dataset found using PropID : '+\
                      str(len(obj_etime_pid)))
     else:
         mylog.warn('No tellurics found using PropID !!!')
+
+    # Determine if telluric data bracket sci data | + on 06/03/2018
+    if not pass_score:
+        i_obj = [ii for ii in range(len(tab0)) if
+                 (tab0['imagetype'][ii] == 'object' and tab0['aptype'][ii] != 'open')]
+        tab0_nocalib = tab0[i_obj]
+        obj_etime_nocalib = obj_etime[i_obj]
+
+        tell_idx_min = np.zeros(len(tell_comb0))
+        tell_idx_max = np.zeros(len(tell_comb0))
+
+        for tt in range(len(tell_comb0)):
+            t_idx = [xx for xx in range(len(tab0_nocalib)) if
+                     obj_etime_nocalib[xx] == tell_comb0[tt]]
+            tell_idx_min[tt], tell_idx_max[tt] = min(t_idx), max(t_idx)
+
+        idx_nocalib = [ii for ii in range(len(tab0_nocalib)) if
+                       obj_etime_nocalib[ii] == obj_etime[idx[0]]]
+        sci_idx_min, sci_idx_max = min(idx_nocalib), max(idx_nocalib)
+
+        # Check before
+        bef0 = np.where(tell_idx_max - sci_idx_min == -1)[0]
+        if len(bef0) == 1:
+            log.info('Telluric data found before science data : '+tell_comb0[bef0[0]])
+            pass_score += 1
+        else:
+            log.info('NO telluric data before science data')
+
+        # Check after
+        aft0 = np.where(tell_idx_min - sci_idx_max == 1)[0]
+        print aft0
+        if len(aft0) == 1:
+            log.info('Telluric data found after science data : '+tell_comb0[aft0[0]])
+            pass_score += 1
+        else:
+            log.info('NO telluric data before science data')
+
+    #endif
 
 #enddef
 
