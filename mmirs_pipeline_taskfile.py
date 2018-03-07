@@ -642,6 +642,9 @@ def handle_tellurics(tab0, object0, PropID, i_tell, obj_etime, tell_comb0,
      - Add pass_score to tracking
      - Check if sci data is bracketed with telluric data
      - Return improved list of telluric data
+
+    Modified by Chun Ly, 6 March 2018
+     - Bug fix: log -> mylog changes
     '''
 
     if type(mylog) == type(None): mylog = log # + on 06/03/2018
@@ -689,21 +692,22 @@ def handle_tellurics(tab0, object0, PropID, i_tell, obj_etime, tell_comb0,
         # Check before
         bef0 = np.where(tell_idx_max - sci_idx_min == -1)[0]
         if len(bef0) == 1:
-            log.info('Telluric data found before science data : '+tell_comb0[bef0[0]])
+            mylog.info('Telluric data found before science data : '+\
+                       tell_comb0[bef0[0]])
             tmp_tell_comb0.append(tell_comb0[bef0[0]])
             pass_score += 1
         else:
-            log.info('NO telluric data before science data')
+            mylog.info('NO telluric data before science data')
 
         # Check after
         aft0 = np.where(tell_idx_min - sci_idx_max == 1)[0]
         print aft0
         if len(aft0) == 1:
-            log.info('Telluric data found after science data : '+tell_comb0[aft0[0]])
+            mylog.info('Telluric data found after science data : '+tell_comb0[aft0[0]])
             tmp_tell_comb0.append(tell_comb0[aft0[0]]) # + on 06/03/2018
             pass_score += 1
         else:
-            log.info('NO telluric data before science data')
+            mylog.info('NO telluric data before science data')
 
         # + on 06/03/2018
         if len(bef0) == 1 or len(aft0) == 1:
