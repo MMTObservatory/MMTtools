@@ -627,7 +627,8 @@ def handle_tellurics(tab0, object0, PropID, i_tell, obj_etime, tell_comb0,
 
     Returns
     -------
-    TBD
+    rev_tell_comb0 : list
+      Improved telluric name and exposure time
 
     Notes
     -----
@@ -640,6 +641,7 @@ def handle_tellurics(tab0, object0, PropID, i_tell, obj_etime, tell_comb0,
      - Simplification improvements (cont'd)
      - Add pass_score to tracking
      - Check if sci data is bracketed with telluric data
+     - Return improved list of telluric data
     '''
 
     if type(mylog) == type(None): mylog = log # + on 06/03/2018
@@ -656,11 +658,13 @@ def handle_tellurics(tab0, object0, PropID, i_tell, obj_etime, tell_comb0,
         if len(obj_etime_pid) == 1:
             mylog.info('Only one telluric dataset found using PropID !!!')
             pass_score = 1 # + on 06/03/2018
+            rev_tell_comb0 = list(obj_etime_pid) # + on 06/03/2018
         else:
             mylog.warn('More than one telluric dataset found using PropID : '+\
                      str(len(obj_etime_pid)))
     else:
         mylog.warn('No tellurics found using PropID !!!')
+        rev_tell_comb0 = list(tell_comb0) # + on 06/03/2018
 
     # Determine if telluric data bracket sci data | + on 06/03/2018
     if not pass_score:
@@ -681,10 +685,12 @@ def handle_tellurics(tab0, object0, PropID, i_tell, obj_etime, tell_comb0,
                        obj_etime_nocalib[ii] == obj_etime[idx[0]]]
         sci_idx_min, sci_idx_max = min(idx_nocalib), max(idx_nocalib)
 
+        tmp_tell_comb0 = [] # + on 06/03/2018
         # Check before
         bef0 = np.where(tell_idx_max - sci_idx_min == -1)[0]
         if len(bef0) == 1:
             log.info('Telluric data found before science data : '+tell_comb0[bef0[0]])
+            tmp_tell_comb0.append(tell_comb0[bef0[0]])
             pass_score += 1
         else:
             log.info('NO telluric data before science data')
@@ -694,12 +700,17 @@ def handle_tellurics(tab0, object0, PropID, i_tell, obj_etime, tell_comb0,
         print aft0
         if len(aft0) == 1:
             log.info('Telluric data found after science data : '+tell_comb0[aft0[0]])
+            tmp_tell_comb0.append(tell_comb0[aft0[0]]) # + on 06/03/2018
             pass_score += 1
         else:
             log.info('NO telluric data before science data')
 
+        # + on 06/03/2018
+        if len(bef0) == 1 or len(aft0) == 1:
+            rev_tell_comb0 = tmp_tell_comb0
     #endif
 
+    return rev_tell_comb0
 #enddef
 
 def get_tellurics(tab0, idx, comb0, object0, mylog=None):
