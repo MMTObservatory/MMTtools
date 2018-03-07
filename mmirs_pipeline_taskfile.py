@@ -764,6 +764,8 @@ def get_tellurics(tab0, idx, comb0, object0, mylog=None):
      - Get improved telluric list from handle_tellurics()
     Modified by Chun Ly,  7 March 2018
      - Pass mylog to handle_tellurics()
+     - str_tell, tell_etime, str_dark and tell_stype definitions after
+       handle_tellurics() call
     '''
 
     if type(mylog) == type(None): mylog = log # + on 20/02/2018
@@ -787,12 +789,6 @@ def get_tellurics(tab0, idx, comb0, object0, mylog=None):
 
     if n_tell == 0:
         mylog.warn('No telluric data found!!!') # Mod on 20/02/2018
-        str_tell = []
-
-    str_tell   = ['']  * n_tell
-    tell_etime = [0.0] * n_tell
-    str_dark   = ['']  * n_tell # + on 28/01/2018
-    tell_stype = ['']  * n_tell # + on 29/01/2018
 
     if n_tell == 1:
         mylog.info('Only one telluric star is found!!!') # Mod on 20/02/2018
@@ -804,6 +800,12 @@ def get_tellurics(tab0, idx, comb0, object0, mylog=None):
         tell_comb0 = handle_tellurics(tab0, object0, PropID, i_tell, obj_etime,
                                       tell_comb0, idx, mylog=mylog)
         n_tell = len(tell_comb0)
+
+    # Moved lower on 07/03/2018
+    str_tell   = ['']  * n_tell
+    tell_etime = [0.0] * n_tell
+    str_dark   = ['']  * n_tell # + on 28/01/2018
+    tell_stype = ['']  * n_tell # + on 29/01/2018
 
     if n_tell >= 1:
         for tt in range(n_tell):
