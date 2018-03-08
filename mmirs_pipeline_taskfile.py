@@ -867,6 +867,7 @@ def get_diff_images(tab0, idx, dither=None, mylog=None):
      - Add mylog keyword input; Implement stdout and ASCII logging with mlog()
     Modified by Chun Ly, 2 March 2018
      - Bug fix: Add option for only two exposures
+     - Bug fix: Correctly handle two-exposure case
     '''
 
     if type(mylog) == type(None): mylog = log # + on 20/02/2018
@@ -880,13 +881,15 @@ def get_diff_images(tab0, idx, dither=None, mylog=None):
     if dither == None:
         mylog.info('Determining dither sequence...') # Mod on 20/02/2018
 
-        if len(instel) == 2: dither="ABAB"
-
         if len(offset_val) == 4: dither="ABApBp"
+
+        # Mod on 08/03/2018
         if len(offset_val) == 2:
-            # Mod on 26/01/2018
-            if instel[1] == instel[2]: dither="ABBA"
-            if instel[1] != instel[2]: dither="ABAB"
+            if len(instel) == 2:
+                dither="ABAB"
+            else:
+                if instel[1] == instel[2]: dither="ABBA"
+                if instel[1] != instel[2]: dither="ABAB"
 
         mylog.info('Dither sequence is : '+dither) # Mod on 20/02/2018
 
