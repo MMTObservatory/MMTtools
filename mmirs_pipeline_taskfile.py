@@ -770,6 +770,8 @@ def get_tellurics(tab0, idx, comb0, object0, mylog=None):
      - Pass mylog to handle_tellurics()
      - str_tell, tell_etime, str_dark and tell_stype definitions after
        handle_tellurics() call
+    Modified by Chun Ly, 12 March 2018
+     - Add BD telluric star in telluric list comprehension
     '''
 
     if type(mylog) == type(None): mylog = log # + on 20/02/2018
@@ -780,8 +782,9 @@ def get_tellurics(tab0, idx, comb0, object0, mylog=None):
 
     target_setup = mmirs_setup[idx[0]]
 
+    # Mod on 12/03/2018
     i_tell = [xx for xx in range(len(object0)) if
-              (('HD' in object0[xx] or 'HIP' in object0[xx]) and
+              (('HD' in object0[xx] or 'HIP' in object0[xx] or 'BD_' in object0[xx]) and
                (mmirs_setup[xx] == target_setup))]
 
     # Include exptime should data with multiple exptime for same target is taken
