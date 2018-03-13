@@ -772,6 +772,7 @@ def get_tellurics(tab0, idx, comb0, object0, mylog=None):
        handle_tellurics() call
     Modified by Chun Ly, 12 March 2018
      - Add BD telluric star in telluric list comprehension
+     - Handle BD telluric star names for call to Simbad
     '''
 
     if type(mylog) == type(None): mylog = log # + on 20/02/2018
@@ -829,8 +830,12 @@ def get_tellurics(tab0, idx, comb0, object0, mylog=None):
                        etime[xx] == tell_etime[tt])]
             str_dark[tt] = ",".join(tab0['filename'][i_dark])
 
-            # + on 29/01/2018
-            t_simbad = Simbad.query_object(object0[tmp[0]])
+            # + on 29/01/2018; Mod on 12/03/2018
+            tell_name = object0[tmp[0]]
+            if tell_name[:2] == 'BD':
+                tmp = tell_name.replace('BD_','BD+')
+                tell_name = tmp[:5]+' '+tmp[5:]
+            t_simbad = Simbad.query_object(tell_name) #object0[tmp[0]])
             tell_stype[tt] = t_simbad['SP_TYPE'][0].lower()
         #endfor
 
