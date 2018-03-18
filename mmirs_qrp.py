@@ -7,8 +7,6 @@ Python script that quickly reduces longslit and MOS spectra from MMT/MMIRS
 
 import sys, os
 
-from chun_codes import systime
-
 from os.path import exists
 from astropy.io import ascii as asc
 from astropy.io import fits
