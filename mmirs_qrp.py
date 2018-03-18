@@ -204,9 +204,14 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', flats=[],
      - Handle unused FWHM subplots
      - Minor stdout for avg/median/sigma for FWHM
      - Annotation for source info in FWHM and transparency plots
+
+    Modified by Chun Ly, 18 March 2018
+     - Implement stdout and ASCII logging with mlog()
     '''
     
-    if silent == False: log.info('### Begin main : '+systime())
+    mylog = mlog(rawdir)._get_logger() # + on 18/03/2018
+
+    mylog.info('Begin main ! ') # Mod on 18/03/2018
 
     if rawdir[-1] != '/': rawdir = rawdir + '/'
 
@@ -218,7 +223,7 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', flats=[],
 
     npz_file = rawdir+prefix+'.npz'
     if exists(npz_file):
-        if silent == False: log.info('## Reading : '+npz_file)
+        mylog.info('Reading : '+npz_file) # Mod on 18/03/2018
         npz0 = np.load(npz_file)
 
     d_cube0     = np.zeros((n_files, naxis2, naxis1))
@@ -253,7 +258,7 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', flats=[],
         # print np.min(flat0), np.max(flat0)
 
         out_fits_file = rawdir+prefix+'_flat.fits'
-        log.info('### Writing : '+out_fits_file)
+        mylog.info('Writing : '+out_fits_file) # Mod on 18/03/2018
         fits.writeto(out_fits_file, flat0, flat_hdr, overwrite=True)
         do_flat = 1
 
@@ -328,7 +333,7 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', flats=[],
                 popt, pcov    = curve_fit(gauss1d, x0, med0_col, p0=p0)
                 peak_val0[ii] = popt[2]
         else:
-            if ii == 0: log.info('### Using FITS dither information')
+            if ii == 0: mylog.info('Using FITS dither information')
 
     dither_diff = (dither_el[0] - dither_el) / pscale * u.pix
 
@@ -341,7 +346,7 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', flats=[],
     else:
         shift_val = dither_diff.value
 
-    log.info('### Shift values for spectra : ')
+    mylog.info('Shift values for spectra : ') # Mod on 18/03/2018
     # Mod on 12/11/2017
     files_short = [str0.replace(rawdir,'') for str0 in dcorr_files]
     if bright == True:
@@ -360,12 +365,12 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', flats=[],
 
     # + on 12/11/2017
     out_dither_file1 = rawdir+prefix+'_dither_ecsv.cat'
-    if silent == False: log.info('## Writing : '+out_dither_file1)
+    mylog.info('Writing : '+out_dither_file1) # Mod on 18/03/2018
     dither_tab.write(out_dither_file1, format='ascii.ecsv')
 
     # + on 12/11/2017
     out_dither_file2 = rawdir+prefix+'_dither.cat'
-    if silent == False: log.info('## Writing : '+out_dither_file2)
+    mylog.info('Writing : '+out_dither_file2) # Mod on 18/03/2018
     dither_tab.write(out_dither_file2, format='ascii.fixed_width_two_line')
     #log.info('### '+" ".join([str(a) for a in shift_val]))
 
@@ -382,7 +387,7 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', flats=[],
     stack0 = np.ma.average(shift_cube0_mask, axis=0)
 
     # + on 17/11/2017
-    if silent == False: log.info('## Writing : '+npz_file)
+    mylog.info('Writing : '+npz_file) # Mod on 18/03/2018
     np.savez_compressed(npz_file, dither_tab=dither_tab,
                         shift_cube0_mask=shift_cube0_mask.mask)
     #stack0d=stack0.data, stack0m=stack0.mask,
@@ -486,10 +491,10 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', flats=[],
         sig_FWHM0 = np.std(FWHM0)
         txt0  = 'Average : %.2f"\n Median : %.2f"\n' % (avg_FWHM0, med_FWHM0)
         txt0 += r'$\sigma$ : %.2f"' % sig_FWHM0
-        if silent == False:
-            log.info('Average : %.2f"' % avg_FWHM0)
-            log.info('Median  : %.2f"' % med_FWHM0)
-            log.info('Sigma   : %.2f"' % sig_FWHM0)
+        # Mod on 18/03/2018
+        mylog.info('Average : %.2f"' % avg_FWHM0)
+        mylog.info('Median  : %.2f"' % med_FWHM0)
+        mylog.info('Sigma   : %.2f"' % sig_FWHM0)
 
         ax.annotate(txt0, [0.975,0.975], ha='right', va='top',
                     xycoords='axes fraction', fontsize=11, bbox=bbox_props)
@@ -498,10 +503,9 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', flats=[],
         fig.set_size_inches(8,6)
         fig.savefig(pp, format='pdf', bbox_inches='tight')
 
-        # + on 20/11/2017
-        if silent == False:
-            log.info('## Writing : '+out_fwhm_pdf+' | '+systime())
-            pp.close()
+        # + on 20/11/2017, Mod on 18/03/2018
+        mylog.info('Writing : '+out_fwhm_pdf)
+        pp.close()
 
         # Compute transparency and plot | + on 09/12/2017
         out_trans_pdf = rawdir+prefix+'_stack_trans.pdf'
@@ -553,11 +557,10 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', flats=[],
         fig.set_size_inches(8,6)
         fig.savefig(pp, format='pdf', bbox_inches='tight')
 
-        # + on 20/11/2017
-        if silent == False:
-            log.info('## Writing : '+out_trans_pdf+' | '+systime())
-            pp.close()
+        # + on 20/11/2017, Mod on 18/03/2018
+        mylog.info('Writing : '+out_trans_pdf)
+        pp.close()
 
-    if silent == False: log.info('### End main : '+systime())
+    mylog.info('End main ! ') # Mod on 18/03/2018
 #enddef
 
