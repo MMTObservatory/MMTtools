@@ -36,9 +36,60 @@ from pylab import subplots_adjust
 # + on 12/11/2017
 import astropy.units as u
 
+# + on 17/03/2018
+import logging
+formatter = logging.Formatter('%(asctime)s - %(module)12s.%(funcName)20s - %(levelname)s: %(message)s')
+sh = logging.StreamHandler(sys.stdout)
+sh.setLevel(logging.INFO)
+sh.setFormatter(formatter)
+
 pscale = 0.2012008872545049 # arcsec/pix
 
 bbox_props = dict(boxstyle="square,pad=0.15", fc="w", alpha=0.75, ec="none")
+
+class mlog:
+    '''
+    Main class to log information to stdout and ASCII file
+
+    To execute:
+    mylog = mlog(rawdir)._get_logger()
+
+    Parameters
+    ----------
+    rawdir : str
+      Full path for where raw files are
+
+    Returns
+    -------
+
+    Notes
+    -----
+    Created by Chun Ly, 17 March 2018
+     - Identical to logging function in MMTtools.mmirs_pipeline_taskfile
+    '''
+
+    def __init__(self,rawdir):
+        self.LOG_FILENAME = rawdir + 'mmirs_qrp.log'
+        self._log = self._get_logger()
+
+    def _get_logger(self):
+        loglevel = logging.INFO
+        log = logging.getLogger(self.LOG_FILENAME) # + Mod on 14/12/2017
+        if not getattr(log, 'handler_set', None):
+            log.setLevel(logging.INFO)
+            sh = logging.StreamHandler()
+            sh.setFormatter(formatter)
+            log.addHandler(sh)
+
+            fh = logging.FileHandler(self.LOG_FILENAME)
+            fh.setLevel(logging.INFO)
+            fh.setFormatter(formatter)
+            log.addHandler(fh)
+
+            log.setLevel(loglevel)
+            log.handler_set = True
+        return log
+#enddef
 
 def gauss1d(x, a0, a, x0, sigma):
     return a0 + a * np.exp(-(x - x0)**2 / (2 * sigma**2))
