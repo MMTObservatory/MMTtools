@@ -92,8 +92,7 @@ class mlog:
 def gauss1d(x, a0, a, x0, sigma):
     return a0 + a * np.exp(-(x - x0)**2 / (2 * sigma**2))
 
-def main(rawdir, prefix, bright=False, dither='ABApBp', flats=[],
-         silent=False, verbose=True):
+def main(rawdir, prefix, bright=False, dither='ABApBp', flats=[]):
 
     '''
     Main function of mmirs_qrp
@@ -123,12 +122,6 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', flats=[],
       If not provided, flat fielding will not be performed
 
       NOTE: THERE ARE SOME BUGS WITH FLATFIELDING
-
-    silent : boolean
-      Turns off stdout messages. Default: False
-
-    verbose : boolean
-      Turns on additional stdout messages. Default: True
 
     Returns
     -------
@@ -205,6 +198,7 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', flats=[],
 
     Modified by Chun Ly, 18 March 2018
      - Implement stdout and ASCII logging with mlog()
+     - Remove silent and verbose boolean keyword
     '''
     
     mylog = mlog(rawdir)._get_logger() # + on 18/03/2018
