@@ -891,6 +891,8 @@ def get_diff_images(tab0, idx, dither=None, mylog=None):
     Modified by Chun Ly, 2 March 2018
      - Bug fix: Add option for only two exposures
      - Bug fix: Correctly handle two-exposure case
+    Modified by Chun Ly, 6 April 2018
+     - Round dither offsets to nearest integer pixel (0.2")
     '''
 
     if type(mylog) == type(None): mylog = log # + on 20/02/2018
@@ -924,6 +926,11 @@ def get_diff_images(tab0, idx, dither=None, mylog=None):
     im_dict = collections.OrderedDict()
     im_dict['sci']      = tab0['filename']
     im_dict['sci2']     = tab0['filename'][i_sky] # This is the sky frame
+
+    # Mod on 06/04/2018
+    base = 0.2 # pixel scale in arcsec for MMIRS
+    instel = np.round_(base * np.round(np.float_(instel)/base), decimals=1)
+
     im_dict['dithpos']  = instel
     im_dict['dithpos2'] = instel[i_sky]
 
