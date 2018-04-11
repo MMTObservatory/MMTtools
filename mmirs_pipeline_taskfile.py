@@ -1051,6 +1051,8 @@ def generate_taskfile(hdr0, rawdir, w_dir, name, c_dict0, tell_dict0, tab0,
      - Call remove_padding() to fix extraneous padding for FITS keyword value string
      - Simplify logging to exclude full outfile path
      - Change remove_padding() input (no longer providing FITS header)
+    Modified by Chun Ly, 11 April 2018
+     - Handle Kspec data: 'Kspec' -> 'K' for task files
     '''
 
     if type(mylog) == type(None): mylog = log # + on 20/02/2018
@@ -1078,6 +1080,9 @@ def generate_taskfile(hdr0, rawdir, w_dir, name, c_dict0, tell_dict0, tab0,
     # + on 11/12/2017
     t_str = name.split('_')
     t_obj, t_ap, t_filt, t_disp  = t_str[0], t_str[1], t_str[2], t_str[3]
+
+    # + on 11/04/2018
+    if t_filt == 'Kspec': t_filt = 'K'
 
     # + on 11/12/2017
     if '-long' in name:
