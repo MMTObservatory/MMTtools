@@ -895,6 +895,8 @@ def get_diff_images(tab0, idx, dither=None, mylog=None):
      - Round dither offsets to nearest integer pixel (0.2")
     Modified by Chun Ly, 9 April 2018
      - mylog call for when dither offsets are not integer pixels
+    Modified by Chun Ly, 29 April 2018
+     - Handle case when there is NO dithering
     '''
 
     if type(mylog) == type(None): mylog = log # + on 20/02/2018
@@ -908,6 +910,8 @@ def get_diff_images(tab0, idx, dither=None, mylog=None):
     if dither == None:
         mylog.info('Determining dither sequence...') # Mod on 20/02/2018
 
+        if len(offset_val) == 1: dither='None' # + on 29/04/2018
+
         if len(offset_val) == 4: dither="ABApBp"
 
         # Mod on 08/03/2018
@@ -918,29 +922,33 @@ def get_diff_images(tab0, idx, dither=None, mylog=None):
                 if instel[1] == instel[2]: dither="ABBA"
                 if instel[1] != instel[2]: dither="ABAB"
 
+    #Mod on 29/04/2018
+    if dither != 'None':
         mylog.info('Dither sequence is : '+dither) # Mod on 20/02/2018
 
-    i_off = [1, -1] * (n_files/2)
-    if dither != 'ABBA':
-        if n_files % 2 == 1: i_off.append(-1) # Odd number correction
-    i_sky = np.arange(n_files)+np.array(i_off)
+        i_off = [1, -1] * (n_files/2)
+        if dither != 'ABBA':
+            if n_files % 2 == 1: i_off.append(-1) # Odd number correction
+        i_sky = np.arange(n_files)+np.array(i_off)
 
-    im_dict = collections.OrderedDict()
-    im_dict['sci']      = tab0['filename']
-    im_dict['sci2']     = tab0['filename'][i_sky] # This is the sky frame
+        im_dict = collections.OrderedDict()
+        im_dict['sci']      = tab0['filename']
+        im_dict['sci2']     = tab0['filename'][i_sky] # This is the sky frame
 
-    # Mod on 06/04/2018, 09/04/2018
-    base = 0.2 # pixel scale in arcsec for MMIRS
-    t_instel = np.round_(base * np.round(np.float_(instel)/base), decimals=1)
-    dither_fix = np.where(t_instel != instel)[0]
-    if len(dither_fix) > 0:
-        mylog.warn('Dither sequence is NOT integer pixels!')
-        mylog.warn('Fixing for mmirs-pipeline!!!')
-        instel = t_instel.copy()
+        # Mod on 06/04/2018, 09/04/2018
+        base = 0.2 # pixel scale in arcsec for MMIRS
+        t_instel = np.round_(base * np.round(np.float_(instel)/base), decimals=1)
+        dither_fix = np.where(t_instel != instel)[0]
+        if len(dither_fix) > 0:
+            mylog.warn('Dither sequence is NOT integer pixels!')
+            mylog.warn('Fixing for mmirs-pipeline!!!')
+            instel = t_instel.copy()
 
-    im_dict['dithpos']  = instel
-    im_dict['dithpos2'] = instel[i_sky]
-
+        im_dict['dithpos']  = instel
+        im_dict['dithpos2'] = instel[i_sky]
+    else:
+        mylog.warn('Dither sequence is : '+dither+' !!!')
+        im_dict = dither
     return im_dict
 #enddef
 
