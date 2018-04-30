@@ -1061,6 +1061,8 @@ def generate_taskfile(hdr0, rawdir, w_dir, name, c_dict0, tell_dict0, tab0,
      - Change remove_padding() input (no longer providing FITS header)
     Modified by Chun Ly, 11 April 2018
      - Handle Kspec data: 'Kspec' -> 'K' for task files
+    Modified by Chun Ly, 29 April 2018
+     - Handle case when there is NO dithering
     '''
 
     if type(mylog) == type(None): mylog = log # + on 20/02/2018
@@ -1117,27 +1119,31 @@ def generate_taskfile(hdr0, rawdir, w_dir, name, c_dict0, tell_dict0, tab0,
     # + on 24/01/2018
     im_dict = get_diff_images(tab0, idx, dither=dither, mylog=mylog)
 
-    # Write ASCII taskfiles | + on 24/01/2018
-    keys1 = c_hdr0.keys()
+    # Only write files if dithering is done | Mod on 29/04/2018
+    if type(im_dict) != str:
+        # Write ASCII taskfiles | + on 24/01/2018
+        keys1 = c_hdr0.keys()
 
-    for ii in range(len(im_dict['sci'])):
-        mylog.info('Writing taskfile for : '+im_dict['sci'][ii]) # Mod on 20/02/2018
-        for t_key in col2:
-            c_hdr0[t_key] = im_dict[t_key.lower()][ii]
+        for ii in range(len(im_dict['sci'])):
+            mylog.info('Writing taskfile for : '+im_dict['sci'][ii]) # Mod on 20/02/2018
+            for t_key in col2:
+                c_hdr0[t_key] = im_dict[t_key.lower()][ii]
 
-        c_hdr0['W_DIR'] = w_dir + format(ii+1, '02') + '/'
+            c_hdr0['W_DIR'] = w_dir + format(ii+1, '02') + '/'
 
-        outfile = w_dir+name+'_'+format(ii+1, '02')+'.txt' # Mod on 31/01/2018
-        mylog.info('Writing : '+os.path.basename(outfile)) # Mod on 20/02/2018
+            outfile = w_dir+name+'_'+format(ii+1, '02')+'.txt' # Mod on 31/01/2018
+            mylog.info('Writing : '+os.path.basename(outfile)) # Mod on 20/02/2018
 
-        # Mod on 16/02/2018
-        c_hdr0.tofile(outfile, sep='\n', padding=False, overwrite=True)
-        # False padding to avoid IOError: Header size (5725) is not a multiple
-        # of block size (2880)
+            # Mod on 16/02/2018
+            c_hdr0.tofile(outfile, sep='\n', padding=False, overwrite=True)
+            # False padding to avoid IOError: Header size (5725) is not a multiple
+            # of block size (2880)
 
-        # Fix extraneous padding for FITS keyword value string | + on 21/02/2018
-        remove_padding(outfile, mylog=mylog)
-    #endfor
+            # Fix extraneous padding for FITS keyword value string | + on 21/02/2018
+            remove_padding(outfile, mylog=mylog)
+        #endfor
+    else:
+        log.warn('Taskfiles are not generated, NO dithering - not supported!')
 
     return c_hdr0
 #enddef
