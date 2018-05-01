@@ -645,6 +645,9 @@ def handle_tellurics(tab0, object0, PropID, i_tell, obj_etime, tell_comb0,
 
     Modified by Chun Ly, 6 March 2018
      - Bug fix: log -> mylog changes
+
+    Modified by Chun Ly, 1 May 2018
+     - Fix to work with python3
     '''
 
     if type(mylog) == type(None): mylog = log # + on 06/03/2018
@@ -701,7 +704,6 @@ def handle_tellurics(tab0, object0, PropID, i_tell, obj_etime, tell_comb0,
 
         # Check after
         aft0 = np.where(tell_idx_min - sci_idx_max == 1)[0]
-        print aft0
         if len(aft0) == 1:
             mylog.info('Telluric data found after science data : '+tell_comb0[aft0[0]])
             tmp_tell_comb0.append(tell_comb0[aft0[0]]) # + on 06/03/2018
