@@ -512,6 +512,7 @@ def get_calib_files(name, tab0, mylog=None):
      - Handle mos case when object is not the same as filename
        (i.e., mask vs mask_filter)
      - Handle case when comps are not available
+     - Handle case when flats are not available
     '''
 
     if type(mylog) == type(None): mylog = log # + on 20/02/2018
@@ -577,16 +578,20 @@ def get_calib_files(name, tab0, mylog=None):
               (itype0[ii] == 'flat' and aper0[ii] == t_ap and \
                filt0[ii] == t_filt and disp0[ii] == t_disp and \
                pi[ii] == t_pi and propid[ii] == t_propid)]
-    if len(i_flat) > 2:
-        mylog.warn('Too many flats!!!') # Mod on 20/02/2018
 
-    flat_str0 = ",".join(tab0['filename'][i_flat])
-    flat_itime = tab0['exptime'][i_flat[0]]
+    if len(i_comp) != 0: # Mod 01/05/2018
+        if len(i_flat) > 2:
+            mylog.warn('Too many flats!!!') # Mod on 20/02/2018
 
-    # Darks for flats
-    id_flat = [ii for ii in range(len0) if
-               (itype0[ii] == 'dark' and tab0['exptime'][ii] == flat_itime)]
-    flat_dark = ",".join(tab0['filename'][id_flat])
+        flat_str0 = ",".join(tab0['filename'][i_flat])
+        flat_itime = tab0['exptime'][i_flat[0]]
+
+        # Darks for flats
+        id_flat = [ii for ii in range(len0) if
+                   (itype0[ii] == 'dark' and tab0['exptime'][ii] == flat_itime)]
+        flat_dark = ",".join(tab0['filename'][id_flat])
+    else:
+        mylog.warn('No flats found!!')
 
     # Mod on 20/02/2018
     mylog.info("List of comp files : "+comp_str0)
