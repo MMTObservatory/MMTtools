@@ -511,6 +511,7 @@ def get_calib_files(name, tab0, mylog=None):
     Modified by Chun Ly, 1 May 2018
      - Handle mos case when object is not the same as filename
        (i.e., mask vs mask_filter)
+     - Handle case when comps are not available
     '''
 
     if type(mylog) == type(None): mylog = log # + on 20/02/2018
@@ -555,16 +556,20 @@ def get_calib_files(name, tab0, mylog=None):
               (itype0[ii] == 'comp' and aper0[ii] == t_ap and
                filt0[ii] == t_filt and disp0[ii] == t_disp and \
                pi[ii] == t_pi and propid[ii] == t_propid)]
-    if len(i_comp) > 2:
-        mylog.warn('Too many comps!!!') # Mod on 20/02/2018
 
-    comp_str0  = ",".join(tab0['filename'][i_comp])
-    comp_itime = tab0['exptime'][i_comp[0]]
+    if len(i_comp) != 0: # Mod 01/05/2018
+        if len(i_comp) > 2:
+            mylog.warn('Too many comps!!!') # Mod on 20/02/2018
 
-    # Darks for comps
-    id_comp = [ii for ii in range(len0) if
-               (itype0[ii] == 'dark' and tab0['exptime'][ii] == comp_itime)]
-    comp_dark = ",".join(tab0['filename'][id_comp])
+        comp_str0  = ",".join(tab0['filename'][i_comp])
+        comp_itime = tab0['exptime'][i_comp[0]]
+
+        # Darks for comps
+        id_comp = [ii for ii in range(len0) if
+                   (itype0[ii] == 'dark' and tab0['exptime'][ii] == comp_itime)]
+        comp_dark = ",".join(tab0['filename'][id_comp])
+    else:
+        mylog.warn('No comps found!!')
 
     ## FLATS
     # Mod on 11/12/2017
