@@ -508,6 +508,9 @@ def get_calib_files(name, tab0, mylog=None):
      - Minor code documentation
     Modified by Chun Ly, 20 February 2018
      - Add mylog keyword input; Implement stdout and ASCII logging with mlog()
+    Modified by Chun Ly, 1 May 2018
+     - Handle mos case when object is not the same as filename
+       (i.e., mask vs mask_filter)
     '''
 
     if type(mylog) == type(None): mylog = log # + on 20/02/2018
@@ -529,7 +532,7 @@ def get_calib_files(name, tab0, mylog=None):
     t_filt = t_str[2]
     t_disp = t_str[3]
 
-    i_obj = [ii for ii in range(len0) if tab0['object'][ii] == t_obj]
+    i_obj = [ii for ii in range(len0) if t_obj in tab0['object'][ii]]
 
     # + on 11/12/2017
     t_pi     = pi[i_obj[0]]
