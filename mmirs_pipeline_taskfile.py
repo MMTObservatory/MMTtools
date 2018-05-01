@@ -513,6 +513,7 @@ def get_calib_files(name, tab0, mylog=None):
        (i.e., mask vs mask_filter)
      - Handle case when comps are not available
      - Handle case when flats are not available
+     - Handle mylog calls and calib_dict0 when comps/flats are not available
     '''
 
     if type(mylog) == type(None): mylog = log # + on 20/02/2018
@@ -579,7 +580,7 @@ def get_calib_files(name, tab0, mylog=None):
                filt0[ii] == t_filt and disp0[ii] == t_disp and \
                pi[ii] == t_pi and propid[ii] == t_propid)]
 
-    if len(i_comp) != 0: # Mod 01/05/2018
+    if len(i_flat) != 0: # Mod 01/05/2018
         if len(i_flat) > 2:
             mylog.warn('Too many flats!!!') # Mod on 20/02/2018
 
@@ -594,18 +595,32 @@ def get_calib_files(name, tab0, mylog=None):
         mylog.warn('No flats found!!')
 
     # Mod on 20/02/2018
-    mylog.info("List of comp files : "+comp_str0)
-    mylog.info("List of comp dark files : "+comp_dark)
+    if len(i_comp) != 0:
+        mylog.info("List of comp files : "+comp_str0)
+        mylog.info("List of comp dark files : "+comp_dark)
 
     # Mod on 20/02/2018
-    mylog.info("List of flat files : "+flat_str0)
-    mylog.info("List of flat dark files : "+flat_dark)
+    if len(i_flat) != 0:
+        mylog.info("List of flat files : "+flat_str0)
+        mylog.info("List of flat dark files : "+flat_dark)
 
     calib_dict0 = collections.OrderedDict()
-    calib_dict0['comp_str']   = comp_str0
-    calib_dict0['comp_dark']  = comp_dark # + on 11/12/2017
-    calib_dict0['flat_str']   = flat_str0
-    calib_dict0['flat_dark']  = flat_dark # + on 11/12/2017
+
+    # Mod on 01/05/2018
+    if len(i_comp) != 0:
+        calib_dict0['comp_str']  = comp_str0
+        calib_dict0['comp_dark'] = comp_dark # + on 11/12/2017
+    else:
+        calib_dict0['comp_str']  = ''
+        calib_dict0['comp_dark'] = ''
+
+    if len(i_flat) != 0:
+        calib_dict0['flat_str']  = flat_str0
+        calib_dict0['flat_dark'] = flat_dark # + on 11/12/2017
+    else:
+        calib_dict0['flat_str']  = ''
+        calib_dict0['flat_dark'] = ''
+
     calib_dict0['dark_etime'] = dark_etime
     calib_dict0['dark_str']   = dark_str0
 
