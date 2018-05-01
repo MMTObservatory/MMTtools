@@ -147,10 +147,12 @@ from astropy import log
 
 from astropy.time import Time # + on 31/01/2018
 
-# + on 29/01/2018
-from astroquery.simbad import Simbad
-if not any('sptype' in sfield for sfield in Simbad.get_votable_fields()):
-    Simbad.add_votable_fields('sptype')
+# Mod on 01/05/2018
+use_simbad = 0
+if not use_simbad:
+    from astroquery.simbad import Simbad
+    if not any('sptype' in sfield for sfield in Simbad.get_votable_fields()):
+        Simbad.add_votable_fields('sptype')
 
 import collections
 
@@ -778,6 +780,8 @@ def get_tellurics(tab0, idx, comb0, object0, mylog=None):
     Modified by Chun Ly, 17 March 2018
      - mmirs-pipeline only accept a0v or g0v stars, changing this to work with
        templates
+    Modified by Chun Ly, 1 May 2018
+     - Turn off Simbad query if use_simbad=0
     '''
 
     if type(mylog) == type(None): mylog = log # + on 20/02/2018
@@ -840,20 +844,25 @@ def get_tellurics(tab0, idx, comb0, object0, mylog=None):
             if tell_name[:2] == 'BD':
                 tmp = tell_name.replace('BD_','BD+')
                 tell_name = tmp[:5]+' '+tmp[5:]
-            t_simbad = Simbad.query_object(tell_name) #object0[tmp[0]])
 
-            # + on 17/03/2018
-            sp_type = t_simbad['SP_TYPE'][0].lower()
-            if sp_type[0] == 'a' or sp_type[0] == 'g':
-                if sp_type[1:] != '0v':
-                    mylog.warn(tell_comb0[tt]+' is '+sp_type+', not A0V or G0V!')
-                    tell_stype[tt] = sp_type[0]+'0v'
-                    mylog.warn('Setting : '+tell_comb0[tt]+' as '+tell_stype[tt])
+            # Mod on 01/05/2018
+            if use_simbad:
+                t_simbad = Simbad.query_object(tell_name) #object0[tmp[0]])
+
+                # + on 17/03/2018
+                sp_type = t_simbad['SP_TYPE'][0].lower()
+                if sp_type[0] == 'a' or sp_type[0] == 'g':
+                    if sp_type[1:] != '0v':
+                        mylog.warn(tell_comb0[tt]+' is '+sp_type+', not A0V or G0V!')
+                        tell_stype[tt] = sp_type[0]+'0v'
+                        mylog.warn('Setting : '+tell_comb0[tt]+' as '+tell_stype[tt])
+                    else:
+                        tell_stype[tt] = sp_type
                 else:
-                    tell_stype[tt] = sp_type
+                    mylog.warn(tell_comb0[tt]+' is '+sp_type+', NEITHER A or G star!')
+                    tell_stype[tt] = ''
             else:
-                mylog.warn(tell_comb0[tt]+' is '+sp_type+', NEITHER A or G star!')
-                tell_stype[tt] = ''
+                tell_stype[tt] = 'a0v'
         #endfor
 
     # Mod on 28/01/2018, 29/01/2018
