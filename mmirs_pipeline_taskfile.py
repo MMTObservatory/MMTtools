@@ -149,7 +149,7 @@ from astropy.time import Time # + on 31/01/2018
 
 # Mod on 01/05/2018
 use_simbad = 0
-if not use_simbad:
+if use_simbad:
     from astroquery.simbad import Simbad
     if not any('sptype' in sfield for sfield in Simbad.get_votable_fields()):
         Simbad.add_votable_fields('sptype')
