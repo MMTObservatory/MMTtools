@@ -756,7 +756,7 @@ def handle_tellurics(tab0, object0, PropID, i_tell, obj_etime, tell_comb0,
     return rev_tell_comb0
 #enddef
 
-def get_tellurics(tab0, idx, comb0, object0, mylog=None):
+def get_tellurics(tab0, idx, comb0, object0, mmirs_setup0, mylog=None):
     '''
     Determining tellurics to use
 
@@ -774,6 +774,10 @@ def get_tellurics(tab0, idx, comb0, object0, mylog=None):
     object0 : list
       List of strings that contains name of source. This is from
       organize_targets() and handles mask observations
+
+    mmirs_setup0 : list
+      List of strings that combines aperture, filter, and disperse.
+      This handle MOS cases to get proper setup for telluric star identification
 
     Returns
     -------
@@ -817,15 +821,14 @@ def get_tellurics(tab0, idx, comb0, object0, mylog=None):
        templates
     Modified by Chun Ly, 1 May 2018
      - Turn off Simbad query if use_simbad=0
+     - Add mmirs_setup0 input
     '''
 
     if type(mylog) == type(None): mylog = log # + on 20/02/2018
 
     etime = tab0['exptime'] # + on 28/01/2018
 
-    mmirs_setup = [b.replace(a+'_','') for a,b in zip(object0, comb0)]
-
-    target_setup = mmirs_setup[idx[0]]
+    target_setup = mmirs_setup0[idx[0]]
 
     # Mod on 12/03/2018
     i_tell = [xx for xx in range(len(object0)) if
