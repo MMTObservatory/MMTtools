@@ -679,6 +679,7 @@ def handle_tellurics(tab0, object0, PropID, i_tell, obj_etime, tell_comb0,
     Modified by Chun Ly, 1 May 2018
      - Fix to work with python3
      - Handle no telluric case for rev_tell_comb0
+     - Fix typo for rev_tell_comb0
     '''
 
     if type(mylog) == type(None): mylog = log # + on 06/03/2018
@@ -746,7 +747,7 @@ def handle_tellurics(tab0, object0, PropID, i_tell, obj_etime, tell_comb0,
         if len(bef0) == 1 or len(aft0) == 1:
             rev_tell_comb0 = tmp_tell_comb0
         if len(bef0) == 0 or len(aft0) == 0:
-            rev_tell_comb0 == []
+            rev_tell_comb0 = []
     #endif
 
     return rev_tell_comb0
