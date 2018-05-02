@@ -1215,6 +1215,10 @@ def organize_targets(tab0, mylog=None):
     object0 : list
       List of strings of the source name (handle MOS case)
 
+    mmirs_setup0 : list
+      List of strings that combines aperture, filter, and disperse.
+      This handle MOS cases to get proper setup for telluric star identification
+
     Notes
     -----
     Created by Chun Ly, 28 November 2017
@@ -1231,6 +1235,7 @@ def organize_targets(tab0, mylog=None):
      - Change print statement for combination to mylog call
     Modified by Chun Ly, 1 May 2018
      - Determine number of spec for each combination, ignore those with single spec
+     - Define and return mmirs_setup0
     '''
 
     if type(mylog) == type(None): mylog = log # + on 20/02/2018
@@ -1246,8 +1251,9 @@ def organize_targets(tab0, mylog=None):
     comp    = [ii for ii in range(len0) if itype[ii] == 'comp']
     flat    = [ii for ii in range(len0) if itype[ii] == 'flat']
 
-    comb0   = ['N/A'] * len0
-    object0 = ['N/A'] * len0 # + on 18/02/2018
+    comb0        = ['N/A'] * len0
+    object0      = ['N/A'] * len0 # + on 18/02/2018
+    mmirs_setup0 = ['N/A'] * len0 # + on 01/05/2018
 
     for kk in [obj, comp, flat]:
         for ii in kk:
@@ -1262,6 +1268,9 @@ def organize_targets(tab0, mylog=None):
             object0[ii] = t_name # + on 18/02/2018
             comb0[ii] = t_name + '_' + tab0_o['aperture'] + '_' + \
                         tab0_o['filter'] + '_' + tab0_o['disperse']
+            # + on 01/05/2018
+            mmirs_setup0[ii] = tab0_o['aperture'] + '_' + \
+                               tab0_o['filter'] + '_' + tab0_o['disperse']
 
     obj_comb0 = list(set(np.array(comb0)[obj]))
 
@@ -1286,7 +1295,7 @@ def organize_targets(tab0, mylog=None):
 
     obj_comb0 = np.delete(obj_comb0, single_data).tolist()
 
-    return comb0, obj_comb0, object0 # Mod on 18/02/2018
+    return comb0, obj_comb0, object0, mmirs_setup0 # Mod on 18/02/2018, 01/05/2018
 #enddef
 
 def create(rawdir, w_dir='', dither=None, bright=False, silent=False,
