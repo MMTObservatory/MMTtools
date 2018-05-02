@@ -1426,6 +1426,7 @@ def create(rawdir, w_dir='', dither=None, bright=False, silent=False,
      - Add debug keyword option for code testing without having FITS files
     Modified by Chun Ly, 1 May 2018
      - Get mmirs_setup0 from organize_targets(), pass to get_tellurics()
+     - Modify IDL script file for w_dir
     '''
 
     mylog = mlog(rawdir)._get_logger() # + on 19/02/2018
@@ -1568,8 +1569,15 @@ def create(rawdir, w_dir='', dither=None, bright=False, silent=False,
                 mylog.info('Writing : '+main_script_outfile)
 
                 f1 = open(main_script_outfile, 'w')
-                str0 = [".run run_pipeline\n\n",
-                        "run_pipeline, 'reduced/%s'\n\n" % name, "exit\n"] # Mod on 23/02/2018
+
+                # Mod on 01/05/2018
+                if w_dir = '':
+                    str0 = [".run run_pipeline\n\n",
+                            "run_pipeline, 'reduced/%s'\n\n" % name, "exit\n"] # Mod on 23/02/2018
+                else:
+                    str0 = [".run run_pipeline\n\n",
+                            "run_pipeline, '%s'\n\n" % w_dir_tmp, "exit\n"] # Mod on 23/02/2018
+
                 f1.writelines(str0)
                 f1.close()
             else:
