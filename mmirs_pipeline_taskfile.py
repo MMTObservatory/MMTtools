@@ -822,6 +822,7 @@ def get_tellurics(tab0, idx, comb0, object0, mmirs_setup0, mylog=None):
     Modified by Chun Ly, 1 May 2018
      - Turn off Simbad query if use_simbad=0
      - Add mmirs_setup0 input
+     - Bug fix: mmirs_setup -> mmirs_setup0
     '''
 
     if type(mylog) == type(None): mylog = log # + on 20/02/2018
@@ -833,7 +834,7 @@ def get_tellurics(tab0, idx, comb0, object0, mmirs_setup0, mylog=None):
     # Mod on 12/03/2018
     i_tell = [xx for xx in range(len(object0)) if
               (('HD' in object0[xx] or 'HIP' in object0[xx] or 'BD_' in object0[xx]) and
-               (mmirs_setup[xx] == target_setup))]
+               (mmirs_setup0[xx] == target_setup))]
 
     # Include exptime should data with multiple exptime for same target is taken
     # Mod on 28/01/2018
