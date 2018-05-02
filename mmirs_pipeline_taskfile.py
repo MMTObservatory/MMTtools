@@ -709,6 +709,7 @@ def handle_tellurics(tab0, object0, PropID, i_tell, obj_etime, tell_comb0,
         i_obj = [ii for ii in range(len(tab0)) if
                  (tab0['imagetype'][ii] == 'object' and tab0['aptype'][ii] != 'open')]
         tab0_nocalib = tab0[i_obj]
+
         obj_etime_nocalib = obj_etime[i_obj]
 
         tell_idx_min = np.zeros(len(tell_comb0))
@@ -717,10 +718,12 @@ def handle_tellurics(tab0, object0, PropID, i_tell, obj_etime, tell_comb0,
         for tt in range(len(tell_comb0)):
             t_idx = [xx for xx in range(len(tab0_nocalib)) if
                      obj_etime_nocalib[xx] == tell_comb0[tt]]
+            #t_idx = np.array(i_obj)[t_idx]
             tell_idx_min[tt], tell_idx_max[tt] = min(t_idx), max(t_idx)
 
         idx_nocalib = [ii for ii in range(len(tab0_nocalib)) if
                        obj_etime_nocalib[ii] == obj_etime[idx[0]]]
+        #idx_nocalib = np.array(i_obj)[idx_nocalib]
         sci_idx_min, sci_idx_max = min(idx_nocalib), max(idx_nocalib)
 
         tmp_tell_comb0 = [] # + on 06/03/2018
