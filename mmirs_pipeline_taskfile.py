@@ -1427,6 +1427,7 @@ def create(rawdir, w_dir='', dither=None, bright=False, silent=False,
     Modified by Chun Ly, 1 May 2018
      - Get mmirs_setup0 from organize_targets(), pass to get_tellurics()
      - Modify IDL script file for w_dir
+     - Minor bug fix for IDL script file
     '''
 
     mylog = mlog(rawdir)._get_logger() # + on 19/02/2018
@@ -1571,7 +1572,7 @@ def create(rawdir, w_dir='', dither=None, bright=False, silent=False,
                 f1 = open(main_script_outfile, 'w')
 
                 # Mod on 01/05/2018
-                if w_dir = '':
+                if w_dir == '':
                     str0 = [".run run_pipeline\n\n",
                             "run_pipeline, 'reduced/%s'\n\n" % name, "exit\n"] # Mod on 23/02/2018
                 else:
