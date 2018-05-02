@@ -1226,6 +1226,8 @@ def organize_targets(tab0, mylog=None):
      - Add mylog keyword input; Implement stdout and ASCII logging with mlog()
     Modified by Chun Ly, 22 February 2018
      - Change print statement for combination to mylog call
+    Modified by Chun Ly, 1 May 2018
+     - Determine number of spec for each combination, ignore those with single spec
     '''
 
     if type(mylog) == type(None): mylog = log # + on 20/02/2018
@@ -1262,8 +1264,24 @@ def organize_targets(tab0, mylog=None):
 
     n_obj_comb0 = len(obj_comb0)
     mylog.info('Total number of combinations found : '+str(n_obj_comb0))
+
+    # Mod on 01/05/2018
+    cnt_comb0 = np.zeros(n_obj_comb0)
     for oo in range(n_obj_comb0):
-        mylog.info('## '+obj_comb0[oo])
+        oo_idx = [xx for xx in range(len(obj)) if
+                  (np.array(comb0)[obj[xx]] == obj_comb0[oo])]
+        cnt_comb0[oo] = len(oo_idx)
+
+        mylog.info('## '+obj_comb0[oo]+' N=%i' % cnt_comb0[oo])
+    #endfor
+
+    # Exclude those with single spectra | + on 01/05/2018
+    single_data = np.where(cnt_comb0 == 1)[0]
+    if len(single_data) > 0:
+        for jj in single_data:
+            mylog.info('The following will be excluded : '+obj_comb0[jj])
+
+    obj_comb0 = np.delete(obj_comb0, single_data).tolist()
 
     return comb0, obj_comb0, object0 # Mod on 18/02/2018
 #enddef
