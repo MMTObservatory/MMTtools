@@ -1420,6 +1420,8 @@ def create(rawdir, w_dir='', dither=None, bright=False, silent=False,
      - Bug fix: typo in if statement
     Modified by Chun Ly, 7 March 2018
      - Add debug keyword option for code testing without having FITS files
+    Modified by Chun Ly, 1 May 2018
+     - Get mmirs_setup0 from organize_targets(), pass to get_tellurics()
     '''
 
     mylog = mlog(rawdir)._get_logger() # + on 19/02/2018
@@ -1472,7 +1474,7 @@ def create(rawdir, w_dir='', dither=None, bright=False, silent=False,
     tab0.pprint(max_lines=-1, max_width=-1)
 
     # Mod on 18/02/2018, 20/02/2018
-    comb0, obj_comb0, object0 = organize_targets(tab0, mylog=mylog)
+    comb0, obj_comb0, object0, mmirs_setup0 = organize_targets(tab0, mylog=mylog)
 
     # Get default FITS template headers
     # + on 30/11/2017, Mod on 18/12/2017, 24/01/2018, 17/02/2018
@@ -1509,7 +1511,8 @@ def create(rawdir, w_dir='', dither=None, bright=False, silent=False,
             c_dict0 = get_calib_files(name, tab0, mylog=mylog)
 
             # Mod on 28/01/2018, 18/02/2018, 20/02/2018
-            tell_dict0 = get_tellurics(tab0, idx, comb0, object0, mylog=mylog)
+            tell_dict0 = get_tellurics(tab0, idx, comb0, object0,
+                                       mmirs_setup0, mylog=mylog)
 
             # Mod on 31/01/2018, 18/02/2018
             if w_dir == '':
