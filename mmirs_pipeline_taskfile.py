@@ -1302,7 +1302,7 @@ def organize_targets(tab0, mylog=None):
     return comb0, obj_comb0, object0, mmirs_setup0 # Mod on 18/02/2018, 01/05/2018
 #enddef
 
-def create(rawdir, w_dir='', dither=None, bright=False, silent=False,
+def create(rawdir, w_dir='', dither=None, bright=False, extract=False, silent=False,
            verbose=True, debug=False):
 
     '''
@@ -1323,6 +1323,9 @@ def create(rawdir, w_dir='', dither=None, bright=False, silent=False,
 
     bright: boolean
       Indicate whether spectra has a bright target. Default: False
+
+    extract: boolean
+      Indicate whether to turn on 1-D extraction. Default: False
 
     silent : boolean
       Turns off stdout messages. Default: False
@@ -1428,6 +1431,8 @@ def create(rawdir, w_dir='', dither=None, bright=False, silent=False,
      - Get mmirs_setup0 from organize_targets(), pass to get_tellurics()
      - Modify IDL script file for w_dir
      - Minor bug fix for IDL script file
+    Modified by Chun Ly, 4 May 2018
+     - Add extract keyword input, Update S07PROC keyword for hdr0
     '''
 
     mylog = mlog(rawdir)._get_logger() # + on 19/02/2018
@@ -1512,6 +1517,14 @@ def create(rawdir, w_dir='', dither=None, bright=False, silent=False,
             else:
                 mylog.info('No bright source indicated!')
                 hdr0['BRIGHT'] = 0
+
+            # + on 04/05/2018
+            if extract:
+                mylog.info('Extract flag set!')
+                hdr0['S07PROC'] = 1
+            else:
+                mylog.info('Will not perform 1-D extraction!')
+                hdr0['S07PROC'] = 0
 
             # on 08/12/2017
             c_dict0 = get_calib_files(name, tab0, mylog=mylog)
