@@ -1113,6 +1113,8 @@ def generate_taskfile(hdr0, rawdir, w_dir, name, c_dict0, tell_dict0, tab0,
      - Handle Kspec data: 'Kspec' -> 'K' for task files
     Modified by Chun Ly, 29 April 2018
      - Handle case when there is NO dithering
+    Modified by Chun Ly, 5 May 2018
+     - Telluric star processing once (with first taskfile)
     '''
 
     if type(mylog) == type(None): mylog = log # + on 20/02/2018
@@ -1178,6 +1180,12 @@ def generate_taskfile(hdr0, rawdir, w_dir, name, c_dict0, tell_dict0, tab0,
             mylog.info('Writing taskfile for : '+im_dict['sci'][ii]) # Mod on 20/02/2018
             for t_key in col2:
                 c_hdr0[t_key] = im_dict[t_key.lower()][ii]
+
+            # Only perform telluric star processing once | + on 05/05/2018
+            if ii == 0:
+                c_hdr0['S08PROC'] = 1
+            else:
+                c_hdr0['S08PROC'] = 0
 
             c_hdr0['W_DIR'] = w_dir + format(ii+1, '02') + '/'
 
