@@ -1441,6 +1441,8 @@ def create(rawdir, w_dir='', dither=None, bright=False, extract=False, silent=Fa
      - Minor bug fix for IDL script file
     Modified by Chun Ly, 4 May 2018
      - Add extract keyword input, Update S07PROC keyword for hdr0
+    Modified by Chun Ly, 21 May 2018
+     - Handle cases without comps, flats, and darks
     '''
 
     mylog = mlog(rawdir)._get_logger() # + on 19/02/2018
@@ -1556,19 +1558,24 @@ def create(rawdir, w_dir='', dither=None, bright=False, extract=False, silent=Fa
             # + on 12/02/2018
             idl_files  = tab0['filename'][idx].data
 
-            # + on 12/02/2018
-            t_comps   = c_dict0['comp_str'].split(',')
-            idl_files = np.append(idl_files, t_comps)
+            # + on 12/02/2018, Mod on 21/05/2018
+            if c_dict0['comp_str'] != '':
+                t_comps   = c_dict0['comp_str'].split(',')
+                idl_files = np.append(idl_files, t_comps)
 
-            t_flats   = c_dict0['flat_str'].split(',')
-            idl_files = np.append(idl_files, t_flats)
+            if c_dict0['flat_str'] != '':
+                t_flats   = c_dict0['flat_str'].split(',')
+                idl_files = np.append(idl_files, t_flats)
 
-            # Add darks | + on 20/02/2018
-            idl_files = np.append(idl_files, c_dict0['dark_str'][0].split(','))
-            idl_files = np.append(idl_files, c_dict0['comp_dark'].split(','))
-            idl_files = np.append(idl_files, c_dict0['flat_dark'].split(','))
+            # Add darks | + on 20/02/2018, Mod on 21/05/2018
+            if c_dict0['dark_str'][0] != '':
+                idl_files = np.append(idl_files, c_dict0['dark_str'][0].split(','))
+            if c_dict0['comp_dark'] != '':
+                idl_files = np.append(idl_files, c_dict0['comp_dark'].split(','))
+            if c_dict0['flat_dark'] != '':
+                idl_files = np.append(idl_files, c_dict0['flat_dark'].split(','))
 
-            # Get telluric files | + on 12/02/2018
+            # Get telluric files | + on 12/02/2018, Mod on 21/05/2018
             for tt in range(len(tell_dict0['name'])):
                 t_tell    = tell_dict0['name'][tt].split(',')
                 t_dark = tell_dict0['dark'][tt].split(',') # + on 20/02/2018
