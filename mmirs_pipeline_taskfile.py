@@ -1450,6 +1450,7 @@ def create(rawdir, w_dir='', dither=None, bright=False, extract=False, silent=Fa
      - Handle cases without comps, flats, and darks
     Modified by Chun Ly, 23 May 2018
      - Change location of .lis and .idl files (rawdir to w_dir)
+     - Change preproc location to w_dir in generate_taskfile() call
     '''
 
     mylog = mlog(rawdir)._get_logger() # + on 19/02/2018
@@ -1595,7 +1596,7 @@ def create(rawdir, w_dir='', dither=None, bright=False, extract=False, silent=Fa
                       overwrite=True)
 
             # + on 11/12/2017, Mod on 28/01/2018, 18/02/2018
-            temp1 = generate_taskfile(hdr0, rawdir, w_dir_tmp, name, c_dict0,
+            temp1 = generate_taskfile(hdr0, w_dir, w_dir_tmp, name, c_dict0,
                                       tell_dict0, tab0, idx, dither=dither,
                                       mylog=mylog)
 
