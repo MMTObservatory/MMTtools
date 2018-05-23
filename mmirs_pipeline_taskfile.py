@@ -1115,6 +1115,8 @@ def generate_taskfile(hdr0, rawdir, w_dir, name, c_dict0, tell_dict0, tab0,
      - Handle case when there is NO dithering
     Modified by Chun Ly, 5 May 2018
      - Telluric star processing once (with first taskfile)
+    Modified by Chun Ly, 22 May 2018
+     - Handle HK3 data: 'HK3' -> 'HK' for task files
     '''
 
     if type(mylog) == type(None): mylog = log # + on 20/02/2018
@@ -1145,6 +1147,9 @@ def generate_taskfile(hdr0, rawdir, w_dir, name, c_dict0, tell_dict0, tab0,
 
     # + on 11/04/2018
     if t_filt == 'Kspec': t_filt = 'K'
+
+    # + on 22/05/2018
+    if t_filt == 'HK3': t_filt = 'HK'
 
     # + on 11/12/2017
     if '-long' in name:
