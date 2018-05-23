@@ -1,8 +1,9 @@
-PRO mmirs_pipeline_nonlin_script, rawdir, first=first, linear=linear, $
-                                  keepfirst=keepfirst, verbose=verbose, $
-                                  debug=debug, biasframe=biasframe, $
-                                  badamp=badamp, crosstalk=crosstalk, $
-                                  compress=compress, tmpdir=tmpdir, clean=clean
+PRO mmirs_pipeline_nonlin_script, rawdir, outdir=outdir, first=first, $
+                                  linear=linear, keepfirst=keepfirst, $
+                                  verbose=verbose, debug=debug, $
+                                  biasframe=biasframe, badamp=badamp, $
+                                  crosstalk=crosstalk, compress=compress, $
+                                  tmpdir=tmpdir, clean=clean
 ;+
 ; NAME:
 ;       MMIRS_PIPELINE_NONLIN_SCRIPT
@@ -41,10 +42,17 @@ PRO mmirs_pipeline_nonlin_script, rawdir, first=first, linear=linear, $
 ;
 ;       Modified by Chun Ly, 21 February 2018
 ;        - Check if file exists before running mmfixend_nonlin
+;
+;       Modified by Chun Ly, 23 May 2018
+;        - Allow outdir keyword input option
 ;-
 
   ; Moved up on 17/02/2018
-  outdir = rawdir+'preproc/'
+  if not keyword_set(outdir) then begin
+     outdir = rawdir+'preproc/'
+  endif else $
+     outdir = outdir+'preproc/'
+
   if not file_test(outdir) then $
      spawn, 'mkdir '+outdir
 
