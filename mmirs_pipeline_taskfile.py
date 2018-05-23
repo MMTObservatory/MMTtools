@@ -1448,6 +1448,8 @@ def create(rawdir, w_dir='', dither=None, bright=False, extract=False, silent=Fa
      - Add extract keyword input, Update S07PROC keyword for hdr0
     Modified by Chun Ly, 21 May 2018
      - Handle cases without comps, flats, and darks
+    Modified by Chun Ly, 23 May 2018
+     - Change location of .lis and .idl files (rawdir to w_dir)
     '''
 
     mylog = mlog(rawdir)._get_logger() # + on 19/02/2018
@@ -1587,7 +1589,7 @@ def create(rawdir, w_dir='', dither=None, bright=False, extract=False, silent=Fa
                 idl_files = np.append(idl_files, t_tell)
                 idl_files = np.append(idl_files, t_dark) # + on 20/02/2018
 
-            idl_input_file = rawdir + 'IDL_input_'+name+'.lis'
+            idl_input_file = w_dir + 'IDL_input_'+name+'.lis' # Mod on 23/05/2018
             mylog.info('Writing : '+idl_input_file) # Mod on 19/02/2018
             asc.write([idl_files], idl_input_file, format='no_header',
                       overwrite=True)
@@ -1598,7 +1600,7 @@ def create(rawdir, w_dir='', dither=None, bright=False, extract=False, silent=Fa
                                       mylog=mylog)
 
             # Write IDL script for main mmirs_pipeline | + on 17/02/2018
-            main_script_outfile = rawdir + 'run_mmirs_pipeline_'+name+'.idl'
+            main_script_outfile = w_dir + 'run_mmirs_pipeline_'+name+'.idl' # Mod on 23/05/2018
             if not exists(main_script_outfile):
                 mylog.info('Writing : '+main_script_outfile)
 
@@ -1621,7 +1623,7 @@ def create(rawdir, w_dir='', dither=None, bright=False, extract=False, silent=Fa
 
     # Write IDL script for non-linear pre-processing with
     # mmirs_pipeline_nonlin_script.pro | + on 17/02/2018
-    script_outfile = rawdir + 'run_mmirs_pipeline_nonlin_script.idl'
+    script_outfile = w_dir + 'run_mmirs_pipeline_nonlin_script.idl' # Mod on 23/05/2018
     if not exists(script_outfile):
         mylog.info('Writing : '+script_outfile) # Mod on 19/02/2018
 
