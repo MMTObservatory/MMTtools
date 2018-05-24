@@ -1,4 +1,4 @@
-PRO mmirs_pipeline_nonlin_script, rawdir, outdir=outdir, first=first, $
+PRO mmirs_pipeline_nonlin_script, rawdir, w_dir=w_dir, first=first, $
                                   linear=linear, keepfirst=keepfirst, $
                                   verbose=verbose, debug=debug, $
                                   biasframe=biasframe, badamp=badamp, $
@@ -45,13 +45,16 @@ PRO mmirs_pipeline_nonlin_script, rawdir, outdir=outdir, first=first, $
 ;
 ;       Modified by Chun Ly, 23 May 2018
 ;        - Allow outdir keyword input option
+;
+;       Modified by Chun Ly, 24 May 2018
+;        - Change outdir keyword input to w_dir
 ;-
 
   ; Moved up on 17/02/2018
-  if not keyword_set(outdir) then begin
+  if not keyword_set(w_dir) then begin
      outdir = rawdir+'preproc/'
   endif else $
-     outdir = outdir+'preproc/'
+     outdir = w_dir+'preproc/'
 
   if not file_test(outdir) then $
      spawn, 'mkdir '+outdir
@@ -59,7 +62,11 @@ PRO mmirs_pipeline_nonlin_script, rawdir, outdir=outdir, first=first, $
   suffix='.fix.fits'
 
   ; Get all IDL_input*lis files
-  spawn, 'ls '+rawdir+'IDL_input*.lis', IDL_files
+  if not keyword_set(w_dir) then begin
+     spawn, 'ls '+rawdir+'IDL_input*.lis', IDL_files
+  endif else $
+     spawn, 'ls '+w_dir+'IDL_input*.lis', IDL_files
+
   n_IDL_files= n_elements(IDL_files)
 
   for ff=0,n_IDL_files-1 do begin
