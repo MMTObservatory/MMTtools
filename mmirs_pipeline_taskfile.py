@@ -1452,6 +1452,8 @@ def create(rawdir, w_dir='', dither=None, bright=False, extract=False, silent=Fa
      - Change location of .lis and .idl files (rawdir to w_dir)
      - Change preproc location to w_dir in generate_taskfile() call
      - Include outdir in call to mmirs_pipeline_nonlin_script.pro
+    Modified by Chun Ly, 24 May 2018
+     - Change outdir to w_dir in call to mmirs_pipeline_nonlin_script.pro
     '''
 
     mylog = mlog(rawdir)._get_logger() # + on 19/02/2018
@@ -1631,7 +1633,7 @@ def create(rawdir, w_dir='', dither=None, bright=False, extract=False, silent=Fa
 
         f0 = open(script_outfile, 'w')
         str0 = [".run mmirs_pipeline_nonlin_script\n\n",
-                "mmirs_pipeline_nonlin_script, '%s', outdir='%s', compress='.gz', /verbose\n\n"% \
+                "mmirs_pipeline_nonlin_script, '%s', w_dir='%s', compress='.gz', /verbose\n\n"% \
                 (rawdir, w_dir), "exit\n"]
         f0.writelines(str0)
         f0.close()
