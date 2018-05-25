@@ -514,6 +514,8 @@ def get_calib_files(name, tab0, mylog=None):
      - Handle case when comps are not available
      - Handle case when flats are not available
      - Handle mylog calls and calib_dict0 when comps/flats are not available
+    Modified by Chun Ly, 25 May 2018
+     - Change from underscore to colon separator
     '''
 
     if type(mylog) == type(None): mylog = log # + on 20/02/2018
@@ -529,7 +531,7 @@ def get_calib_files(name, tab0, mylog=None):
     pi     = tab0['PI']
     propid = tab0['PropID']
 
-    t_str  = name.split('_')
+    t_str  = name.split(':')
     t_obj  = t_str[0]
     t_ap   = t_str[1]
     t_filt = t_str[2]
@@ -1254,7 +1256,7 @@ def organize_targets(tab0, mylog=None):
      - Determine number of spec for each combination, ignore those with single spec
      - Define and return mmirs_setup0
     Modified by Chun Ly, 25 May 2018
-     - Change from space to colon separator
+     - Change from underscore to colon separator
     '''
 
     if type(mylog) == type(None): mylog = log # + on 20/02/2018
