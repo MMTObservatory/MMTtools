@@ -1263,6 +1263,7 @@ def organize_targets(tab0, mylog=None):
      - Define and return mmirs_setup0
     Modified by Chun Ly, 25 May 2018
      - Change from underscore to colon separator
+     - log aesthetics: use underscore name instead of colon-separated name
     '''
 
     if type(mylog) == type(None): mylog = log # + on 20/02/2018
@@ -1311,14 +1312,15 @@ def organize_targets(tab0, mylog=None):
                   (np.array(comb0)[obj[xx]] == obj_comb0[oo])]
         cnt_comb0[oo] = len(oo_idx)
 
-        mylog.info('## '+obj_comb0[oo]+' N=%i' % cnt_comb0[oo])
+        mylog.info('## '+obj_comb0[oo].replace(':','_')+' N=%i' % cnt_comb0[oo])
     #endfor
 
     # Exclude those with single spectra | + on 01/05/2018
     single_data = np.where(cnt_comb0 == 1)[0]
     if len(single_data) > 0:
         for jj in single_data:
-            mylog.info('The following will be excluded : '+obj_comb0[jj])
+            mylog.info('The following will be excluded : '+\
+                       obj_comb0[jj].replace(':','_'))
 
     obj_comb0 = np.delete(obj_comb0, single_data).tolist()
 
