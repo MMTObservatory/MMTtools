@@ -1461,6 +1461,8 @@ def create(rawdir, w_dir='', dither=None, bright=False, extract=False, silent=Fa
      - Change calib_MMIRS symlink to w_dir path
      - Save mmirs_pipeline_taskfile log to w_dir
      - Save obs_summary.tbl to w_dir
+    Modified by Chun Ly, 25 May 2018
+     - Add uscore_name since name separator is colon
     '''
 
     mylog = mlog(rawdir)._get_logger() # + on 19/02/2018
@@ -1561,12 +1563,14 @@ def create(rawdir, w_dir='', dither=None, bright=False, extract=False, silent=Fa
             tell_dict0 = get_tellurics(tab0, idx, comb0, object0,
                                        mmirs_setup0, mylog=mylog)
 
+            uscore_name = name.replace(':','_')
+
             # Mod on 31/01/2018, 18/02/2018
             if w_dir == '':
-                w_dir_tmp = rawdir + 'reduced/'+name+'/'
+                w_dir_tmp = rawdir + 'reduced/'+uscore_name+'/'
             else:
                 if w_dir[-1] != '/': w_dir = w_dir + '/'
-                w_dir_tmp = w_dir + name + '/'
+                w_dir_tmp = w_dir + uscore_name + '/'
 
             if not exists(w_dir_tmp): # Mod on 18/02/2018
                 commands.getoutput('mkdir -p '+w_dir_tmp)
@@ -1600,18 +1604,18 @@ def create(rawdir, w_dir='', dither=None, bright=False, extract=False, silent=Fa
                 idl_files = np.append(idl_files, t_tell)
                 idl_files = np.append(idl_files, t_dark) # + on 20/02/2018
 
-            idl_input_file = w_dir + 'IDL_input_'+name+'.lis' # Mod on 23/05/2018
+            idl_input_file = w_dir + 'IDL_input_'+uscore_name+'.lis' # Mod on 23/05/2018
             mylog.info('Writing : '+idl_input_file) # Mod on 19/02/2018
             asc.write([idl_files], idl_input_file, format='no_header',
                       overwrite=True)
 
             # + on 11/12/2017, Mod on 28/01/2018, 18/02/2018
-            temp1 = generate_taskfile(hdr0, w_dir, w_dir_tmp, name, c_dict0,
-                                      tell_dict0, tab0, idx, dither=dither,
-                                      mylog=mylog)
+            temp1 = generate_taskfile(hdr0, w_dir, w_dir_tmp, uscore_name,
+                                      c_dict0, tell_dict0, tab0, idx,
+                                      dither=dither, mylog=mylog)
 
             # Write IDL script for main mmirs_pipeline | + on 17/02/2018
-            main_script_outfile = w_dir + 'run_mmirs_pipeline_'+name+'.idl' # Mod on 23/05/2018
+            main_script_outfile = w_dir + 'run_mmirs_pipeline_'+uscore_name+'.idl' # Mod on 23/05/2018
             if not exists(main_script_outfile):
                 mylog.info('Writing : '+main_script_outfile)
 
@@ -1620,7 +1624,7 @@ def create(rawdir, w_dir='', dither=None, bright=False, extract=False, silent=Fa
                 # Mod on 01/05/2018
                 if w_dir == '':
                     str0 = [".run run_pipeline\n\n",
-                            "run_pipeline, 'reduced/%s'\n\n" % name, "exit\n"] # Mod on 23/02/2018
+                            "run_pipeline, 'reduced/%s'\n\n" % uscore_name, "exit\n"] # Mod on 23/02/2018
                 else:
                     str0 = [".run run_pipeline\n\n",
                             "run_pipeline, '%s'\n\n" % w_dir_tmp, "exit\n"] # Mod on 23/02/2018
