@@ -1463,6 +1463,7 @@ def create(rawdir, w_dir='', dither=None, bright=False, extract=False, silent=Fa
      - Save obs_summary.tbl to w_dir
     Modified by Chun Ly, 25 May 2018
      - Add uscore_name since name separator is colon
+     - Use name instead of uscore_name for generate_taskfile
     '''
 
     mylog = mlog(rawdir)._get_logger() # + on 19/02/2018
@@ -1610,7 +1611,7 @@ def create(rawdir, w_dir='', dither=None, bright=False, extract=False, silent=Fa
                       overwrite=True)
 
             # + on 11/12/2017, Mod on 28/01/2018, 18/02/2018
-            temp1 = generate_taskfile(hdr0, w_dir, w_dir_tmp, uscore_name,
+            temp1 = generate_taskfile(hdr0, w_dir, w_dir_tmp, name,
                                       c_dict0, tell_dict0, tab0, idx,
                                       dither=dither, mylog=mylog)
 
