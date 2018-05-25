@@ -1470,6 +1470,7 @@ def create(rawdir, w_dir='', dither=None, bright=False, extract=False, silent=Fa
     Modified by Chun Ly, 25 May 2018
      - Add uscore_name since name separator is colon
      - Use name instead of uscore_name for generate_taskfile
+     - log aesthetics: use underscore name instead of colon-separated name
     '''
 
     mylog = mlog(rawdir)._get_logger() # + on 19/02/2018
@@ -1532,7 +1533,9 @@ def create(rawdir, w_dir='', dither=None, bright=False, extract=False, silent=Fa
     # Create task files | + on 30/11/2017
     for name in obj_comb0:
         if 'HD' not in name and 'HIP' not in name and 'BD' not in name:
-            mylog.info('Working on : '+name) # Mod on 19/02/2018
+            uscore_name = name.replace(':','_')
+
+            mylog.info('Working on : '+uscore_name) # Mod on 19/02/2018
 
             idx   = [ii for ii in range(len(comb0)) if comb0[ii] == name]
             n_idx = len(idx)
@@ -1569,8 +1572,6 @@ def create(rawdir, w_dir='', dither=None, bright=False, extract=False, silent=Fa
             # Mod on 28/01/2018, 18/02/2018, 20/02/2018
             tell_dict0 = get_tellurics(tab0, idx, comb0, object0,
                                        mmirs_setup0, mylog=mylog)
-
-            uscore_name = name.replace(':','_')
 
             # Mod on 31/01/2018, 18/02/2018
             if w_dir == '':
