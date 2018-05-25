@@ -1119,6 +1119,10 @@ def generate_taskfile(hdr0, rawdir, w_dir, name, c_dict0, tell_dict0, tab0,
      - Telluric star processing once (with first taskfile)
     Modified by Chun Ly, 22 May 2018
      - Handle HK3 data: 'HK3' -> 'HK' for task files
+    Modified by Chun Ly, 25 May 2018
+     - Change from underscore to colon separator
+     - Add uscore_name since name separator is colon
+
     '''
 
     if type(mylog) == type(None): mylog = log # + on 20/02/2018
@@ -1143,9 +1147,11 @@ def generate_taskfile(hdr0, rawdir, w_dir, name, c_dict0, tell_dict0, tab0,
         for key in keys0:
             del c_hdr0[key]
 
-    # + on 11/12/2017
-    t_str = name.split('_')
+    # + on 11/12/2017, Mod on 25/05/2018
+    t_str = name.split(':')
     t_obj, t_ap, t_filt, t_disp  = t_str[0], t_str[1], t_str[2], t_str[3]
+
+    uscore_name = name.replace(':','_') # + on 25/05/2018
 
     # + on 11/04/2018
     if t_filt == 'Kspec': t_filt = 'K'
@@ -1196,7 +1202,7 @@ def generate_taskfile(hdr0, rawdir, w_dir, name, c_dict0, tell_dict0, tab0,
 
             c_hdr0['W_DIR'] = w_dir + format(ii+1, '02') + '/'
 
-            outfile = w_dir+name+'_'+format(ii+1, '02')+'.txt' # Mod on 31/01/2018
+            outfile = w_dir+uscore_name+'_'+format(ii+1, '02')+'.txt' # Mod on 31/01/2018
             mylog.info('Writing : '+os.path.basename(outfile)) # Mod on 20/02/2018
 
             # Mod on 16/02/2018
