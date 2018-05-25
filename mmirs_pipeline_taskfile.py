@@ -1455,6 +1455,7 @@ def create(rawdir, w_dir='', dither=None, bright=False, extract=False, silent=Fa
     Modified by Chun Ly, 24 May 2018
      - Change outdir to w_dir in call to mmirs_pipeline_nonlin_script.pro
      - Change calib_MMIRS symlink to w_dir path
+     - Save mmirs_pipeline_taskfile log to w_dir
     '''
 
     mylog = mlog(rawdir)._get_logger() # + on 19/02/2018
@@ -1656,5 +1657,9 @@ def create(rawdir, w_dir='', dither=None, bright=False, extract=False, silent=Fa
             mylog.warn('Path is not correct for calib_MMIRS !!!')
             mylog.warn('User need to fix manually !!!')
     mylog.info('End create ! ') # Mod on 19/02/2018
+
+    # Save mmirs_pipeline_taskfile log to w_dir | + on 24/05/2018
+    cmd1 = 'cp %s %s ' % (rawdir+'mmirs_pipeline_taskfile.log', w_dir)
+    commands.getoutput(cmd1)
 #enddef
 
