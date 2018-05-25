@@ -1253,6 +1253,8 @@ def organize_targets(tab0, mylog=None):
     Modified by Chun Ly, 1 May 2018
      - Determine number of spec for each combination, ignore those with single spec
      - Define and return mmirs_setup0
+    Modified by Chun Ly, 25 May 2018
+     - Change from space to colon separator
     '''
 
     if type(mylog) == type(None): mylog = log # + on 20/02/2018
@@ -1283,11 +1285,11 @@ def organize_targets(tab0, mylog=None):
                 t_name = tab0_o['object']
 
             object0[ii] = t_name # + on 18/02/2018
-            comb0[ii] = t_name + '_' + tab0_o['aperture'] + '_' + \
-                        tab0_o['filter'] + '_' + tab0_o['disperse']
+            comb0[ii] = t_name + ':' + tab0_o['aperture'] + ':' + \
+                        tab0_o['filter'] + ':' + tab0_o['disperse']
             # + on 01/05/2018
-            mmirs_setup0[ii] = tab0_o['aperture'] + '_' + \
-                               tab0_o['filter'] + '_' + tab0_o['disperse']
+            mmirs_setup0[ii] = tab0_o['aperture'] + ':' + \
+                               tab0_o['filter'] + ':' + tab0_o['disperse']
 
     obj_comb0 = list(set(np.array(comb0)[obj]))
 
