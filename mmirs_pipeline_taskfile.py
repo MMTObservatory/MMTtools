@@ -147,6 +147,8 @@ from astropy import log
 
 from astropy.time import Time # + on 31/01/2018
 
+from socket import gethostname()
+
 # Mod on 01/05/2018
 use_simbad = 0
 if use_simbad:
@@ -1473,6 +1475,8 @@ def create(rawdir, w_dir='', dither=None, bright=False, extract=False, silent=Fa
      - Add uscore_name since name separator is colon
      - Use name instead of uscore_name for generate_taskfile
      - log aesthetics: use underscore name instead of colon-separated name
+    Modified by Chun Ly, 26 May 2018
+     - Copy msk files over to preproc folder (fields case)
     '''
 
     mylog = mlog(rawdir)._get_logger() # + on 19/02/2018
@@ -1675,6 +1679,44 @@ def create(rawdir, w_dir='', dither=None, bright=False, extract=False, silent=Fa
         if not exists(dir_calib):
             mylog.warn('Path is not correct for calib_MMIRS !!!')
             mylog.warn('User need to fix manually !!!')
+
+    # Copy msk files over to preproc folder | + on 26/05/2018
+    pproc_dir = w_dir+'preproc'
+    mylog.info("Copying files over to : " + pproc_dir)
+    use_dir = ''
+    if gethostname() == 'fields': # Check if it's fields
+        m_files = glob.glob(rawdir+'*.msk')
+        if len(m_files) > 0:
+            use_dir = rawdir
+        else:
+            ccd_dir = rawdir.replace('/data/crunch','/data/ccd')
+            mylog.info("Trying : "+ccd_dir)
+            m_files = glob.glob(ccd_dir+'*.msk')
+            if len(m_files) > 0:
+                use_dir = ccd_dir
+            else:
+                archive_dir = rawdir.replace('/data/crunch','/data/archive')
+                mylog.info("Trying : "+archive_dir)
+                m_files = glob.glob(archive_dir+'*.msk')
+                if len(m_files) > 0:
+                    use_dir = archive_dir
+            #endelse
+        #endelse
+
+        if use_dir != '':
+            if not exists(pproc_dir):
+                commands.getoutput('mkdir -p '+pproc_dir)
+
+            cmd1a = 'cp -a %s*.msk %s' % (use_dir, pproc_dir)
+            mylog.info(cmd1a)
+            commands.getoutput(cmd1a)
+
+            cmd1b = 'cp -a %s*_msk.fits %s' % (use_dir, pproc_dir)
+            mylog.info(cmd1b)
+            commands.getoutput(cmd1b)
+        #endif
+    #endif
+
     mylog.info('End create ! ') # Mod on 19/02/2018
 
     # Save mmirs_pipeline_taskfile log to w_dir | + on 24/05/2018
