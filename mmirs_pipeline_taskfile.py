@@ -147,7 +147,7 @@ from astropy import log
 
 from astropy.time import Time # + on 31/01/2018
 
-from socket import gethostname()
+from socket import gethostname
 
 # Mod on 01/05/2018
 use_simbad = 0
