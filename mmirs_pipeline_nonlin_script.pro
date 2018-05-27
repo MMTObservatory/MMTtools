@@ -48,7 +48,12 @@ PRO mmirs_pipeline_nonlin_script, rawdir, w_dir=w_dir, first=first, $
 ;
 ;       Modified by Chun Ly, 24 May 2018
 ;        - Change outdir keyword input to w_dir
+;
+;       Modified by Chun Ly, 26 May 2018
+;        - Compute time elapsed for each IDL input list and total
 ;-
+
+  t0_start = systime(1)
 
   ; Moved up on 17/02/2018
   if not keyword_set(w_dir) then begin
@@ -70,6 +75,7 @@ PRO mmirs_pipeline_nonlin_script, rawdir, w_dir=w_dir, first=first, $
   n_IDL_files= n_elements(IDL_files)
 
   for ff=0,n_IDL_files-1 do begin
+     t1_start = systime(1)
      print, '### Reading : '+IDL_files[ff] + ' | '+systime()
      READCOL, IDL_files[ff], files0, format='A'
 
@@ -83,6 +89,10 @@ PRO mmirs_pipeline_nonlin_script, rawdir, w_dir=w_dir, first=first, $
                            clean=clean
         endif else print, '## File exists! | ' + outfile + compress + ' '+systime()
      endfor
+     t1_end = systime(1)
+     print, 'Time spent for '+IDL_files[ff]+' : '+tostr((t1_end-t1_start)/60.)+' min'
   endfor
 
+  t0_end = systime(1)
+  print, 'Total time spent : '+tostr((t0_end-t0_start)/60.)+' min'
 END
