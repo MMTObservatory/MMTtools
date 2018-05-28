@@ -87,7 +87,7 @@ PRO mmirs_pipeline_nonlin_script, rawdir, w_dir=w_dir, first=first, $
                            debug=debug, biasframe=biasframe, badamp=badamp, $
                            crosstalk=crosstalk, compress=compress, tmpdir=tmpdir, $
                            clean=clean
-        endif else print, '## File exists! | ' + outfile + compress + ' '+systime()
+        endif else print, '## File exists! : ' + outfile + compress + ' | '+systime()
      endfor
      t1_end = systime(1)
      print, 'Time spent for '+IDL_files[ff]+' : '+tostr((t1_end-t1_start)/60.)+' min'
