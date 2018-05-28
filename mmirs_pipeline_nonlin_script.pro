@@ -1,3 +1,9 @@
+function tostr, str
+  type = size(str,/type)
+  if type eq 4 or type eq 5 then return, strcompress(string(str, f='(f8.3)'),/rem) $
+  else return, strcompress(str,/rem)
+end ; -- End of tostr
+
 PRO mmirs_pipeline_nonlin_script, rawdir, w_dir=w_dir, first=first, $
                                   linear=linear, keepfirst=keepfirst, $
                                   verbose=verbose, debug=debug, $
