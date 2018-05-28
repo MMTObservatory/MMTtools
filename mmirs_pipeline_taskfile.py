@@ -1124,7 +1124,8 @@ def generate_taskfile(hdr0, rawdir, w_dir, name, c_dict0, tell_dict0, tab0,
     Modified by Chun Ly, 25 May 2018
      - Change from underscore to colon separator
      - Add uscore_name since name separator is colon
-
+    Modified by Chun Ly, 27 May 2018
+     - Handle case when comps or flats are not available (set to '')
     '''
 
     if type(mylog) == type(None): mylog = log # + on 20/02/2018
@@ -1179,7 +1180,11 @@ def generate_taskfile(hdr0, rawdir, w_dir, name, c_dict0, tell_dict0, tab0,
 
     # + on 11/12/2017
     for vv in range(len(val0)):
-        c_hdr0[col1[vv]] = val0[vv]
+        if val0[vv] != '': # Mod on 27/05/2018
+            c_hdr0[col1[vv]] = val0[vv]
+        else:
+            mylog.info("Deleting : "+col1[vv])
+            del c_hdr0[col1[vv]]
 
     col2 = ['SCI', 'SCI2', 'DITHPOS', 'DITHPOS2']
 
