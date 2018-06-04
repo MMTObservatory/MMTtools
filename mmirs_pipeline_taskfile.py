@@ -684,6 +684,9 @@ def handle_tellurics(tab0, object0, PropID, i_tell, obj_etime, tell_comb0,
      - Fix to work with python3
      - Handle no telluric case for rev_tell_comb0
      - Fix typo for rev_tell_comb0
+
+    Modified by Chun Ly, 4 June 2018
+     - List all tellurics if more than one
     '''
 
     if type(mylog) == type(None): mylog = log # + on 06/03/2018
@@ -704,6 +707,8 @@ def handle_tellurics(tab0, object0, PropID, i_tell, obj_etime, tell_comb0,
         else:
             mylog.warn('More than one telluric dataset found using PropID : '+\
                      str(len(obj_etime_pid)))
+            for tell_name_test in obj_etime_pid: # + on 04/06/2018
+                mylog.info(tell_name_test)
     else:
         mylog.warn('No tellurics found using PropID !!!')
         rev_tell_comb0 = list(tell_comb0) # + on 06/03/2018
