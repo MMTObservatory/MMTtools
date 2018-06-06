@@ -1487,6 +1487,8 @@ def create(rawdir, w_dir='', dither=None, bright=False, extract=False, silent=Fa
      - log aesthetics: use underscore name instead of colon-separated name
     Modified by Chun Ly, 26 May 2018
      - Copy msk files over to preproc folder (fields case)
+    Modified by Chun Ly,  5 June 2018
+     - Add on_error call for idl scripts for mmirs_pipeline
     '''
 
     mylog = mlog(rawdir)._get_logger() # + on 19/02/2018
@@ -1647,7 +1649,7 @@ def create(rawdir, w_dir='', dither=None, bright=False, extract=False, silent=Fa
 
                 # Mod on 01/05/2018
                 if w_dir == '':
-                    str0 = [".run run_pipeline\n\n",
+                    str0 = [".run run_pipeline\n\n", "on_error, 0\n"
                             "run_pipeline, 'reduced/%s'\n\n" % uscore_name, "exit\n"] # Mod on 23/02/2018
                 else:
                     str0 = [".run run_pipeline\n\n",
