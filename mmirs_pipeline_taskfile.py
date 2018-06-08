@@ -1339,8 +1339,8 @@ def organize_targets(tab0, mylog=None):
     return comb0, obj_comb0, object0, mmirs_setup0 # Mod on 18/02/2018, 01/05/2018
 #enddef
 
-def create(rawdir, w_dir='', dither=None, bright=False, extract=False, silent=False,
-           verbose=True, debug=False):
+def create(rawdir, w_dir='', dither=None, bright=False, extract=False,
+           inter=False, silent=False, verbose=True, debug=False):
 
     '''
     Main function to create task files to execute
@@ -1363,6 +1363,9 @@ def create(rawdir, w_dir='', dither=None, bright=False, extract=False, silent=Fa
 
     extract: boolean
       Indicate whether to turn on 1-D extraction. Default: False
+
+    inter : boolean
+      For interactive telluric star selection.  Default: False
 
     silent : boolean
       Turns off stdout messages. Default: False
@@ -1489,6 +1492,8 @@ def create(rawdir, w_dir='', dither=None, bright=False, extract=False, silent=Fa
      - Copy msk files over to preproc folder (fields case)
     Modified by Chun Ly,  5 June 2018
      - Add on_error call for idl scripts for mmirs_pipeline
+    Modified by Chun Ly,  7 June 2018
+     - Add inter keyword option
     '''
 
     mylog = mlog(rawdir)._get_logger() # + on 19/02/2018
