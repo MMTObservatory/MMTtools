@@ -1012,7 +1012,7 @@ def get_diff_images(tab0, idx, dither=None, mylog=None):
 #enddef
 
 def generate_taskfile(hdr0, rawdir, w_dir, name, c_dict0, tell_dict0, tab0,
-                      idx, dither=None, mylog=None):
+                      idx, dither=None, inter=False, mylog=None):
     '''
     Modify the default task file template for each science exposure
 
@@ -1041,6 +1041,9 @@ def generate_taskfile(hdr0, rawdir, w_dir, name, c_dict0, tell_dict0, tab0,
 
     idx : list or np.array
       Index of entries for a given target
+
+    inter : boolean
+      For interactive telluric star selection.  Default: False
 
     Returns
     -------
@@ -1131,6 +1134,8 @@ def generate_taskfile(hdr0, rawdir, w_dir, name, c_dict0, tell_dict0, tab0,
      - Add uscore_name since name separator is colon
     Modified by Chun Ly, 27 May 2018
      - Handle case when comps or flats are not available (set to '')
+    Modified by Chun Ly, 6 May 2018
+     - Add inter keyword option
     '''
 
     if type(mylog) == type(None): mylog = log # + on 20/02/2018
@@ -1643,7 +1648,7 @@ def create(rawdir, w_dir='', dither=None, bright=False, extract=False,
             # + on 11/12/2017, Mod on 28/01/2018, 18/02/2018
             temp1 = generate_taskfile(hdr0, w_dir, w_dir_tmp, name,
                                       c_dict0, tell_dict0, tab0, idx,
-                                      dither=dither, mylog=mylog)
+                                      dither=dither, inter=inter, mylog=mylog)
 
             # Write IDL script for main mmirs_pipeline | + on 17/02/2018
             main_script_outfile = w_dir + 'run_mmirs_pipeline_'+uscore_name+'.idl' # Mod on 23/05/2018
