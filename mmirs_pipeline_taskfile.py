@@ -693,6 +693,7 @@ def handle_tellurics(tab0, object0, PropID, i_tell, obj_etime, tell_comb0,
 
     Modified by Chun Ly, 8 June 2018
      - Include inter keyword option
+     - Add user prompts to identify telluric star
     '''
 
     if type(mylog) == type(None): mylog = log # + on 06/03/2018
@@ -742,30 +743,73 @@ def handle_tellurics(tab0, object0, PropID, i_tell, obj_etime, tell_comb0,
         sci_idx_min, sci_idx_max = min(idx_nocalib), max(idx_nocalib)
 
         tmp_tell_comb0 = [] # + on 06/03/2018
-        # Check before
-        bef0 = np.where(tell_idx_max - sci_idx_min == -1)[0]
-        if len(bef0) == 1:
-            mylog.info('Telluric data found before science data : '+\
-                       tell_comb0[bef0[0]])
-            tmp_tell_comb0.append(tell_comb0[bef0[0]])
-            pass_score += 1
-        else:
-            mylog.info('NO telluric data before science data')
 
-        # Check after
-        aft0 = np.where(tell_idx_min - sci_idx_max == 1)[0]
-        if len(aft0) == 1:
-            mylog.info('Telluric data found after science data : '+tell_comb0[aft0[0]])
-            tmp_tell_comb0.append(tell_comb0[aft0[0]]) # + on 06/03/2018
-            pass_score += 1
-        else:
-            mylog.info('NO telluric data after science data')
+        # Mod on 07/06/2018
+        if inter == False:
+            # Check before
+            bef0 = np.where(tell_idx_max - sci_idx_min == -1)[0]
+            if len(bef0) == 1:
+                mylog.info('Telluric data found before science data : '+\
+                           tell_comb0[bef0[0]])
+                tmp_tell_comb0.append(tell_comb0[bef0[0]])
+                pass_score += 1
+            else:
+                mylog.info('NO telluric data before science data')
 
-        # + on 06/03/2018
-        if len(bef0) == 1 or len(aft0) == 1:
+            # Check after
+            aft0 = np.where(tell_idx_min - sci_idx_max == 1)[0]
+            if len(aft0) == 1:
+                mylog.info('Telluric data found after science data : '+tell_comb0[aft0[0]])
+                tmp_tell_comb0.append(tell_comb0[aft0[0]]) # + on 06/03/2018
+                pass_score += 1
+            else:
+                mylog.info('NO telluric data after science data')
+
+            # + on 06/03/2018
+            if len(bef0) == 1 or len(aft0) == 1:
+                rev_tell_comb0 = tmp_tell_comb0
+            if len(bef0) == 0 or len(aft0) == 0:
+                rev_tell_comb0 = []
+        else:
+            print tab0[idx]
+
+            # Check before
+            bef0 = np.where(tell_idx_max - sci_idx_min < 0)[0]
+            if len(bef0) > 0:
+                mylog.info('Select telluric star BEFORE science observations : ')
+                for bb in range(len(bef0)):
+                    t_idx = [xx for xx in range(len(tab0_nocalib)) if
+                             obj_etime_nocalib[xx] == tell_comb0[bb]]
+                    tmpt    = tab0_nocalib[t_idx][0]
+                    tmp_num = tab0_nocalib['seqno'][t_idx]
+                    tell_str = '(%i) %i-%i %s %s %s+%s' % (bb, min(tmp_num), max(tmp_num),
+                                                           tell_comb0[bb], tmpt['aperture'],
+                                                           tmpt['filter'], tmpt['disperse'])
+                    mylog.info(tell_str)
+
+                raw_bef = raw_input("Select from above telluric star to use : ")
+                tmp_tell_comb0.append(tell_comb0[np.int(raw_bef)])
+                mylog.info("User selected : (%s) " % raw_bef)
+
+            # Check after
+            aft0 = np.where(tell_idx_min - sci_idx_max > 0)[0]
+            if len(aft0) > 0:
+                mylog.info('Select telluric star AFTER science observations : ')
+                for bb in range(len(aft0)):
+                    t_idx = [xx for xx in range(len(tab0_nocalib)) if
+                             obj_etime_nocalib[xx] == tell_comb0[bb]]
+                    tmpt    = tab0_nocalib[t_idx][0]
+                    tmp_num = tab0_nocalib['seqno'][t_idx]
+                    tell_str = '(%i) %i-%i %s %s %s+%s' % (bb, min(tmp_num), max(tmp_num),
+                                                           tell_comb0[bb], tmpt['aperture'],
+                                                           tmpt['filter'], tmpt['disperse'])
+                    mylog.info(tell_str)
+
+                raw_aft = raw_input("Select from above telluric star to use : ")
+                tmp_tell_comb0.append(tell_comb0[np.int(raw_aft)])
+                mylog.info("User selected : (%s) " % raw_aft)
+
             rev_tell_comb0 = tmp_tell_comb0
-        if len(bef0) == 0 or len(aft0) == 0:
-            rev_tell_comb0 = []
     #endif
 
     return rev_tell_comb0
