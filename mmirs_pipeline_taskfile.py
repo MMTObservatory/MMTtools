@@ -632,7 +632,7 @@ def get_calib_files(name, tab0, mylog=None):
 #enddef
 
 def handle_tellurics(tab0, object0, PropID, i_tell, obj_etime, tell_comb0,
-                     idx, mylog=None):
+                     idx, inter=False, mylog=None):
     '''
     Handle when multiple telluric datasets are available
 
@@ -658,6 +658,9 @@ def handle_tellurics(tab0, object0, PropID, i_tell, obj_etime, tell_comb0,
 
     idx : list or np.array
       Index of entries for a given target
+
+    inter : boolean
+      For interactive telluric star selection.  Default: False
 
     Returns
     -------
@@ -687,6 +690,9 @@ def handle_tellurics(tab0, object0, PropID, i_tell, obj_etime, tell_comb0,
 
     Modified by Chun Ly, 4 June 2018
      - List all tellurics if more than one
+
+    Modified by Chun Ly, 8 June 2018
+     - Include inter keyword option
     '''
 
     if type(mylog) == type(None): mylog = log # + on 06/03/2018
@@ -765,7 +771,7 @@ def handle_tellurics(tab0, object0, PropID, i_tell, obj_etime, tell_comb0,
     return rev_tell_comb0
 #enddef
 
-def get_tellurics(tab0, idx, comb0, object0, mmirs_setup0, mylog=None):
+def get_tellurics(tab0, idx, comb0, object0, mmirs_setup0, inter=False, mylog=None):
     '''
     Determining tellurics to use
 
@@ -787,6 +793,9 @@ def get_tellurics(tab0, idx, comb0, object0, mmirs_setup0, mylog=None):
     mmirs_setup0 : list
       List of strings that combines aperture, filter, and disperse.
       This handle MOS cases to get proper setup for telluric star identification
+
+    inter : boolean
+      For interactive telluric star selection.  Default: False
 
     Returns
     -------
@@ -832,6 +841,8 @@ def get_tellurics(tab0, idx, comb0, object0, mmirs_setup0, mylog=None):
      - Turn off Simbad query if use_simbad=0
      - Add mmirs_setup0 input
      - Bug fix: mmirs_setup -> mmirs_setup0
+    Modified by Chun Ly, 8 June 2018
+     - Include inter keyword option
     '''
 
     if type(mylog) == type(None): mylog = log # + on 20/02/2018
@@ -1497,6 +1508,8 @@ def create(rawdir, w_dir='', dither=None, bright=False, extract=False,
      - Add on_error call for idl scripts for mmirs_pipeline
     Modified by Chun Ly,  7 June 2018
      - Add inter keyword option
+    Modified by Chun Ly, 8 June 2018
+     - Pass inter keyword to get_tellurics()
     '''
 
     mylog = mlog(rawdir)._get_logger() # + on 19/02/2018
@@ -1595,9 +1608,9 @@ def create(rawdir, w_dir='', dither=None, bright=False, extract=False,
             # on 08/12/2017
             c_dict0 = get_calib_files(name, tab0, mylog=mylog)
 
-            # Mod on 28/01/2018, 18/02/2018, 20/02/2018
-            tell_dict0 = get_tellurics(tab0, idx, comb0, object0,
-                                       mmirs_setup0, mylog=mylog)
+            # Mod on 28/01/2018, 18/02/2018, 20/02/2018, 08/06/2018
+            tell_dict0 = get_tellurics(tab0, idx, comb0, object0, mmirs_setup0,
+                                       inter=inter, mylog=mylog)
 
             # Mod on 31/01/2018, 18/02/2018
             if w_dir == '':
