@@ -694,6 +694,7 @@ def handle_tellurics(tab0, object0, PropID, i_tell, obj_etime, tell_comb0,
     Modified by Chun Ly, 8 June 2018
      - Include inter keyword option
      - Add user prompts to identify telluric star
+     - Bug fix: indexing issue
     '''
 
     if type(mylog) == type(None): mylog = log # + on 06/03/2018
@@ -778,12 +779,13 @@ def handle_tellurics(tab0, object0, PropID, i_tell, obj_etime, tell_comb0,
             if len(bef0) > 0:
                 mylog.info('Select telluric star BEFORE science observations : ')
                 for bb in range(len(bef0)):
+                    bb_bef = bef0[bb]
                     t_idx = [xx for xx in range(len(tab0_nocalib)) if
-                             obj_etime_nocalib[xx] == tell_comb0[bb]]
+                             obj_etime_nocalib[xx] == tell_comb0[bb_bef]]
                     tmpt    = tab0_nocalib[t_idx][0]
                     tmp_num = tab0_nocalib['seqno'][t_idx]
                     tell_str = '(%i) %i-%i %s %s %s+%s' % (bb, min(tmp_num), max(tmp_num),
-                                                           tell_comb0[bb], tmpt['aperture'],
+                                                           tell_comb0[bb_bef], tmpt['aperture'],
                                                            tmpt['filter'], tmpt['disperse'])
                     mylog.info(tell_str)
 
@@ -796,12 +798,13 @@ def handle_tellurics(tab0, object0, PropID, i_tell, obj_etime, tell_comb0,
             if len(aft0) > 0:
                 mylog.info('Select telluric star AFTER science observations : ')
                 for bb in range(len(aft0)):
+                    bb_aft = aft0[bb]
                     t_idx = [xx for xx in range(len(tab0_nocalib)) if
-                             obj_etime_nocalib[xx] == tell_comb0[bb]]
+                             obj_etime_nocalib[xx] == tell_comb0[bb_aft]]
                     tmpt    = tab0_nocalib[t_idx][0]
                     tmp_num = tab0_nocalib['seqno'][t_idx]
                     tell_str = '(%i) %i-%i %s %s %s+%s' % (bb, min(tmp_num), max(tmp_num),
-                                                           tell_comb0[bb], tmpt['aperture'],
+                                                           tell_comb0[bb_aft], tmpt['aperture'],
                                                            tmpt['filter'], tmpt['disperse'])
                     mylog.info(tell_str)
 
