@@ -632,7 +632,7 @@ def get_calib_files(name, tab0, mylog=None):
 #enddef
 
 def handle_tellurics(tab0, object0, PropID, i_tell, obj_etime, tell_comb0,
-                     idx, inter=False, mylog=None):
+                     idx, target_setup, mmirs_setup0, inter=False, mylog=None):
     '''
     Handle when multiple telluric datasets are available
 
@@ -658,6 +658,14 @@ def handle_tellurics(tab0, object0, PropID, i_tell, obj_etime, tell_comb0,
 
     idx : list or np.array
       Index of entries for a given target
+
+    target_setup : str
+      String that combines aperture, filter, and disperse for specific
+      target
+
+    mmirs_setup0 : list
+      List of strings that combines aperture, filter, and disperse.
+      This gets proper setup for telluric star identification
 
     inter : boolean
       For interactive telluric star selection.  Default: False
@@ -695,11 +703,16 @@ def handle_tellurics(tab0, object0, PropID, i_tell, obj_etime, tell_comb0,
      - Include inter keyword option
      - Add user prompts to identify telluric star
      - Bug fix: indexing issue
+
+    Modified by Chun Ly, 9 June 2018
+     - Add mmirs_setup0 and target_setup inputs
+     - Require target_setup in telluric selection
     '''
 
     if type(mylog) == type(None): mylog = log # + on 06/03/2018
 
     obj_etime = np.array(obj_etime) # Mod on 06/03/2018
+    mmirs_setup0 = np.array(mmirs_setup0) # + on 09/06/2018
 
     pass_score = 0 # + on 06/03/2018
 
@@ -729,12 +742,16 @@ def handle_tellurics(tab0, object0, PropID, i_tell, obj_etime, tell_comb0,
 
         obj_etime_nocalib = obj_etime[i_obj]
 
+        mmirs_setup_nocalib = mmirs_setup0[i_obj] # + on 09/06/2018
+
         tell_idx_min = np.zeros(len(tell_comb0))
         tell_idx_max = np.zeros(len(tell_comb0))
 
         for tt in range(len(tell_comb0)):
+            # Mod on 09/06/2018
             t_idx = [xx for xx in range(len(tab0_nocalib)) if
-                     obj_etime_nocalib[xx] == tell_comb0[tt]]
+                     (obj_etime_nocalib[xx] == tell_comb0[tt] and
+                      mmirs_setup_nocalib[xx] == target_setup)]
             #t_idx = np.array(i_obj)[t_idx]
             tell_idx_min[tt], tell_idx_max[tt] = min(t_idx), max(t_idx)
 
