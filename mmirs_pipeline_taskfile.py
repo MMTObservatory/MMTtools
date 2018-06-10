@@ -908,6 +908,8 @@ def get_tellurics(tab0, idx, comb0, object0, mmirs_setup0, inter=False, mylog=No
     Modified by Chun Ly, 8 June 2018
      - Include inter keyword option
      - Pass inter keyword to handle_tellurics()
+    Modified by Chun Ly, 9 June 2018
+     - Pass target_setup and mmirs_setup0 to handle_tellurics()
     '''
 
     if type(mylog) == type(None): mylog = log # + on 20/02/2018
@@ -939,7 +941,8 @@ def get_tellurics(tab0, idx, comb0, object0, mmirs_setup0, inter=False, mylog=No
     if n_tell > 1:
         PropID = tab0['PropID'][idx[0]]
         tell_comb0 = handle_tellurics(tab0, object0, PropID, i_tell, obj_etime,
-                                      tell_comb0, idx, inter=inter, mylog=mylog)
+                                      tell_comb0, idx, target_setup,
+                                      mmirs_setup0, inter=inter, mylog=mylog)
         n_tell = len(tell_comb0)
 
     # Moved lower on 07/03/2018
