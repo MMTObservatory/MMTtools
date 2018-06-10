@@ -707,6 +707,9 @@ def handle_tellurics(tab0, object0, PropID, i_tell, obj_etime, tell_comb0,
     Modified by Chun Ly, 9 June 2018
      - Add mmirs_setup0 and target_setup inputs
      - Require target_setup in telluric selection
+
+    Modified by Chun Ly, 10 June 2018
+     - Require target_setup in telluric selection (cont'd)
     '''
 
     if type(mylog) == type(None): mylog = log # + on 06/03/2018
@@ -798,7 +801,8 @@ def handle_tellurics(tab0, object0, PropID, i_tell, obj_etime, tell_comb0,
                 for bb in range(len(bef0)):
                     bb_bef = bef0[bb]
                     t_idx = [xx for xx in range(len(tab0_nocalib)) if
-                             obj_etime_nocalib[xx] == tell_comb0[bb_bef]]
+                             (obj_etime_nocalib[xx] == tell_comb0[bb_bef] and
+                              mmirs_setup_nocalib[xx] == target_setup)]
                     tmpt    = tab0_nocalib[t_idx][0]
                     tmp_num = tab0_nocalib['seqno'][t_idx]
                     tell_str = '(%i) %i-%i %s %s %s+%s' % (bb, min(tmp_num), max(tmp_num),
@@ -817,7 +821,8 @@ def handle_tellurics(tab0, object0, PropID, i_tell, obj_etime, tell_comb0,
                 for bb in range(len(aft0)):
                     bb_aft = aft0[bb]
                     t_idx = [xx for xx in range(len(tab0_nocalib)) if
-                             obj_etime_nocalib[xx] == tell_comb0[bb_aft]]
+                             (obj_etime_nocalib[xx] == tell_comb0[bb_aft] and
+                              mmirs_setup_nocalib[xx] == target_setup)]
                     tmpt    = tab0_nocalib[t_idx][0]
                     tmp_num = tab0_nocalib['seqno'][t_idx]
                     tell_str = '(%i) %i-%i %s %s %s+%s' % (bb, min(tmp_num), max(tmp_num),
