@@ -712,6 +712,7 @@ def handle_tellurics(tab0, object0, PropID, i_tell, obj_etime, tell_comb0,
      - Require target_setup in telluric selection (cont'd)
      - mylog.info spec setup info for telluric star list based on PropID
      - Clean up code
+     - Include PropID info for interactive case
     '''
 
     if type(mylog) == type(None): mylog = log # + on 06/03/2018
@@ -813,8 +814,9 @@ def handle_tellurics(tab0, object0, PropID, i_tell, obj_etime, tell_comb0,
                     tmpt    = tab0_nocalib[t_idx][0]
                     tmp_num = tab0_nocalib['seqno'][t_idx]
                     tell_str  = '(%i) %i-%i ' % (bb, min(tmp_num), max(tmp_num))
-                    tell_str += '%s %s %s+%s' % (tell_comb0[bb_bef], tmpt['aperture'],
-                                                 tmpt['filter'], tmpt['disperse'])
+                    tell_str += '%s %s %s+%s %s' % (tell_comb0[bb_bef], tmpt['aperture'],
+                                                    tmpt['filter'], tmpt['disperse'],
+                                                    tmpt['PropID'])
                     mylog.info(tell_str)
 
                 raw_bef = raw_input("Select from above telluric star to use : ")
@@ -833,8 +835,9 @@ def handle_tellurics(tab0, object0, PropID, i_tell, obj_etime, tell_comb0,
                     tmpt    = tab0_nocalib[t_idx][0]
                     tmp_num = tab0_nocalib['seqno'][t_idx]
                     tell_str  = '(%i) %i-%i ' % (bb, min(tmp_num), max(tmp_num))
-                    tell_str += '%s %s %s+%s' % (tell_comb0[bb_aft], tmpt['aperture'],
-                                                 tmpt['filter'], tmpt['disperse'])
+                    tell_str += '%s %s %s+%s %s' % (tell_comb0[bb_aft], tmpt['aperture'],
+                                                    tmpt['filter'], tmpt['disperse'],
+                                                    tmpt['PropID'])
                     mylog.info(tell_str)
 
                 raw_aft = raw_input("Select from above telluric star to use : ")
