@@ -910,6 +910,7 @@ def get_tellurics(tab0, idx, comb0, object0, mmirs_setup0, inter=False, mylog=No
      - Pass inter keyword to handle_tellurics()
     Modified by Chun Ly, 9 June 2018
      - Pass target_setup and mmirs_setup0 to handle_tellurics()
+     - Handle multi-spec setups for same telluric + integration time
     '''
 
     if type(mylog) == type(None): mylog = log # + on 20/02/2018
@@ -954,7 +955,8 @@ def get_tellurics(tab0, idx, comb0, object0, mmirs_setup0, inter=False, mylog=No
     if n_tell >= 1:
         for tt in range(n_tell):
             tmp = [xx for xx in range(len(object0)) if
-                   obj_etime[xx] == tell_comb0[tt]]
+                   (obj_etime[xx] == tell_comb0[tt] and
+                    mmirs_setup0[xx] == target_setup)]
 
             # tell_time[tt] = tab0['dateobs'][tmp[0]]
             str_tell[tt]   = ",".join(tab0['filename'][tmp])
