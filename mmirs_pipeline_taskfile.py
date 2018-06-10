@@ -710,6 +710,7 @@ def handle_tellurics(tab0, object0, PropID, i_tell, obj_etime, tell_comb0,
 
     Modified by Chun Ly, 10 June 2018
      - Require target_setup in telluric selection (cont'd)
+     - mylog.info spec setup info for telluric star list based on PropID
     '''
 
     if type(mylog) == type(None): mylog = log # + on 06/03/2018
@@ -724,15 +725,20 @@ def handle_tellurics(tab0, object0, PropID, i_tell, obj_etime, tell_comb0,
     i_pid  = np.array(list(set(i_prop) & set(i_tell)))
     if len(i_pid) > 0:
         obj_etime_pid = list(set(obj_etime[i_pid]))
+        setup_pid     = list(set(mmirs_setup0[i_pid])) # + on 10/06/2018
         if len(obj_etime_pid) == 1:
             mylog.info('Only one telluric dataset found using PropID !!!')
+            mylog.info('## '+obj_etime_pid+' '+setup_pid) # + on 10/06/2018
             pass_score = 1 # + on 06/03/2018
             rev_tell_comb0 = list(obj_etime_pid) # + on 06/03/2018
         else:
             mylog.warn('More than one telluric dataset found using PropID : '+\
                      str(len(obj_etime_pid)))
             for tell_name_test in obj_etime_pid: # + on 04/06/2018
-                mylog.info(tell_name_test)
+                tell_idx = [xx for xx in range(len(i_pid)) if
+                            obj_etime[i_pid][xx] == tell_name_test]
+                # + on 10/06/2018
+                mylog.info('## '+tell_name_test+' '+mmirs_setup0[i_pid[tell_idx[0]]])
     else:
         mylog.warn('No tellurics found using PropID !!!')
         rev_tell_comb0 = list(tell_comb0) # + on 06/03/2018
