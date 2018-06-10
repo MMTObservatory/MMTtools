@@ -821,7 +821,7 @@ def handle_tellurics(tab0, object0, PropID, i_tell, obj_etime, tell_comb0,
                     mylog.info(tell_str)
 
                 raw_bef = raw_input("Select from above telluric star to use : ")
-                tmp_tell_comb0.append(tell_comb0[np.int(bef0[raw_bef])])
+                tmp_tell_comb0.append(tell_comb0[bef0[np.int(raw_bef)]])
                 mylog.info("User selected : (%s) " % raw_bef)
 
             # Check after
@@ -842,7 +842,7 @@ def handle_tellurics(tab0, object0, PropID, i_tell, obj_etime, tell_comb0,
                     mylog.info(tell_str)
 
                 raw_aft = raw_input("Select from above telluric star to use : ")
-                tmp_tell_comb0.append(tell_comb0[np.int(aft0[raw_aft])])
+                tmp_tell_comb0.append(tell_comb0[aft0[np.int(raw_aft)]])
                 mylog.info("User selected : (%s) " % raw_aft)
 
             rev_tell_comb0 = tmp_tell_comb0
