@@ -1230,7 +1230,9 @@ def generate_taskfile(hdr0, rawdir, w_dir, name, c_dict0, tell_dict0, tab0,
      - Handle case when comps or flats are not available (set to '')
     Modified by Chun Ly, 6 May 2018
      - Add inter keyword option
-     - Remvoe inter keyword option
+     - Remove inter keyword option
+    Modified by Chun Ly, 11 June 2018
+     - mmirs-pipeline taskfiles are for pairs, so only need half of the files
     '''
 
     if type(mylog) == type(None): mylog = log # + on 20/02/2018
@@ -1301,7 +1303,7 @@ def generate_taskfile(hdr0, rawdir, w_dir, name, c_dict0, tell_dict0, tab0,
         # Write ASCII taskfiles | + on 24/01/2018
         keys1 = c_hdr0.keys()
 
-        for ii in range(len(im_dict['sci'])):
+        for ii in range(0,len(im_dict['sci']),2):
             mylog.info('Writing taskfile for : '+im_dict['sci'][ii]) # Mod on 20/02/2018
             for t_key in col2:
                 c_hdr0[t_key] = im_dict[t_key.lower()][ii]
@@ -1312,9 +1314,9 @@ def generate_taskfile(hdr0, rawdir, w_dir, name, c_dict0, tell_dict0, tab0,
             else:
                 c_hdr0['S08PROC'] = 0
 
-            c_hdr0['W_DIR'] = w_dir + format(ii+1, '02') + '/'
+            c_hdr0['W_DIR'] = w_dir + format(ii/2+1, '02') + '/'
 
-            outfile = w_dir+uscore_name+'_'+format(ii+1, '02')+'.txt' # Mod on 31/01/2018
+            outfile = w_dir+uscore_name+'_'+format(ii/2+1, '02')+'.txt' # Mod on 31/01/2018
             mylog.info('Writing : '+os.path.basename(outfile)) # Mod on 20/02/2018
 
             # Mod on 16/02/2018
