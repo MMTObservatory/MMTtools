@@ -1665,7 +1665,7 @@ def create(rawdir, w_dir='', dither=None, bright=False, extract=False,
     # Create task files | + on 30/11/2017
     for name in obj_comb0:
         if 'HD' not in name and 'HIP' not in name and 'BD' not in name and \
-           'TYC' in name:
+           'TYC' not in name:
             uscore_name = name.replace(':','_')
 
             mylog.info('Working on : '+uscore_name) # Mod on 19/02/2018
