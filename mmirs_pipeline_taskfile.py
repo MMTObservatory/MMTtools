@@ -717,6 +717,7 @@ def handle_tellurics(tab0, object0, PropID, i_tell, obj_etime, tell_comb0,
 
     Modified by Chun Ly,  3 July 2018
      - Allow negative input for interactive telluric selection (no telluric)
+     - Bug fix for handling list input -> str
     '''
 
     if type(mylog) == type(None): mylog = log # + on 06/03/2018
@@ -734,7 +735,7 @@ def handle_tellurics(tab0, object0, PropID, i_tell, obj_etime, tell_comb0,
         setup_pid     = list(set(mmirs_setup0[i_pid])) # + on 10/06/2018
         if len(obj_etime_pid) == 1:
             mylog.info('Only one telluric dataset found using PropID !!!')
-            mylog.info('## '+obj_etime_pid+' '+setup_pid) # + on 10/06/2018
+            mylog.info('## '+obj_etime_pid[0]+' '+setup_pid[0]) # + on 10/06/2018
             pass_score = 1 # + on 06/03/2018
             rev_tell_comb0 = list(obj_etime_pid) # + on 06/03/2018
         else:
