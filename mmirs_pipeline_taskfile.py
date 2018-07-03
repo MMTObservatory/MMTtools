@@ -927,6 +927,8 @@ def get_tellurics(tab0, idx, comb0, object0, mmirs_setup0, inter=False, mylog=No
     Modified by Chun Ly, 9 June 2018
      - Pass target_setup and mmirs_setup0 to handle_tellurics()
      - Handle multi-spec setups for same telluric + integration time
+    Modified by Chun Ly, 3 July 2018
+     - Handle Tycho telluric stars
     '''
 
     if type(mylog) == type(None): mylog = log # + on 20/02/2018
@@ -937,7 +939,8 @@ def get_tellurics(tab0, idx, comb0, object0, mmirs_setup0, inter=False, mylog=No
 
     # Mod on 12/03/2018
     i_tell = [xx for xx in range(len(object0)) if
-              (('HD' in object0[xx] or 'HIP' in object0[xx] or 'BD_' in object0[xx]) and
+              (('HD' in object0[xx] or 'HIP' in object0[xx] or
+                'BD_' in object0[xx] or 'TYC' in object0[xx]) and
                (mmirs_setup0[xx] == target_setup))]
 
     # Include exptime should data with multiple exptime for same target is taken
@@ -1598,6 +1601,8 @@ def create(rawdir, w_dir='', dither=None, bright=False, extract=False,
      - Add inter keyword option
     Modified by Chun Ly, 8 June 2018
      - Pass inter keyword to get_tellurics()
+    Modified by Chun Ly, 3 July 2018
+     - Handle Tycho telluric stars
     '''
 
     mylog = mlog(rawdir)._get_logger() # + on 19/02/2018
@@ -1659,7 +1664,8 @@ def create(rawdir, w_dir='', dither=None, bright=False, extract=False,
 
     # Create task files | + on 30/11/2017
     for name in obj_comb0:
-        if 'HD' not in name and 'HIP' not in name and 'BD' not in name:
+        if 'HD' not in name and 'HIP' not in name and 'BD' not in name and \
+           'TYC' in name:
             uscore_name = name.replace(':','_')
 
             mylog.info('Working on : '+uscore_name) # Mod on 19/02/2018
