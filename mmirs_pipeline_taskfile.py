@@ -714,6 +714,9 @@ def handle_tellurics(tab0, object0, PropID, i_tell, obj_etime, tell_comb0,
      - Clean up code
      - Include PropID info for interactive case
      - Bug fix: Correct index from user inputs
+
+    Modified by Chun Ly,  3 July 2018
+     - Allow negative input for interactive telluric selection (no telluric)
     '''
 
     if type(mylog) == type(None): mylog = log # + on 06/03/2018
@@ -821,8 +824,11 @@ def handle_tellurics(tab0, object0, PropID, i_tell, obj_etime, tell_comb0,
                     mylog.info(tell_str)
 
                 raw_bef = raw_input("Select from above telluric star to use : ")
-                tmp_tell_comb0.append(tell_comb0[bef0[np.int(raw_bef)]])
-                mylog.info("User selected : (%s) " % raw_bef)
+                if np.int(raw_bef) < 0:
+                    mylog.info('Negative value provided -> No before telluric star')
+                else:
+                    tmp_tell_comb0.append(tell_comb0[bef0[np.int(raw_bef)]])
+                    mylog.info("User selected : (%s) " % raw_bef)
 
             # Check after
             aft0 = np.where(tell_idx_min - sci_idx_max > 0)[0]
@@ -842,8 +848,11 @@ def handle_tellurics(tab0, object0, PropID, i_tell, obj_etime, tell_comb0,
                     mylog.info(tell_str)
 
                 raw_aft = raw_input("Select from above telluric star to use : ")
-                tmp_tell_comb0.append(tell_comb0[aft0[np.int(raw_aft)]])
-                mylog.info("User selected : (%s) " % raw_aft)
+                if np.int(raw_aft) < 0:
+                    mylog.info('Negative value provided -> No after telluric star')
+                else:
+                    tmp_tell_comb0.append(tell_comb0[aft0[np.int(raw_aft)]])
+                    mylog.info("User selected : (%s) " % raw_aft)
 
             rev_tell_comb0 = tmp_tell_comb0
     #endif
