@@ -518,6 +518,8 @@ def get_calib_files(name, tab0, mylog=None):
      - Handle mylog calls and calib_dict0 when comps/flats are not available
     Modified by Chun Ly, 25 May 2018
      - Change from underscore to colon separator
+    Modified by Chun Ly,  3 July 2018
+     - Handle use of dimflat
     '''
 
     if type(mylog) == type(None): mylog = log # + on 20/02/2018
@@ -580,7 +582,7 @@ def get_calib_files(name, tab0, mylog=None):
     ## FLATS
     # Mod on 11/12/2017
     i_flat = [ii for ii in range(len0) if
-              (itype0[ii] == 'flat' and aper0[ii] == t_ap and \
+              ('flat' in itype0[ii] and aper0[ii] == t_ap and \
                filt0[ii] == t_filt and disp0[ii] == t_disp and \
                pi[ii] == t_pi and propid[ii] == t_propid)]
 
