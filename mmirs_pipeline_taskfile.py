@@ -720,6 +720,10 @@ def handle_tellurics(tab0, object0, PropID, i_tell, obj_etime, tell_comb0,
     Modified by Chun Ly,  3 July 2018
      - Allow negative input for interactive telluric selection (no telluric)
      - Bug fix for handling list input -> str
+
+    Modified by Chun Ly, 12 July 2018
+     - Bug fix: Fix TypeError for tmp_num: a number is required, not
+       numpy.string_
     '''
 
     if type(mylog) == type(None): mylog = log # + on 06/03/2018
@@ -819,7 +823,7 @@ def handle_tellurics(tab0, object0, PropID, i_tell, obj_etime, tell_comb0,
                              (obj_etime_nocalib[xx] == tell_comb0[bb_bef] and
                               mmirs_setup_nocalib[xx] == target_setup)]
                     tmpt    = tab0_nocalib[t_idx][0]
-                    tmp_num = tab0_nocalib['seqno'][t_idx]
+                    tmp_num = np.int_(tab0_nocalib['seqno'][t_idx])
                     tell_str  = '(%i) %i-%i ' % (bb, min(tmp_num), max(tmp_num))
                     tell_str += '%s %s %s+%s %s' % (tell_comb0[bb_bef], tmpt['aperture'],
                                                     tmpt['filter'], tmpt['disperse'],
@@ -843,7 +847,7 @@ def handle_tellurics(tab0, object0, PropID, i_tell, obj_etime, tell_comb0,
                              (obj_etime_nocalib[xx] == tell_comb0[bb_aft] and
                               mmirs_setup_nocalib[xx] == target_setup)]
                     tmpt    = tab0_nocalib[t_idx][0]
-                    tmp_num = tab0_nocalib['seqno'][t_idx]
+                    tmp_num = np.int_(tab0_nocalib['seqno'][t_idx])
                     tell_str  = '(%i) %i-%i ' % (bb, min(tmp_num), max(tmp_num))
                     tell_str += '%s %s %s+%s %s' % (tell_comb0[bb_aft], tmpt['aperture'],
                                                     tmpt['filter'], tmpt['disperse'],
