@@ -92,7 +92,8 @@ class mlog:
 def gauss1d(x, a0, a, x0, sigma):
     return a0 + a * np.exp(-(x - x0)**2 / (2 * sigma**2))
 
-def main(rawdir, prefix, bright=False, dither='ABApBp', flats=[]):
+def main(rawdir, prefix, bright=False, dither='ABApBp', flats=[],
+         max_restrict=False):
 
     '''
     Main function of mmirs_qrp
@@ -122,6 +123,10 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', flats=[]):
       If not provided, flat fielding will not be performed
 
       NOTE: THERE ARE SOME BUGS WITH FLATFIELDING
+
+    max_restrict : boolean
+      Restrict search window for peak emission line when bright == True.
+      Default will search the entire data.
 
     Returns
     -------
@@ -199,6 +204,9 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', flats=[]):
     Modified by Chun Ly, 18 March 2018
      - Implement stdout and ASCII logging with mlog()
      - Remove silent and verbose boolean keyword
+
+    Modified by Chun Ly, 27 November 2018
+     - Add max_restrict for restricting window to search for bright star
     '''
     
     mylog = mlog(rawdir)._get_logger() # + on 18/03/2018
@@ -316,7 +324,12 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', flats=[]):
             im_test  = t_diff - resize
 
             med0_col     = np.median(im_test, axis=0)
-            peak_val[ii] = np.argmax(med0_col)
+
+            if not max_restrict:
+                peak_val[ii] = np.argmax(med0_col)
+            else:
+                idx = range(450,1000)
+                peak_val[ii] = idx[0]+np.argmax(med0_col[idx])
 
             # + on 26/11/2017
             if do_curvefit_center:
