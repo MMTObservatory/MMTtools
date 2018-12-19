@@ -207,6 +207,9 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', flats=[],
 
     Modified by Chun Ly, 27 November 2018
      - Add max_restrict for restricting window to search for bright star
+
+    Modified by Chun Ly, 18 December 2018
+     - Do weighted stack with 1/FWHM^2
     '''
     
     mylog = mlog(rawdir)._get_logger() # + on 18/03/2018
@@ -565,6 +568,15 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', flats=[],
         # + on 20/11/2017, Mod on 18/03/2018
         mylog.info('Writing : '+out_trans_pdf)
         pp.close()
+
+        # + on 18/12/2018
+        fwhm_wht0 = 1/FWHM0**2
+        stack0_wht = np.ma.average(shift_cube0_mask, axis=0, weights=fwhm_wht0)
+
+        out_fits_wht = rawdir+prefix+'_stack.wht.fits'
+        mylog.info('Writing : '+out_fits_wht)
+        fits.writeto(out_fits_wht, stack0_wht.data, overwrite=True)
+
 
     mylog.info('End main ! ') # Mod on 18/03/2018
 #enddef
