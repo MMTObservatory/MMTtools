@@ -103,8 +103,9 @@ def main(path0, outfile=None, silent=False, verbose=True):
             # All science targets
 
             idx = [ii for ii in range(len(obs_tab)) if
-                   (obs_tab['imagetype'] == 'object' and
+                   (obs_tab['imagetype'][ii] == 'object' and
                     ('HIP' not in obj0[ii] and 'HD' not in obj0[ii]))]
+            idx = np.array(idx)
 
             target_names = list(set(obj0[idx]))
             print("Targets : "+", ".join(target_names))
@@ -128,7 +129,7 @@ def main(path0, outfile=None, silent=False, verbose=True):
                 Airmass.append('%.3f-%.3f' % (np.min(AM0),np.max(AM0)))
 
                 t_idx = [ii for ii in range(len(obs_tab)) if
-                         (obs_tab['imagetype'] == 'object' and
+                         (obs_tab['imagetype'][ii] == 'object' and
                           ('HIP' in obj0[ii] or 'HD' not in obj0[ii]))]
                 t_names = list(set(obj0[t_idx]))
 
