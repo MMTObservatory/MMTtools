@@ -118,7 +118,7 @@ def main(path0, outfile=None, silent=False, verbose=True):
                 t_date  = tab_ref['dateobs'].split('T')[0]
                 exptime = tab_ref['exptime']
 
-                Target.append(target)
+                Targets.append(target)
                 ObsDate.append(t_date)
                 gratwave.append(tab_ref['filter']+'_'+tab_ref['disperse'])
 
