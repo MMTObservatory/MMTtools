@@ -50,7 +50,6 @@ def get_telluric_info(QA_tab, t_idx, t_names):
 #enddef
 
 def main(path0, outfile=None, silent=False, verbose=True):
-
     '''
     Generate ASCII file summarizing observations
 
@@ -107,26 +106,31 @@ def main(path0, outfile=None, silent=False, verbose=True):
                    (obs_tab['imagetype'] == 'object' and
                     ('HIP' not in obj0[ii] and 'HD' not in obj0[ii]))]
 
-            target_names = list(set(obs_tab['object'][idx]))
+            target_names = list(set(obj0[idx]))
             print("Targets : "+", ".join(target_names))
 
-            tab_ref = obs_tab[idx][0]
-            t_date  = tab_ref['dateobs'].split('T')[0]
-            exptime = tab_ref['exptime']
+            for target in target_names:
+                s_idx = np.where(obj0[idx] == target)[0]
+                s_idx = idx[s_idx]
 
-            ObsDate.append(t_date)
-            gratwave.append(tab_ref['filter']+'_'+tab_ref['disperse'])
+                tab_ref = obs_tab[s_idx][0]
+                t_date  = tab_ref['dateobs'].split('T')[0]
+                exptime = tab_ref['exptime']
 
-            ObsSet.append(str(len(idx))+'x'+str(exptime)+'s')
-            TotalTime.append('%.2f' % (len(idx)*exptime/60.0))
+                Target.append(target)
+                ObsDate.append(t_date)
+                gratwave.append(tab_ref['filter']+'_'+tab_ref['disperse'])
 
-            AM0 = obs_tab['airmass'][idx]
-            Airmass.append('%.3f-%.3f' % (np.min(AM0),np.max(AM0)))
+                ObsSet.append(str(len(s_idx))+'x'+str(exptime)+'s')
+                TotalTime.append('%.2f' % (len(s_idx)*exptime/60.0))
 
-            idx = [ii for ii in range(len(obs_tab)) if
-                   (obs_tab['imagetype'] == 'object' and
-                    ('HIP' in obj0[ii] or 'HD' not in obj0[ii]))]
-            t_names = list(set(obs_tab['object'][t_idx]))
+                AM0 = obs_tab['airmass'][s_idx]
+                Airmass.append('%.3f-%.3f' % (np.min(AM0),np.max(AM0)))
+
+                t_idx = [ii for ii in range(len(obs_tab)) if
+                         (obs_tab['imagetype'] == 'object' and
+                          ('HIP' in obj0[ii] or 'HD' not in obj0[ii]))]
+                t_names = list(set(obj0[t_idx]))
 
             #telstar, telset, telAM = get_telluric_info(obs_tab, t_idx, t_names)
             #TellStar.append(telstar)
@@ -136,8 +140,8 @@ def main(path0, outfile=None, silent=False, verbose=True):
         #endelse
     #endfor
 
-    arr0   = [Targets, ObsDate, ObsSet, TotalTime, gratwave,
-              Airmass, TellStar, TellSet, TellAM]
+    arr0   = [Targets, ObsDate, ObsSet, TotalTime, gratwave, Airmass]
+    # TellStar, TellSet, TellAM]
     names0 = ('Name', 'UT_Date', 'Sequence', 'Int_Time', 'Grating_Wave',
               'Airmass', 'Telluric_Star', 'Telluric_Seq', 'Telluric_AM')
     tab0 = Table(arr0, names=names0)
