@@ -107,6 +107,9 @@ def main(path0, outfile=None, silent=False, verbose=True):
                    (obs_tab['imagetype'] == 'object' and
                     ('HIP' not in obj0[ii] and 'HD' not in obj0[ii]))]
 
+            target_names = list(set(obs_tab['object'][idx]))
+            print("Targets : "+", ".join(target_names))
+
             tab_ref = obs_tab[idx][0]
             t_date  = tab_ref['dateobs'].split('T')[0]
             exptime = tab_ref['exptime']
