@@ -86,6 +86,7 @@ def main(path0, outfile=None, silent=False, verbose=True):
         if not exists(obs_file):
             log.warn('## File not found! '+obs_file)
 
+            Targets.append('N/A')
             ObsDate.append('N/A')
             gratwave.append('N/A')
             
@@ -146,6 +147,7 @@ def main(path0, outfile=None, silent=False, verbose=True):
     # TellStar, TellSet, TellAM]
     names0 = ('Name', 'UT_Date', 'Sequence', 'Int_Time', 'Grating_Wave',
               'Airmass') #, 'Telluric_Star', 'Telluric_Seq', 'Telluric_AM')
+
     tab0 = Table(arr0, names=names0)
 
     print tab0
