@@ -145,7 +145,7 @@ def main(path0, outfile=None, silent=False, verbose=True):
     arr0   = [Targets, ObsDate, ObsSet, TotalTime, gratwave, Airmass]
     # TellStar, TellSet, TellAM]
     names0 = ('Name', 'UT_Date', 'Sequence', 'Int_Time', 'Grating_Wave',
-              'Airmass', 'Telluric_Star', 'Telluric_Seq', 'Telluric_AM')
+              'Airmass') #, 'Telluric_Star', 'Telluric_Seq', 'Telluric_AM')
     tab0 = Table(arr0, names=names0)
 
     print tab0
