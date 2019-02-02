@@ -29,7 +29,7 @@ def get_telluric_info(comb0, obs_tab, reduce_path='reduced'):
     if len(taskfile) == 0:
         log.warn('file NOT found !!! : '+filename)
 
-        telname = 'N/A'
+        telstar = 'N/A'
         telset  = 'N/A'
         telAM   = 'N/A'
     else:
