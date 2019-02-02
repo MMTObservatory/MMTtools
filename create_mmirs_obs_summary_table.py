@@ -147,7 +147,7 @@ def main(path0, outfile=None, silent=False, verbose=True):
                 AM0 = obs_tab['airmass'][s_idx]
                 Airmass.append('%.3f-%.3f' % (np.min(AM0),np.max(AM0)))
 
-                telstar, telset, telAM = get_telluric_info(target.replace(':','_'), obs_tab)
+                telstar, telset, telAM = get_telluric_info(target.replace(':','_'), obs_tab, dir0)
                 TellStar.append(telstar)
                 TellSet.append(telset)
                 TellAM.append(telAM)
