@@ -44,7 +44,7 @@ def get_telluric_info(comb0, obs_tab, dir0, reduce_path='reduced'):
         t_exptime = obs_tab['exptime'][t_idx][0]
         telset    = str(len(t_idx))+'x'+str(t_exptime)+'s'
 
-        AM0   = QA_tab['airmass'][t_idx]
+        AM0   = obs_tab['airmass'][t_idx]
         telAM = '%.3f-%.3f' % (np.min(AM0),np.max(AM0))
 
     return telstar, telset, telAM
