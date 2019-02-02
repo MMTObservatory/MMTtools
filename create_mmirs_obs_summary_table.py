@@ -70,6 +70,9 @@ def main(path0, outfile=None, silent=False, verbose=True):
     Notes
     -----
     Created by Chun Ly, 24 January 2019
+
+    Modified by Chun Ly, 1 February 2019
+     - Handle sources with multiple dataset (e.g., different filter/grism combinations)
     '''
     
     if silent == False: log.info('### Begin main : '+systime())
@@ -109,18 +112,31 @@ def main(path0, outfile=None, silent=False, verbose=True):
                      'BD_' not in obj0[ii]))]
             idx = np.array(idx)
 
-            target_names = list(set(obj0[idx]))
-            print("Targets : "+", ".join(target_names))
+            comb0 = ['N/A'] * len(obs_tab)
+            for ii in idx:
+                tab0_o = obs_tab[ii]
+
+                if tab0_o['aptype'] == 'mos':
+                    t_name = tab0_o['filename'].split('_')[0]
+                else:
+                    t_name = tab0_o['object']
+
+                comb0[ii] = t_name + ':' + tab0_o['aperture'] + ':' + \
+                            tab0_o['filter'] + ':' + tab0_o['disperse']
+
+            comb0 = np.array(comb0)
+            target_names = list(set(comb0[idx]))
+            print("Targets : "+", ".join(target_names).replace(':','_'))
 
             for target in target_names:
-                s_idx = np.where(obj0[idx] == target)[0]
+                s_idx = np.where(comb0[idx] == target)[0]
                 s_idx = idx[s_idx]
 
                 tab_ref = obs_tab[s_idx][0]
                 t_date  = tab_ref['dateobs'].split('T')[0]
                 exptime = tab_ref['exptime']
 
-                Targets.append(target)
+                Targets.append(target.split(':')[0])
                 ObsDate.append(t_date)
                 gratwave.append(tab_ref['filter']+'_'+tab_ref['disperse'])
 
