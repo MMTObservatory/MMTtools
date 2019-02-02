@@ -8,10 +8,11 @@ folder that is organized by UTC date.
 
 import sys, os
 
-from chun_codes import systime
+from chun_codes import systime, match_nosort_str
 
 from os.path import exists
 from astropy.io import ascii as asc
+from astropy.io import fits
 
 import numpy as np
 
@@ -20,32 +21,32 @@ from glob import glob
 from astropy.table import Table
 from astropy import log
 
-def get_telluric_info(QA_tab, t_idx, t_names):
+def get_telluric_info(comb0, obs_tab, reduce_path='reduced'):
     ## + on 25/04/2017
 
-    if len(t_idx) == 1:
-        telstar   = QA_tab['object'][t_idx][0]
-        t_exptime = QA_tab['exptime'][t_idx][0]
+    filename = reduce_path+'/'+comb0+'/'+comb0+'_01.txt'
+    taskfile = glob(filename)
+    if len(taskfile) == 0:
+        log.warn('file NOT found !!! : '+filename)
+
+        telname = 'N/A'
+        telset  = 'N/A'
+        telAM   = 'N/A'
+    else:
+        f = open(taskfile[0])
+        f0 = f.readlines()
+        hdr = fits.Header.fromstring("".join(f0), sep='\n')
+
+        tell_filenames = hdr['STAR01'].split(',')
+        t_idx, temp_idx = match_nosort_str(obs_tab['filename'].data, tell_filenames)
+
+        telstar   = obs_tab['object'][t_idx][0]
+        t_exptime = obs_tab['exptime'][t_idx][0]
         telset    = str(len(t_idx))+'x'+str(t_exptime)+'s'
 
         AM0   = QA_tab['airmass'][t_idx]
         telAM = '%.3f-%.3f' % (np.min(AM0),np.max(AM0))
-    else:
-        telset = []
-        telAM  = []
-        for nn in range(len(t_names)):
-            idx2      = [xx for xx in range(len(QA_tab)) if
-                         (t_names[nn] in QA_tab['object'][xx])]
-            nidx      = list(set(t_idx) & set(idx2))
-            t_exptime = QA_tab['exptime'][nidx][0]
-            telset.append(str(len(nidx))+'x'+str(t_exptime)+'s')
 
-            AM0   = QA_tab['airmass'][nidx]
-            telAM.append('%.3f-%.3f' % (np.min(AM0),np.max(AM0)))
-
-        telstar = ','.join(t_names)
-        telset  = ','.join(telset)
-        telAM   = ','.join(telAM)
     return telstar, telset, telAM
 #enddef
 
