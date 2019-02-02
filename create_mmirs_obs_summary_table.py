@@ -21,10 +21,10 @@ from glob import glob
 from astropy.table import Table
 from astropy import log
 
-def get_telluric_info(comb0, obs_tab, reduce_path='reduced'):
+def get_telluric_info(comb0, obs_tab, dir0, reduce_path='reduced'):
     ## + on 25/04/2017
 
-    filename = reduce_path+'/'+comb0+'/'+comb0+'_01.txt'
+    filename = dir0 + '/' + reduce_path+'/'+comb0+'/'+comb0+'_01.txt'
     taskfile = glob(filename)
     if len(taskfile) == 0:
         log.warn('file NOT found !!! : '+filename)
