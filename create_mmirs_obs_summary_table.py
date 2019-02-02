@@ -147,23 +147,17 @@ def main(path0, outfile=None, silent=False, verbose=True):
                 AM0 = obs_tab['airmass'][s_idx]
                 Airmass.append('%.3f-%.3f' % (np.min(AM0),np.max(AM0)))
 
-                #t_idx = [ii for ii in range(len(obs_tab)) if
-                #         (obs_tab['imagetype'][ii] == 'object' and
-                #          ('HIP' in obj0[ii] or 'HD' not in obj0[ii]))]
-                #t_names = list(set(obj0[t_idx]))
-
-            #telstar, telset, telAM = get_telluric_info(obs_tab, t_idx, t_names)
-            #TellStar.append(telstar)
-            #TellSet.append(telset)
-            #TellAM.append(telAM)
+                telstar, telset, telAM = get_telluric_info(target.replace(':','_'), obs_tab)
+                TellStar.append(telstar)
+                TellSet.append(telset)
+                TellAM.append(telAM)
             cnt += 1
         #endelse
     #endfor
 
-    arr0   = [Targets, ObsDate, ObsSet, TotalTime, gratwave, Airmass]
-    # TellStar, TellSet, TellAM]
+    arr0   = [Targets, ObsDate, ObsSet, TotalTime, gratwave, Airmass, TellStar, TellSet, TellAM]
     names0 = ('Name', 'UT_Date', 'Sequence', 'Int_Time', 'Grating_Wave',
-              'Airmass') #, 'Telluric_Star', 'Telluric_Seq', 'Telluric_AM')
+              'Airmass', 'Telluric_Star', 'Telluric_Seq', 'Telluric_AM')
 
     tab0 = Table(arr0, names=names0)
 
