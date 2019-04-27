@@ -129,12 +129,20 @@ TIPS:
 
 """
 
+__version__ = '0.2beta' # Set on 26/04/2019. - Py2 and 3 compatibility
 __version__ = '0.1' # Set on 16/02/2018
 
 import sys, os
 
 from os.path import exists
-import commands
+
+#Py3 compatibility
+py_vers = sys.version_info.major
+if py_vers == 3:
+    import subprocess as commands
+if py_vers == 2:
+    import commands
+
 from astropy.io import ascii as asc
 from astropy.io import fits
 
