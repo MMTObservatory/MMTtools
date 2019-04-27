@@ -819,7 +819,7 @@ def handle_tellurics(tab0, object0, PropID, i_tell, obj_etime, tell_comb0,
             if len(bef0) == 0 or len(aft0) == 0:
                 rev_tell_comb0 = []
         else:
-            print tab0[idx]
+            print(tab0[idx])
 
             # Check before
             bef0 = np.where(tell_idx_max - sci_idx_min < 0)[0]
