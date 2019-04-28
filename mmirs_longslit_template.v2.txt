@@ -58,9 +58,6 @@ EXTMETH = 1 / 1 - box extraction, 2 - optimal extraction
 EXTAPW  = 5 / extraction aperture in pixels, window with or gaussian FWHM
 EXTDFBOX= 0 / use alignbox star positions to get empirical dithering offset?
 EXTBOXEX= 'obj-sky' / image type to use alignbox positions from
-EXTR_EST= 1 / estimate extraction kernel from spatial profile
-N_APWMAX= 4.5 / cut empirical spatial profile at this many FWHM
-FITPROF = 1 / fit moffat profile to empirical extraction kernel profile
 MTELCORR= 1 / model-based telluric correction
 COMMENT   process the following reduction steps (yes=1/no=0)
 S01PROC = 1 / up-the-ramp fitting (if needed) and dark subtraction
