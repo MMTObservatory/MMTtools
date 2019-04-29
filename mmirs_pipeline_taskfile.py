@@ -1109,7 +1109,7 @@ def get_diff_images(tab0, idx, dither=None, mylog=None):
     if dither != 'None':
         mylog.info('Dither sequence is : '+dither) # Mod on 20/02/2018
 
-        i_off = [1, -1] * (n_files/2)
+        i_off = [1, -1] * np.int(n_files/2)
         if dither != 'ABBA':
             if n_files % 2 == 1: i_off.append(-1) # Odd number correction
         i_sky = np.arange(n_files)+np.array(i_off)
