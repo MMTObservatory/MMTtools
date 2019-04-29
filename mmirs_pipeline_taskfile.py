@@ -140,6 +140,7 @@ from os.path import exists
 py_vers = sys.version_info.major
 if py_vers == 3:
     import subprocess as commands
+    raw_input = input
 if py_vers == 2:
     import commands
 
