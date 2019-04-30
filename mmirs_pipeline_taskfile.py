@@ -29,15 +29,17 @@ This code will create several files:
 
 TO EXECUTE:
 
-0. First, you will need python v2.7 (This code will not work python 3.xx).
+0. First, you will need python. This code is compatible with 2.x and 3.x.
+   It has been tested with 2.7.15 and 3.6.8
    I recommend installing through anaconda:
      https://www.anaconda.com/download/
 
    Next you will need the Astropy package.  This code has been tested to work
-   with v1.3 and v2.0.2 of Astropy. Install via the conda command:
+   with v1.3 and v3.1.2 of Astropy. Install via the conda command:
      conda install astropy
 
-   In addition, you will need astroquery package. Install via pip command:
+   In addition, you will need the astroquery package (tested with 0.3.7).
+   Install via pip command:
      pip install astroquery
 
 
