@@ -258,13 +258,15 @@ def get_header_info(files0):
     Modified by Chun Ly, 17 February 2018
      - Bug fix: Handle FITS files that are not multi-extension FITS
        (i.e., only one read)
+    Modified by Chun Ly, 2 May 2019
+     - Check that FITS header contains all keys - From Sean Moran (CfA)
     '''
 
     n_files0 = len(files0)
     filename = [] #np.array(['']*n_files0)
     seqno    = []
-    exptime  = np.zeros(n_files0)
-    airmass  = np.zeros(n_files0)
+    exptime  = [] #np.zeros(n_files0)
+    airmass  = [] #np.zeros(n_files0)
     dateobs  = [] #np.array(['']*n_files0)
     object0  = [] #np.array(['']*n_files0)
     imagetyp = [] #np.array(['']*n_files0)
@@ -274,7 +276,7 @@ def get_header_info(files0):
     disperse = [] #np.array(['']*n_files0)
     pi       = [] # + on 08/12/2017
     propid   = [] # + on 08/12/2017
-    instel   = np.zeros(n_files0) # + on 11/12/2017
+    instel   = [] #np.zeros(n_files0) # + on 11/12/2017
 
     for ii in range(n_files0):
         zhdr = fits.getheader(files0[ii], ext=0)
@@ -285,23 +287,31 @@ def get_header_info(files0):
         else:
             hdr = fits.getheader(files0[ii], ext=1)
 
-        exptime[ii] = hdr['EXPTIME']
-        airmass[ii] = hdr['AIRMASS']
+        haskeys = 'OBJECT' in hdr.keys() and 'EXPTIME' in hdr.keys() and \
+                  'AIRMASS' in hdr.keys() and 'FILENAME' in hdr.keys() and \
+                  'DATE-OBS' in hdr.keys() and 'IMAGETYP' in hdr.keys() and \
+                  'APTYPE' in hdr.keys() and 'APERTURE' in hdr.keys() and \
+                  'FILTER' in hdr.keys() and 'DISPERSE' in hdr.keys() and \
+                  'PI' in hdr.keys() and 'PROPID' in hdr.keys() and 'INSTEL' in hdr.keys()
 
-        t_filename = hdr['FILENAME'].split('/')[-1]
-        seqno.append(t_filename.split('.')[-1])
-        filename.append(t_filename)
-        dateobs.append(hdr['DATE-OBS'])
-        object0.append(hdr['OBJECT'])
-        imagetyp.append(hdr['IMAGETYP'])
-        aptype.append(hdr['APTYPE'])
-        aperture.append(hdr['APERTURE'])
-        filter0.append(hdr['FILTER'])
-        disperse.append(hdr['DISPERSE'])
-        pi.append(hdr['PI']) # + on 08/12/2017
-        propid.append(hdr['PROPID']) # + on 08/12/2017
+        if haskeys:
+            exptime.append(hdr['EXPTIME'])
+            airmass.append(hdr['AIRMASS'])
 
-        instel[ii] = hdr['INSTEL'] # + on 11/12/2017
+            t_filename = hdr['FILENAME'].split('/')[-1]
+            seqno.append(t_filename.split('.')[-1])
+            filename.append(t_filename)
+            dateobs.append(hdr['DATE-OBS'])
+            object0.append(hdr['OBJECT'])
+            imagetyp.append(hdr['IMAGETYP'])
+            aptype.append(hdr['APTYPE'])
+            aperture.append(hdr['APERTURE'])
+            filter0.append(hdr['FILTER'])
+            disperse.append(hdr['DISPERSE'])
+            pi.append(hdr['PI']) # + on 08/12/2017
+            propid.append(hdr['PROPID']) # + on 08/12/2017
+
+            instel.append(hdr['INSTEL']) # + on 11/12/2017
     #endfor
 
     arr0   = [filename, seqno, dateobs, object0, pi, propid, imagetyp,
