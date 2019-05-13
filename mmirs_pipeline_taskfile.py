@@ -1354,9 +1354,9 @@ def generate_taskfile(hdr0, rawdir, w_dir, name, c_dict0, tell_dict0, tab0,
             else:
                 c_hdr0['S08PROC'] = 0
 
-            c_hdr0['W_DIR'] = w_dir + format(ii/2+1, '02') + '/'
+            c_hdr0['W_DIR'] = w_dir + format(np.int(ii/2+1), '02') + '/'
 
-            outfile = w_dir+uscore_name+'_'+format(ii/2+1, '02')+'.txt' # Mod on 31/01/2018
+            outfile = w_dir+uscore_name+'_'+format(np.int(ii/2+1), '02')+'.txt' # Mod on 31/01/2018
             mylog.info('Writing : '+os.path.basename(outfile)) # Mod on 20/02/2018
 
             # Mod on 16/02/2018
