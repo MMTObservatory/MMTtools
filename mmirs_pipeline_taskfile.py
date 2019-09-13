@@ -1746,6 +1746,7 @@ def create(rawdir, w_dir='', dither=None, bright=False, extract=False,
             # Mod on 31/01/2018, 18/02/2018
             if w_dir == '':
                 w_dir_tmp = rawdir + 'reduced/'+uscore_name+'/'
+                w_dir = rawdir
             else:
                 if w_dir[-1] != '/': w_dir = w_dir + '/'
                 w_dir_tmp = w_dir + uscore_name + '/'
