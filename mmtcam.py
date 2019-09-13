@@ -9,7 +9,7 @@ MMTCam for each image. Intended to understand the cause of unusual PSFs
 
 import sys, os
 
-from chun_codes import systime
+from mmirs import systime
 
 from os.path import exists
 import commands
