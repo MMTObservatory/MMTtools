@@ -441,7 +441,7 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', flats=[],
                      str0 in dcorr_files] # Mod on 17/11/2017
         else:
             seqno = [str0.replace('.gz','').replace('.fits','')[-4:] for \
-                     str0 in dcorr_files]
+                     str0 in raw_files]
 
         for ii in range(n_files):
             if ii % (ncols*nrows) == 0: # + on 20/11/2017
