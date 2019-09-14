@@ -106,6 +106,7 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', flats=[],
     prefix : str
       Prefix for files to process.  Code will search for dcorr files
       in rawdir + prefix + "*dcorr.fits*"
+      For example, if your files are <target>_longslit.????.fits, provide 'target_longslit'
 
     bright : boolean
       Indicate whether a bright star/target is in slit.  If True,
@@ -220,8 +221,20 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', flats=[],
 
     dcorr_files = glob.glob(rawdir+prefix+'*dcorr.fits*')
     n_files     = len(dcorr_files)
+
+    if n_files == 0:
+        mylog.warn("!!! d-corr files not found. Using raw data !!!")
+        dcorr_yes = 0
+
+        raw_files = glob.glob(rawdir+prefix+'.????.fits*')
+        n_files   = len(raw_files)
+
+        hdu0 = fits.getheader(raw_files[0], ext=1)
+    else:
+        dcorr_yes = 1
     
-    hdu0 = fits.getheader(dcorr_files[0])
+        hdu0 = fits.getheader(dcorr_files[0])
+
     naxis1, naxis2 = hdu0['NAXIS1'], hdu0['NAXIS2']
 
     npz_file = rawdir+prefix+'.npz'
@@ -280,7 +293,13 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', flats=[],
     print i_sky
 
     for ii in range(n_files):
-        d_data, t_hdr = fits.getdata(dcorr_files[ii], header=True)
+        if dcorr_yes:
+            d_data, t_hdr = fits.getdata(dcorr_files[ii], header=True)
+        else:
+            d_data0, t_hdr = fits.getdata(raw_files[ii], ext=1, header=True) #last
+            d_data1 = fits.getdata(raw_files[ii], ext=2) #first
+            d_data  = d_data0 - d_data1
+
         # print ii, np.min(d_data), np.max(d_data)
 
         if do_flat: d_data = d_data / flat0
@@ -356,7 +375,11 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', flats=[],
 
     mylog.info('Shift values for spectra : ') # Mod on 18/03/2018
     # Mod on 12/11/2017
-    files_short = [str0.replace(rawdir,'') for str0 in dcorr_files]
+    if dcorr_yes:
+        files_short = [str0.replace(rawdir,'') for str0 in dcorr_files]
+    else:
+        files_short = [str0.replace(rawdir,'') for str0 in raw_files]
+        
     if bright == True:
         diff0  = dither_diff - shift_val * u.pix
         arr0   = [files_short, dither_az * u.arcsec, dither_el * u.arcsec,
@@ -413,8 +436,12 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', flats=[],
         ncols, nrows = 3, 2
 
         FWHM0 = np.zeros(n_files)
-        seqno = [str0.replace('.gz','').replace('_dcorr.fits','')[-4:] for \
-                 str0 in dcorr_files] # Mod on 17/11/2017
+        if dcorr_yes:
+            seqno = [str0.replace('.gz','').replace('_dcorr.fits','')[-4:] for \
+                     str0 in dcorr_files] # Mod on 17/11/2017
+        else:
+            seqno = [str0.replace('.gz','').replace('.fits','')[-4:] for \
+                     str0 in dcorr_files]
 
         for ii in range(n_files):
             if ii % (ncols*nrows) == 0: # + on 20/11/2017
