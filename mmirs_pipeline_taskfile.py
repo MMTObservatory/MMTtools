@@ -1648,6 +1648,8 @@ def create(rawdir, w_dir='', dither=None, bright=False, extract=False,
 
     if rawdir[-1] != '/': rawdir = rawdir + '/'
 
+    w_dir0 = w_dir # Save initial settings
+
     files0 = glob.glob(rawdir+'*.????.fits*')
     files0 = [t_file for t_file in files0 if 'align_' not in t_file]
     files0 = [t_file for t_file in files0 if '_stack' not in t_file]
@@ -1744,7 +1746,7 @@ def create(rawdir, w_dir='', dither=None, bright=False, extract=False,
                                        inter=inter, mylog=mylog)
 
             # Mod on 31/01/2018, 18/02/2018
-            if w_dir == '':
+            if w_dir0 == '':
                 w_dir_tmp = rawdir + 'reduced/'+uscore_name+'/'
                 w_dir = rawdir
             else:
