@@ -298,7 +298,7 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', flats=[],
         else:
             d_data0, t_hdr = fits.getdata(raw_files[ii], ext=1, header=True) #last
             d_data1 = fits.getdata(raw_files[ii], ext=2) #first
-            d_data  = d_data0 - d_data1
+            d_data  = np.float_(d_data0) - d_data1
 
         # print ii, np.min(d_data), np.max(d_data)
 
