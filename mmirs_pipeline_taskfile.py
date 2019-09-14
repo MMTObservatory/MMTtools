@@ -500,7 +500,7 @@ def read_template(longslit=False, mos=False, mylog=None):
 
 #enddef
 
-def get_calib_files(name, tab0, mylog=None):
+def get_calib_files(name, tab0, mylog=None, inter=False):
     '''
     Get appropriate calibration files for each dataset
 
@@ -589,6 +589,9 @@ def get_calib_files(name, tab0, mylog=None):
     if len(i_comp) != 0: # Mod 01/05/2018
         if len(i_comp) > 2:
             mylog.warn('Too many comps!!!') # Mod on 20/02/2018
+
+            if inter:
+                raw_in = raw_input("Select from above comps set : ")
 
         comp_str0  = ",".join(tab0['filename'][i_comp])
         comp_itime = tab0['exptime'][i_comp[0]]
@@ -1739,7 +1742,7 @@ def create(rawdir, w_dir='', dither=None, bright=False, extract=False,
                 hdr0['S07PROC'] = 0
 
             # on 08/12/2017
-            c_dict0 = get_calib_files(name, tab0, mylog=mylog)
+            c_dict0 = get_calib_files(name, tab0, mylog=mylog, inter=inter)
 
             # Mod on 28/01/2018, 18/02/2018, 20/02/2018, 08/06/2018
             tell_dict0 = get_tellurics(tab0, idx, comb0, object0, mmirs_setup0,
