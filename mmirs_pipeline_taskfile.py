@@ -1802,11 +1802,11 @@ def create(rawdir, w_dir='', dither=None, bright=False, extract=False,
 
                 # Mod on 01/05/2018
                 if w_dir == '':
-                    str0 = [".run run_pipeline\n\n", "on_error, 0\n"
-                            "run_pipeline, 'reduced/%s'\n\n" % uscore_name, "exit\n"] # Mod on 23/02/2018
+                    str0 = [".run run_pipeline\n\n", "systime()\n", "on_error, 0\n"
+                            "run_pipeline, 'reduced/%s'\n\n" % uscore_name, "systime()\n", "exit\n"]
                 else:
-                    str0 = [".run run_pipeline\n\n",
-                            "run_pipeline, '%s'\n\n" % w_dir_tmp, "exit\n"] # Mod on 23/02/2018
+                    str0 = [".run run_pipeline\n\n", "systime()\n",
+                            "run_pipeline, '%s'\n\n" % w_dir_tmp, "systime()\n", "exit\n"]
 
                 f1.writelines(str0)
                 f1.close()
