@@ -397,12 +397,12 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', flats=[],
     # + on 12/11/2017
     out_dither_file1 = rawdir+prefix+'_dither_ecsv.cat'
     mylog.info('Writing : '+out_dither_file1) # Mod on 18/03/2018
-    dither_tab.write(out_dither_file1, format='ascii.ecsv')
+    dither_tab.write(out_dither_file1, format='ascii.ecsv', overwrite=True)
 
     # + on 12/11/2017
     out_dither_file2 = rawdir+prefix+'_dither.cat'
     mylog.info('Writing : '+out_dither_file2) # Mod on 18/03/2018
-    dither_tab.write(out_dither_file2, format='ascii.fixed_width_two_line')
+    dither_tab.write(out_dither_file2, format='ascii.fixed_width_two_line', overwrite=True)
     #log.info('### '+" ".join([str(a) for a in shift_val]))
 
     for ii in range(n_files):
