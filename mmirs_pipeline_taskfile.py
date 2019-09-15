@@ -160,6 +160,8 @@ from astropy.time import Time # + on 31/01/2018
 
 from socket import gethostname
 
+from itertools import groupby, count
+
 # Mod on 01/05/2018
 use_simbad = 0
 if use_simbad:
@@ -500,6 +502,13 @@ def read_template(longslit=False, mos=False, mylog=None):
 
 #enddef
 
+def group_range(iterable):
+    l = list(iterable)
+    if len(l) > 1:
+        return range(l[0], l[-1]+1)
+    else:
+        return [l[0]]
+
 def get_calib_files(name, tab0, mylog=None, inter=False):
     '''
     Get appropriate calibration files for each dataset
@@ -587,11 +596,22 @@ def get_calib_files(name, tab0, mylog=None, inter=False):
                pi[ii] == t_pi and propid[ii] == t_propid)]
 
     if len(i_comp) != 0: # Mod 01/05/2018
-        if len(i_comp) > 2:
-            mylog.warn('Too many comps!!!') # Mod on 20/02/2018
+        i_comp_grp = [group_range(g) for _, g in
+                      groupby(i_comp, key=lambda n, c=count(): n-next(c))]
+        if len(i_comp_grp) > 1:
+            mylog.warn('Too many comp sets!!!') # Mod on 20/02/2018
 
             if inter:
-                raw_in = raw_input("Select from above comps set : ")
+                for cc in range(len(i_comp_grp)):
+                    tmpt    = tab0[i_comp_grp[cc][0]]
+                    tmp_num = tab0['seqno'][i_comp_grp[cc]]
+                    comp_str  = '(%i) %i-%i ' % (cc, min(tmp_num), max(tmp_num))
+                    comp_str += '%s %s+%s %s' % (tmpt['aperture'], tmpt['filter'],
+                                                 tmpt['disperse'], tmpt['PropID'])
+                    mylog.info(comp_str)
+                raw_in = raw_input("Select from above comp sets : ")
+                mylog.info("User selected : (%s) " % np.int(raw_in))
+                i_comp = i_comp_grp[np.int(raw_in)]
 
         comp_str0  = ",".join(tab0['filename'][i_comp])
         comp_itime = tab0['exptime'][i_comp[0]]
@@ -611,8 +631,22 @@ def get_calib_files(name, tab0, mylog=None, inter=False):
                pi[ii] == t_pi and propid[ii] == t_propid)]
 
     if len(i_flat) != 0: # Mod 01/05/2018
-        if len(i_flat) > 2:
-            mylog.warn('Too many flats!!!') # Mod on 20/02/2018
+        i_flat_grp = [group_range(g) for _, g in
+                      groupby(i_flat, key=lambda n, c=count(): n-next(c))]
+        if len(i_flat_grp) > 1:
+            mylog.warn('Too many flat sets!!!') # Mod on 20/02/2018
+
+            if inter:
+                for cc in range(len(i_flat_grp)):
+                    tmpt    = tab0[i_flat_grp[cc][0]]
+                    tmp_num = tab0['seqno'][i_flat_grp[cc]]
+                    flat_str  = '(%i) %i-%i ' % (cc, min(tmp_num), max(tmp_num))
+                    flat_str += '%s %s+%s %s' % (tmpt['aperture'], tmpt['filter'],
+                                                 tmpt['disperse'], tmpt['PropID'])
+                    mylog.info(flat_str)
+                raw_in = raw_input("Select from above flat sets : ")
+                mylog.info("User selected : (%s) " % np.int(raw_in))
+                i_flat = i_flat_grp[np.int(raw_in)]
 
         flat_str0 = ",".join(tab0['filename'][i_flat])
         flat_itime = tab0['exptime'][i_flat[0]]
