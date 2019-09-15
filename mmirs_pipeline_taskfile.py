@@ -301,7 +301,7 @@ def get_header_info(files0):
             airmass.append(hdr['AIRMASS'])
 
             t_filename = hdr['FILENAME'].split('/')[-1]
-            seqno.append(t_filename.split('.')[-1])
+            seqno.append(np.int(t_filename.split('.')[-1]))
             filename.append(t_filename)
             dateobs.append(hdr['DATE-OBS'])
             object0.append(hdr['OBJECT'])
