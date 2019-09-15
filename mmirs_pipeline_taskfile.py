@@ -131,8 +131,9 @@ TIPS:
 
 """
 
-__version__ = '0.2beta' # Set on 26/04/2019. - Py2 and 3 compatibility
-__version__ = '0.1' # Set on 16/02/2018
+__version__ = '0.2' # Set on 15/09/2019. PyPI-ed and a few minor fixes
+#__version__ = '0.2beta' # Set on 26/04/2019. - Py2 and 3 compatibility
+#__version__ = '0.1' # Set on 16/02/2018
 
 import sys, os
 
