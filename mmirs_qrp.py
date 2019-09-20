@@ -271,7 +271,6 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', flats=[],
         bad = np.where((np.isfinite(flat0) == False) | (flat0 == 0) |
                        (flat0 == np.min(flat0)))
         if len(bad) > 0: flat0[bad] = 1.0
-        # print np.min(flat0), np.max(flat0)
 
         out_fits_file = rawdir+prefix+'_flat.fits'
         mylog.info('Writing : '+out_fits_file) # Mod on 18/03/2018
@@ -290,7 +289,7 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', flats=[],
         i_off = [1, -1] * (n_files/2)
         if n_files % 2 == 1: i_off.append(-1) # Odd number correction
         i_sky = np.arange(n_files)+np.array(i_off)
-    print i_sky
+    mylog.info("i_sky : ", i_sky)
 
     for ii in range(n_files):
         if dcorr_yes:
@@ -300,10 +299,7 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', flats=[],
             d_data1 = fits.getdata(raw_files[ii], ext=2) #first
             d_data  = np.float_(d_data0) - d_data1
 
-        # print ii, np.min(d_data), np.max(d_data)
-
         if do_flat: d_data = d_data / flat0
-        # print ii, np.min(d_data), np.max(d_data)
 
         d_cube0[ii] = d_data
 
