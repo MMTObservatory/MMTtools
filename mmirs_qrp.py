@@ -292,7 +292,7 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', flats=[],
         i_off = [1, -1] * np.int(n_files/2)
         if n_files % 2 == 1: i_off.append(-1) # Odd number correction
         i_sky = np.arange(n_files)+np.array(i_off)
-    mylog.info("i_sky : ", ", ".join(["%i" % sky for sky in i_sky]))
+    mylog.info("i_sky : " + ", ".join(["%i" % sky for sky in i_sky]))
 
     for ii in range(n_files):
         if dcorr_yes:
