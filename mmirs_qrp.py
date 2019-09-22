@@ -286,7 +286,7 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', flats=[],
     diff_cube0  = np.zeros((n_files, naxis2, naxis1))
 
     if dither == 'ABApBp' or dither == 'ABBA':
-        i_off = [1, -1] * (n_files/2)
+        i_off = [1, -1] * np.int(n_files/2)
         if n_files % 2 == 1: i_off.append(-1) # Odd number correction
         i_sky = np.arange(n_files)+np.array(i_off)
     mylog.info("i_sky : ", i_sky)
