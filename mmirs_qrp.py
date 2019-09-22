@@ -7,6 +7,9 @@ Python script that quickly reduces longslit and MOS spectra from MMT/MMIRS
 
 import sys, os
 
+#Py3 compatibility
+py_vers = sys.version_info.major
+
 from os.path import exists
 from astropy.io import ascii as asc
 from astropy.io import fits
@@ -289,7 +292,7 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', flats=[],
         i_off = [1, -1] * np.int(n_files/2)
         if n_files % 2 == 1: i_off.append(-1) # Odd number correction
         i_sky = np.arange(n_files)+np.array(i_off)
-    mylog.info("i_sky : ", ", ".join(["%i" % sky for sky i_sky])
+    mylog.info("i_sky : ", ", ".join(["%i" % sky for sky i_sky]))
 
     for ii in range(n_files):
         if dcorr_yes:
@@ -391,9 +394,18 @@ def main(rawdir, prefix, bright=False, dither='ABApBp', flats=[],
     dither_tab.pprint(max_lines=-1, max_width=-1)
 
     # + on 12/11/2017
-    out_dither_file1 = rawdir+prefix+'_dither_ecsv.cat'
-    mylog.info('Writing : '+out_dither_file1) # Mod on 18/03/2018
-    dither_tab.write(out_dither_file1, format='ascii.ecsv', overwrite=True)
+
+    try:
+        import yaml
+        yaml_pass = 1
+    except ModuleNotFoundError or ImportError:
+        mylog.info("Failed yaml import")
+        yaml_pass = 0
+
+    if yaml_pass:
+        out_dither_file1 = rawdir+prefix+'_dither_ecsv.cat'
+        mylog.info('Writing : '+out_dither_file1) # Mod on 18/03/2018
+        dither_tab.write(out_dither_file1, format='ascii.ecsv', overwrite=True)
 
     # + on 12/11/2017
     out_dither_file2 = rawdir+prefix+'_dither.cat'
