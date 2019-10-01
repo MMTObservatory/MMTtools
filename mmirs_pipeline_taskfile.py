@@ -29,13 +29,12 @@ This code will create several files:
 
 TO EXECUTE:
 
-0. First, you will need python. This code is compatible with 2.x and 3.x.
-   It has been tested with 2.7.15 and 3.6.8
-   I recommend installing through anaconda:
+0. First, you will need python. This code has been tested to work with v2.7.15 and
+   3.6.8. I recommend installing through anaconda:
      https://www.anaconda.com/download/
 
    Next you will need the Astropy package.  This code has been tested to work
-   with v1.3 and v3.1.2 of Astropy. Install via the conda command:
+   with v1.3, v2.0.2, and v3.1.2 of Astropy. Install via the conda command:
      conda install astropy
 
    In addition, you will need the astroquery package (tested with 0.3.7).
@@ -71,7 +70,9 @@ TO EXECUTE:
     2. dither: If NOT specified, code will determine dither pattern based on
        FITS header
     3. Set bright to True of False if there is a bright object in slit or MOS
-    4. Note that mmirs-pipeline will look for a 'calib_MMIRS' folder. This
+    4. Set inter to True if multiple calibration datasets (including telluric star)
+       are available. The code will prompt user to select.
+    5. Note that mmirs-pipeline will look for a 'calib_MMIRS' folder. This
        is needed in the pre-processing (e.g., applying non-linearity correction).
        This Python code will prompt you to provide a path such that a symbolic
        link is created.
@@ -125,7 +126,7 @@ TIPS:
    If a bug is encountered please submit an issue ticket here:
      https://github.com/astrochun/MMTtools/issues
 
-   Also, please email the creator, Chun Ly, at chunly [at] mmto.org
+   Also, please email the creator, Chun Ly, at astro.chun [at] gmail.com
    your mmirs_pipeline_taskfile.log, any error messages on the ipython
    or python screen, and your 'obs_summary.tbl' file
 
