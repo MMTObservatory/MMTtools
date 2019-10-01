@@ -1862,7 +1862,7 @@ def create(rawdir, w_dir='', dither=None, bright=False, extract=False,
         mylog.info('Writing : '+script_outfile) # Mod on 19/02/2018
 
         f0 = open(script_outfile, 'w')
-        str0 = [".run mmirs_pipeline_nonlin_script\n\n",
+        str0 = [".run "+co_path+"mmirs_pipeline_nonlin_script\n\n",
                 "mmirs_pipeline_nonlin_script, '%s', w_dir='%s', compress='.gz', /verbose\n\n"% \
                 (rawdir, w_dir), "exit\n"]
         f0.writelines(str0)
