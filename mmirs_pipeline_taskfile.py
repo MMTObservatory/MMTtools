@@ -281,6 +281,8 @@ def get_header_info(files0):
     pi       = [] # + on 08/12/2017
     propid   = [] # + on 08/12/2017
     instel   = [] #np.zeros(n_files0) # + on 11/12/2017
+    cat_id   = []
+    gain     = []
 
     for ii in range(n_files0):
         zhdr = fits.getheader(files0[ii], ext=0)
@@ -296,7 +298,8 @@ def get_header_info(files0):
                   'DATE-OBS' in hdr.keys() and 'IMAGETYP' in hdr.keys() and \
                   'APTYPE' in hdr.keys() and 'APERTURE' in hdr.keys() and \
                   'FILTER' in hdr.keys() and 'DISPERSE' in hdr.keys() and \
-                  'PI' in hdr.keys() and 'PROPID' in hdr.keys() and 'INSTEL' in hdr.keys()
+                  'PI' in hdr.keys() and 'PROPID' in hdr.keys() and 'INSTEL' in hdr.keys() and \
+                  'CAT-ID' in hdr.keys() and 'GAIN' in hdr.keys()
 
         if haskeys:
             exptime.append(hdr['EXPTIME'])
@@ -314,14 +317,15 @@ def get_header_info(files0):
             disperse.append(hdr['DISPERSE'])
             pi.append(hdr['PI']) # + on 08/12/2017
             propid.append(hdr['PROPID']) # + on 08/12/2017
-
             instel.append(hdr['INSTEL']) # + on 11/12/2017
+            cat_id.append(hdr['CAT-ID'])
+            gain.append(hdr['GAIN'])
     #endfor
 
     arr0   = [filename, seqno, dateobs, object0, pi, propid, imagetyp,
-              aptype, exptime, airmass, aperture, filter0, disperse, instel]
+              aptype, exptime, airmass, aperture, filter0, disperse, instel, cat_id, gain]
     names0 = ('filename','seqno','dateobs','object','PI','PropID','imagetype',
-              'aptype','exptime','airmass','aperture','filter','disperse','instel')
+              'aptype','exptime','airmass','aperture','filter','disperse','instel','cat_id', 'gain')
     tab0 = Table(arr0, names=names0)
     tab0.sort('seqno')
     return tab0
@@ -567,13 +571,16 @@ def get_calib_files(name, tab0, mylog=None, inter=False):
     pi     = tab0['PI']
     propid = tab0['PropID']
 
+    cat_id = tab0['cat_id']
+
     t_str  = name.split(':')
     t_obj  = t_str[0]
     t_ap   = t_str[1]
     t_filt = t_str[2]
     t_disp = t_str[3]
+    t_cat_id = t_str[4]
 
-    i_obj = [ii for ii in range(len0) if t_obj in tab0['object'][ii]]
+    i_obj = [ii for ii in range(len0) if ((t_obj in tab0['object'][ii]) and (t_cat_id in cat_id[ii]))]
 
     # + on 11/12/2017
     t_pi     = pi[i_obj[0]]
@@ -582,20 +589,28 @@ def get_calib_files(name, tab0, mylog=None, inter=False):
     # + on 05/12/2017
     exptime    = tab0['exptime']
     dark_etime = list(set(np.array(exptime)[i_obj]))
+    gain       = tab0['gain']                     # jr
+    dark_gain  = list(set(np.array(gain)[i_obj])) # jr
     dark_str0  = []
+#    for etime in dark_etime:
+#        i_dark = [ii for ii in range(len0) if
+#                  (itype0[ii] == 'dark' and exptime[ii] == etime)]
+#        t_txt = ",".join(tab0['filename'][i_dark])
+#        dark_str0.append(t_txt)
     for etime in dark_etime:
-        i_dark = [ii for ii in range(len0) if
-                  (itype0[ii] == 'dark' and exptime[ii] == etime)]
-        t_txt = ",".join(tab0['filename'][i_dark])
-        dark_str0.append(t_txt)
-        mylog.info("List of science dark files for %.3fs : %s" % (etime, t_txt))
+        for gain2 in dark_gain:
+            i_dark = [ii for ii in range(len0) if
+                      (itype0[ii] == 'dark' and exptime[ii] == etime and gain[ii] == gain2)]
+            t_txt = ",".join(tab0['filename'][i_dark])
+            dark_str0.append(t_txt)
+            mylog.info("List of science dark files for %.3fs %.3f : %s" % (etime, gain2, t_txt))
 
     ## COMPS
     # Mod on 11/12/2017
     i_comp = [ii for ii in range(len0) if
               (itype0[ii] == 'comp' and aper0[ii] == t_ap and
                filt0[ii] == t_filt and disp0[ii] == t_disp and \
-               pi[ii] == t_pi and propid[ii] == t_propid)]
+               pi[ii] == t_pi and propid[ii] == t_propid and cat_id[ii] == t_cat_id)]
 
     if len(i_comp) != 0: # Mod 01/05/2018
         i_comp_grp = [group_range(g) for _, g in
@@ -617,10 +632,12 @@ def get_calib_files(name, tab0, mylog=None, inter=False):
 
         comp_str0  = ",".join(tab0['filename'][i_comp])
         comp_itime = tab0['exptime'][i_comp[0]]
+        comp_igain = tab0['gain'][i_comp[0]] # jr
 
         # Darks for comps
         id_comp = [ii for ii in range(len0) if
-                   (itype0[ii] == 'dark' and tab0['exptime'][ii] == comp_itime)]
+                   (itype0[ii] == 'dark' and tab0['exptime'][ii] == comp_itime and tab0['gain'][ii] == comp_igain)]
+#                   (itype0[ii] == 'dark' and tab0['exptime'][ii] == comp_itime)]
         comp_dark = ",".join(tab0['filename'][id_comp])
     else:
         mylog.warn('No comps found!!')
@@ -630,7 +647,7 @@ def get_calib_files(name, tab0, mylog=None, inter=False):
     i_flat = [ii for ii in range(len0) if
               ('flat' in itype0[ii] and aper0[ii] == t_ap and \
                filt0[ii] == t_filt and disp0[ii] == t_disp and \
-               pi[ii] == t_pi and propid[ii] == t_propid)]
+               pi[ii] == t_pi and propid[ii] == t_propid and cat_id[ii] == t_cat_id)]
 
     if len(i_flat) != 0: # Mod 01/05/2018
         i_flat_grp = [group_range(g) for _, g in
@@ -652,10 +669,12 @@ def get_calib_files(name, tab0, mylog=None, inter=False):
 
         flat_str0 = ",".join(tab0['filename'][i_flat])
         flat_itime = tab0['exptime'][i_flat[0]]
+        flat_igain = tab0['gain'][i_flat[0]] # jr       
 
         # Darks for flats
         id_flat = [ii for ii in range(len0) if
-                   (itype0[ii] == 'dark' and tab0['exptime'][ii] == flat_itime)]
+                   (itype0[ii] == 'dark' and tab0['exptime'][ii] == flat_itime and tab0['gain'][ii] == flat_igain)]
+#                   (itype0[ii] == 'dark' and tab0['exptime'][ii] == flat_itime)]
         flat_dark = ",".join(tab0['filename'][id_flat])
     else:
         mylog.warn('No flats found!!')
@@ -796,6 +815,9 @@ def handle_tellurics(tab0, object0, PropID, i_tell, obj_etime, tell_comb0,
     # First distinguish by PropID
     i_prop = [xx for xx in range(len(tab0)) if tab0['PropID'][xx] == PropID]
     i_pid  = np.array(list(set(i_prop) & set(i_tell)))
+    print('hi-i_prop', i_prop)
+    print('hi-i_tell', i_tell)
+    print('hi-i_pid', i_pid)
     if len(i_pid) > 0:
         obj_etime_pid = list(set(obj_etime[i_pid]))
         setup_pid     = list(set(mmirs_setup0[i_pid])) # + on 10/06/2018
@@ -835,7 +857,9 @@ def handle_tellurics(tab0, object0, PropID, i_tell, obj_etime, tell_comb0,
                      (obj_etime_nocalib[xx] == tell_comb0[tt] and
                       mmirs_setup_nocalib[xx] == target_setup)]
             #t_idx = np.array(i_obj)[t_idx]
-            tell_idx_min[tt], tell_idx_max[tt] = min(t_idx), max(t_idx)
+            
+            if len(t_idx) >= 1:
+                tell_idx_min[tt], tell_idx_max[tt] = min(t_idx), max(t_idx)
 
         idx_nocalib = [ii for ii in range(len(tab0_nocalib)) if
                        obj_etime_nocalib[ii] == obj_etime[idx[0]]]
@@ -868,7 +892,8 @@ def handle_tellurics(tab0, object0, PropID, i_tell, obj_etime, tell_comb0,
             # + on 06/03/2018
             if len(bef0) == 1 or len(aft0) == 1:
                 rev_tell_comb0 = tmp_tell_comb0
-            if len(bef0) == 0 or len(aft0) == 0:
+#           if len(bef0) == 0 or len(aft0) == 0:   # Chun
+            if len(bef0) == 0 and len(aft0) == 0:  # Jay
                 rev_tell_comb0 = []
         else:
             print(tab0[idx])
@@ -1010,8 +1035,23 @@ def get_tellurics(tab0, idx, comb0, object0, mmirs_setup0, inter=False, mylog=No
     if type(mylog) == type(None): mylog = log # + on 20/02/2018
 
     etime = tab0['exptime'] # + on 28/01/2018
+    gain2 = tab0['gain'] # jr
 
     target_setup = mmirs_setup0[idx[0]]
+
+    print('hi-idx')
+    print(idx)
+    print(idx[0])
+    print('hi-comb0')
+    print(comb0)
+    print('hi-object0')
+    print(object0)
+    print('hi-mmirs_setup0')
+    print(mmirs_setup0)
+#    print('hi-etime')
+#    print(etime)
+    print('hi-target_setup')
+    print(target_setup)
 
     # Mod on 12/03/2018
     i_tell = [xx for xx in range(len(object0)) if
@@ -1019,20 +1059,35 @@ def get_tellurics(tab0, idx, comb0, object0, mmirs_setup0, inter=False, mylog=No
                 'BD_' in object0[xx] or 'TYC' in object0[xx]) and
                (mmirs_setup0[xx] == target_setup))]
 
+    print('hi-i_tell')
+    print(i_tell)
+
     # Include exptime should data with multiple exptime for same target is taken
     # Mod on 28/01/2018
     obj_etime  = [a+'_'+str(b) for a,b in zip(object0, etime)]
     tell_comb0 = list(set(np.array(obj_etime)[i_tell]))
+    print('hi-tell_comb0')
+    print(tell_comb0)
 
     n_tell = len(tell_comb0)
+    print('hi-n_tell')
+    print(n_tell)
+
+    print(i_tell)
+    print(obj_etime)
+    print(tell_comb0)#, idx, target_setup,mmirs_setup0)
+    print(idx)#, target_setup,mmirs_setup0)
+    print(target_setup)#,mmirs_setup0)
+    print(mmirs_setup0)
 
     if n_tell == 0:
-        mylog.warn('No telluric data found!!!') # Mod on 20/02/2018
+        mylog.warn('jr No telluric data found!!!') # Mod on 20/02/2018
 
     if n_tell == 1:
         mylog.info('Only one telluric star is found!!!') # Mod on 20/02/2018
         mylog.info(object0[i_tell[0]]+' '+str(etime[i_tell[0]]))
 
+    print('hi-n_tell: ', n_tell)
     # + on 05/03/2018, Mod on 06/03/2018, 07/03/2018
     if n_tell > 1:
         PropID = tab0['PropID'][idx[0]]
@@ -1040,12 +1095,17 @@ def get_tellurics(tab0, idx, comb0, object0, mmirs_setup0, inter=False, mylog=No
                                       tell_comb0, idx, target_setup,
                                       mmirs_setup0, inter=inter, mylog=mylog)
         n_tell = len(tell_comb0)
+        print('hi-2')
+
+    print('hi-n_tell_2')
+    print(n_tell)
 
     # Moved lower on 07/03/2018
     str_tell   = ['']  * n_tell
     tell_etime = [0.0] * n_tell
     str_dark   = ['']  * n_tell # + on 28/01/2018
     tell_stype = ['']  * n_tell # + on 29/01/2018
+    tell_gain  = [0.0] * n_tell # jr
 
     if n_tell >= 1:
         for tt in range(n_tell):
@@ -1056,11 +1116,16 @@ def get_tellurics(tab0, idx, comb0, object0, mmirs_setup0, inter=False, mylog=No
             # tell_time[tt] = tab0['dateobs'][tmp[0]]
             str_tell[tt]   = ",".join(tab0['filename'][tmp])
             tell_etime[tt] = etime[tmp[0]] # + on 28/01/2018
+            tell_gain[tt] = gain2[tmp[0]] # jr
 
             # + on 28/01/2018
             i_dark = [xx for xx in range(len(object0)) if
                       (tab0['imagetype'][xx] == 'dark' and
-                       etime[xx] == tell_etime[tt])]
+                       etime[xx] == tell_etime[tt] and gain2[xx] == tell_gain[tt])]
+#            # + on 28/01/2018
+#            i_dark = [xx for xx in range(len(object0)) if
+#                      (tab0['imagetype'][xx] == 'dark' and
+#                       etime[xx] == tell_etime[tt])]
             str_dark[tt] = ",".join(tab0['filename'][i_dark])
 
             # + on 29/01/2018; Mod on 12/03/2018
@@ -1092,6 +1157,18 @@ def get_tellurics(tab0, idx, comb0, object0, mmirs_setup0, inter=False, mylog=No
     # Mod on 28/01/2018, 29/01/2018
     tell_dict0 = {'name': str_tell, 'etime': tell_etime, 'dark': str_dark,
                   'stype': tell_stype}
+
+    print('hi-name')
+    print(str_tell)
+    print('hi-etime')
+    print(tell_etime)
+    print('hi-dark')
+    print(str_dark)
+    print('hi-stype')
+    print(tell_stype)
+    print('hi-tell_dict0')    
+    print(tell_dict0)
+
     return tell_dict0
 #enddef
 
@@ -1353,6 +1430,7 @@ def generate_taskfile(hdr0, rawdir, w_dir, name, c_dict0, tell_dict0, tab0,
         slit = t_ap.replace('pixel','_pixel').replace('-long','')
     else: slit = 'mos'
 
+    print('hi-t_disp', t_disp)
     # Mod on 15/02/2018
     val0 = [rawdir+'preproc/', w_dir, '.gz', slit, t_disp, t_filt,
             c_dict0['dark_str'][0], c_dict0['comp_str'], c_dict0['comp_dark'],
@@ -1394,6 +1472,12 @@ def generate_taskfile(hdr0, rawdir, w_dir, name, c_dict0, tell_dict0, tab0,
                 c_hdr0['S08PROC'] = 0
 
             c_hdr0['W_DIR'] = w_dir + format(np.int(ii/2+1), '02') + '/'
+
+            # Set OH = 0 for all objects with K3000 regardless of exposure time; 10/28/2021
+            if c_hdr0['GRISM'] == 'K3000':
+                c_hdr0['WLOH'] = 0
+            else:
+                c_hdr0['WLOH'] = 1
 
             outfile = w_dir+uscore_name+'_'+format(np.int(ii/2+1), '02')+'.txt' # Mod on 31/01/2018
             mylog.info('Writing : '+os.path.basename(outfile)) # Mod on 20/02/2018
@@ -1476,6 +1560,8 @@ def organize_targets(tab0, mylog=None):
     object0      = ['N/A'] * len0 # + on 18/02/2018
     mmirs_setup0 = ['N/A'] * len0 # + on 01/05/2018
 
+    comb1        = ['N/A'] * len0
+
     for kk in [obj, comp, flat]:
         for ii in kk:
             tab0_o = tab0[ii]
@@ -1489,11 +1575,15 @@ def organize_targets(tab0, mylog=None):
             object0[ii] = t_name # + on 18/02/2018
             comb0[ii] = t_name + ':' + tab0_o['aperture'] + ':' + \
                         tab0_o['filter'] + ':' + tab0_o['disperse']
+            comb1[ii] = t_name + ':' + tab0_o['aperture'] + ':' + \
+                        tab0_o['filter'] + ':' + tab0_o['disperse'] + ':' + tab0_o['cat_id']
+
             # + on 01/05/2018
             mmirs_setup0[ii] = tab0_o['aperture'] + ':' + \
                                tab0_o['filter'] + ':' + tab0_o['disperse']
 
     obj_comb0 = list(set(np.array(comb0)[obj]))
+    obj_comb1 = list(set(np.array(comb1)[obj]))
 
     n_obj_comb0 = len(obj_comb0)
     mylog.info('Total number of combinations found : '+str(n_obj_comb0))
@@ -1516,8 +1606,9 @@ def organize_targets(tab0, mylog=None):
                        obj_comb0[jj].replace(':','_'))
 
     obj_comb0 = np.delete(obj_comb0, single_data).tolist()
+    obj_comb1 = np.delete(obj_comb1, single_data).tolist()
 
-    return comb0, obj_comb0, object0, mmirs_setup0 # Mod on 18/02/2018, 01/05/2018
+    return comb0, obj_comb0, object0, mmirs_setup0, comb1, obj_comb1 # Mod on 18/02/2018, 01/05/2018
 #enddef
 
 def create(rawdir, w_dir='', dither=None, bright=False, extract=False,
@@ -1699,6 +1790,7 @@ def create(rawdir, w_dir='', dither=None, bright=False, extract=False,
     mylog.info('Number of FITS files found : '+str(n_files0))
 
     tab0_outfile = rawdir + 'obs_summary.tbl' # Moved up on 15/02/2018
+    # tab0_outfile = './' + 'obs_summary.tbl' # Moved up on 15/02/2018
 
     # + on 07/03/2018
     if n_files0 == 0 and debug:
@@ -1733,7 +1825,7 @@ def create(rawdir, w_dir='', dither=None, bright=False, extract=False,
     tab0.pprint(max_lines=-1, max_width=-1)
 
     # Mod on 18/02/2018, 20/02/2018
-    comb0, obj_comb0, object0, mmirs_setup0 = organize_targets(tab0, mylog=mylog)
+    comb0, obj_comb0, object0, mmirs_setup0, comb1, obj_comb1 = organize_targets(tab0, mylog=mylog)
 
     # Get default FITS template headers
     # + on 30/11/2017, Mod on 18/12/2017, 24/01/2018, 17/02/2018
@@ -1741,15 +1833,22 @@ def create(rawdir, w_dir='', dither=None, bright=False, extract=False,
     mos_hdr0 = read_template(mos=True, mylog=mylog)
 
     # Create task files | + on 30/11/2017
-    for name in obj_comb0:
+#   for name in obj_comb0:
+    for name in obj_comb1:    
         if 'HD' not in name and 'HIP' not in name and 'BD' not in name and \
            'TYC' not in name:
             uscore_name = name.replace(':','_')
 
             mylog.info('Working on : '+uscore_name) # Mod on 19/02/2018
 
-            idx   = [ii for ii in range(len(comb0)) if comb0[ii] == name]
+#           idx   = [ii for ii in range(len(comb0)) if comb0[ii] == name]
+            idx   = [ii for ii in range(len(comb1)) if comb1[ii] == name]
             n_idx = len(idx)
+            print('')
+            print('hi-name in create')
+            print(name)
+            print('hi-idx in create')
+            print(idx)
 
             # Mod on 30/11/2017, 24/01/2018, 17/02/2018
             aptype = tab0['aptype'][idx[0]]
@@ -1777,12 +1876,16 @@ def create(rawdir, w_dir='', dither=None, bright=False, extract=False,
                 mylog.info('Will not perform 1-D extraction!')
                 hdr0['S07PROC'] = 0
 
+            print('hi-1', hdr0['GRISM'], hdr0['WLOH'])
+
             # on 08/12/2017
             c_dict0 = get_calib_files(name, tab0, mylog=mylog, inter=inter)
 
             # Mod on 28/01/2018, 18/02/2018, 20/02/2018, 08/06/2018
             tell_dict0 = get_tellurics(tab0, idx, comb0, object0, mmirs_setup0,
                                        inter=inter, mylog=mylog)
+            print('hi-tell_dict0 in create')
+            print(tell_dict0) # jr
 
             # Mod on 31/01/2018, 18/02/2018
             if w_dir0 == '':
