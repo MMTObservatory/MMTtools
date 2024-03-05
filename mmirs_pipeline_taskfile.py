@@ -612,11 +612,16 @@ def get_calib_files(name, tab0, mylog=None, inter=False):
                filt0[ii] == t_filt and disp0[ii] == t_disp and \
                pi[ii] == t_pi and propid[ii] == t_propid and cat_id[ii] == t_cat_id)]
 
+    if len(i_comp) == 0: # Mod 02/15/2024 by SM, broaden search for shared cals
+        i_comp = [ii for ii in range(len0) if
+                  (itype0[ii] == 'comp' and aper0[ii] == t_ap and
+                   filt0[ii] == t_filt and disp0[ii] == t_disp)]
+        
     if len(i_comp) != 0: # Mod 01/05/2018
         i_comp_grp = [group_range(g) for _, g in
                       groupby(i_comp, key=lambda n, c=count(): n-next(c))]
         if len(i_comp_grp) > 1:
-            mylog.warn('Too many comp sets!!!') # Mod on 20/02/2018
+            #mylog.warn('Too many comp sets!!!') # Mod on 20/02/2018
 
             if inter:
                 for cc in range(len(i_comp_grp)):
@@ -629,6 +634,8 @@ def get_calib_files(name, tab0, mylog=None, inter=False):
                 raw_in = raw_input("Select from above comp sets : ")
                 mylog.info("User selected : (%s) " % np.int(raw_in))
                 i_comp = i_comp_grp[np.int(raw_in)]
+            else:  # Added 02/15/24 by SM to select *any* matching comp, and take the first one
+                i_comp = i_comp_grp[0]
 
         comp_str0  = ",".join(tab0['filename'][i_comp])
         comp_itime = tab0['exptime'][i_comp[0]]
@@ -649,11 +656,16 @@ def get_calib_files(name, tab0, mylog=None, inter=False):
                filt0[ii] == t_filt and disp0[ii] == t_disp and \
                pi[ii] == t_pi and propid[ii] == t_propid and cat_id[ii] == t_cat_id)]
 
+    if len(i_flat) == 0: # Mod 02/15/2024 by SM, broaden search for shared cals
+        i_flat = [ii for ii in range(len0) if
+                  ('flat' in itype0[ii] and aper0[ii] == t_ap and \
+                   filt0[ii] == t_filt and disp0[ii] == t_disp)]
+
     if len(i_flat) != 0: # Mod 01/05/2018
         i_flat_grp = [group_range(g) for _, g in
                       groupby(i_flat, key=lambda n, c=count(): n-next(c))]
         if len(i_flat_grp) > 1:
-            mylog.warn('Too many flat sets!!!') # Mod on 20/02/2018
+            #mylog.warn('Too many flat sets!!!') # Mod on 20/02/2018
 
             if inter:
                 for cc in range(len(i_flat_grp)):
@@ -666,6 +678,8 @@ def get_calib_files(name, tab0, mylog=None, inter=False):
                 raw_in = raw_input("Select from above flat sets : ")
                 mylog.info("User selected : (%s) " % np.int(raw_in))
                 i_flat = i_flat_grp[np.int(raw_in)]
+            else: # Added 02/15/24 by SM to select *any* matching flats, and take the first set
+                i_flat=i_flat_grp[0] 
 
         flat_str0 = ",".join(tab0['filename'][i_flat])
         flat_itime = tab0['exptime'][i_flat[0]]
@@ -1834,6 +1848,9 @@ def create(rawdir, w_dir='', dither=None, bright=False, extract=False,
 
     # Create task files | + on 30/11/2017
 #   for name in obj_comb0:
+    mylog.info(obj_comb1)
+    mylog.info('comb0')
+    mylog.info(obj_comb0)
     for name in obj_comb1:    
         if 'HD' not in name and 'HIP' not in name and 'BD' not in name and \
            'TYC' not in name:
