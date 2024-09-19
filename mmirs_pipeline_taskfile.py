@@ -1442,6 +1442,8 @@ def generate_taskfile(hdr0, rawdir, w_dir, name, c_dict0, tell_dict0, tab0,
     # + on 11/12/2017
     if '-long' in name:
         slit = t_ap.replace('pixel','_pixel').replace('-long','')
+    elif '-short' in name:
+        slit = t_ap.replace('pixel','_pixel').replace('-short','')
     else: slit = 'mos'
 
     print('hi-t_disp', t_disp)
@@ -1870,6 +1872,8 @@ def create(rawdir, w_dir='', dither=None, bright=False, extract=False,
             # Mod on 30/11/2017, 24/01/2018, 17/02/2018
             aptype = tab0['aptype'][idx[0]]
             if 'longslit' in aptype:
+                hdr0  = LS_hdr0.copy()
+            if 'shortslit' in aptype:
                 hdr0  = LS_hdr0.copy()
             if 'mos' in aptype:
                 hdr0  = mos_hdr0.copy()
